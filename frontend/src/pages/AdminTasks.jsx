@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Trash2, ClipboardList, Loader2, BadgeDollarSign } from "lucide-react";
+import { Plus, Trash2, ClipboardList, Loader2, BadgeDollarSign, Calendar, Hourglass } from "lucide-react";
 import { toast } from "sonner";
 
 const STATUS = ["all", "assigned", "in_progress", "completed"];
@@ -21,7 +21,7 @@ export default function AdminTasks() {
   const [workers, setWorkers] = useState([]);
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ title: "", description: "", price: "", assignee_id: "" });
+  const [form, setForm] = useState({ title: "", description: "", price: "", assignee_id: "", due_at: "", estimated_hours: "" });
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
@@ -38,9 +38,17 @@ export default function AdminTasks() {
     if (!form.assignee_id) { toast.error("Pick a worker"); return; }
     setBusy(true);
     try {
-      await api.post("/tasks", { ...form, price: parseFloat(form.price) });
+      const payload = {
+        title: form.title,
+        description: form.description,
+        price: parseFloat(form.price),
+        assignee_id: form.assignee_id,
+        due_at: form.due_at || null,
+        estimated_hours: form.estimated_hours ? parseFloat(form.estimated_hours) : null,
+      };
+      await api.post("/tasks", payload);
       toast.success("Task assigned");
-      setForm({ title: "", description: "", price: "", assignee_id: "" });
+      setForm({ title: "", description: "", price: "", assignee_id: "", due_at: "", estimated_hours: "" });
       setOpen(false);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -119,6 +127,21 @@ export default function AdminTasks() {
                   </Select>
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Due date (optional)</label>
+                  <Input data-testid="task-due-at" type="date" value={form.due_at}
+                    onChange={(e) => setForm({ ...form, due_at: e.target.value })}
+                    className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11 [color-scheme:dark]" />
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Estimated hours</label>
+                  <Input data-testid="task-estimated-hours" type="number" min="0" step="0.5" placeholder="e.g., 2"
+                    value={form.estimated_hours}
+                    onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
+                    className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                </div>
+              </div>
               <DialogFooter>
                 <Button data-testid="submit-create-task" type="submit" disabled={busy} className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
                   {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Assign task"}
@@ -155,7 +178,12 @@ export default function AdminTasks() {
                 <div className="font-medium">{t.title}</div>
                 <span className={`px-2.5 py-0.5 rounded-full text-xs ${STATUS_STYLE[t.status]}`}>{t.status.replace("_", " ")}</span>
               </div>
-              <div className="text-xs text-zinc-500 mt-0.5 truncate">{t.assignee_name} · {t.description || "no description"}</div>
+              <div className="text-xs text-zinc-500 mt-0.5 truncate flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span>{t.assignee_name}</span>
+                {t.description && <span>· {t.description}</span>}
+                {t.due_at && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {new Date(t.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>}
+                {t.estimated_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h</span>}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-lg px-2 h-9">

@@ -218,6 +218,8 @@ class TaskCreate(BaseModel):
     description: Optional[str] = ""
     price: float
     assignee_id: str
+    due_at: Optional[str] = None  # ISO date or datetime
+    estimated_hours: Optional[float] = None
 
 
 class TaskUpdate(BaseModel):
@@ -226,6 +228,12 @@ class TaskUpdate(BaseModel):
     price: Optional[float] = None
     assignee_id: Optional[str] = None
     status: Optional[str] = None  # assigned | in_progress | completed
+    due_at: Optional[str] = None
+    estimated_hours: Optional[float] = None
+
+
+class ClockInRequest(BaseModel):
+    activity: Optional[str] = "working"  # working | studying | break | cleaning | workout | parenting
 
 
 class ProfileUpdate(BaseModel):
@@ -590,6 +598,9 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
 
 
 # --- Tasks ---
+VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting"}
+
+
 @api_router.post("/tasks")
 async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
     worker = await db.users.find_one({"id": req.assignee_id, "role": "worker"})
@@ -605,6 +616,8 @@ async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
         "created_by": admin["id"],
         "created_at": now_utc().isoformat(),
         "completed_at": None,
+        "due_at": _parse_deadline(req.due_at),
+        "estimated_hours": float(req.estimated_hours) if req.estimated_hours is not None else None,
     }
     await db.tasks.insert_one(task)
     task.pop("_id", None)
@@ -659,6 +672,10 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
             update["status"] = req.status
             if req.status == "completed":
                 update["completed_at"] = now_utc().isoformat()
+        if req.due_at is not None:
+            update["due_at"] = _parse_deadline(req.due_at) if req.due_at else None
+        if req.estimated_hours is not None:
+            update["estimated_hours"] = float(req.estimated_hours) if req.estimated_hours else None
     if not update:
         raise HTTPException(status_code=400, detail="No fields to update")
     await db.tasks.update_one({"id": task_id}, {"$set": update})
@@ -676,7 +693,10 @@ async def delete_task(task_id: str, admin: dict = Depends(require_admin)):
 
 # --- Time entries / Clock ---
 @api_router.post("/time/clock-in")
-async def clock_in(user: dict = Depends(get_current_user)):
+async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(get_current_user)):
+    activity = (req.activity or "working").lower()
+    if activity not in VALID_ACTIVITIES:
+        raise HTTPException(status_code=400, detail=f"Invalid activity. Use one of: {sorted(VALID_ACTIVITIES)}")
     active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
     if active:
         raise HTTPException(status_code=400, detail="You are already clocked in")
@@ -686,6 +706,7 @@ async def clock_in(user: dict = Depends(get_current_user)):
         "clock_in": now_utc().isoformat(),
         "clock_out": None,
         "duration_seconds": 0,
+        "activity": activity,
     }
     await db.time_entries.insert_one(entry)
     entry.pop("_id", None)

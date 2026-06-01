@@ -1,9 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
-import { Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles } from "lucide-react";
+import {
+  Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
+  CalendarClock, Calendar, AlertTriangle, Hourglass, TrendingUp, ArrowRight,
+} from "lucide-react";
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
+import { ACTIVITIES, activityOf } from "@/lib/activities";
 
 function formatDuration(seconds) {
   const s = Math.max(0, Math.floor(seconds));
@@ -13,12 +17,33 @@ function formatDuration(seconds) {
   return `${h}:${m}:${sec}`;
 }
 
+function startOfDay(d = new Date()) { const x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+function endOfDay(d = new Date())   { const x = new Date(d); x.setHours(23, 59, 59, 999); return x; }
+function startOfWeek(d = new Date()) {
+  const x = startOfDay(d);
+  const day = x.getDay(); // 0=Sun
+  const diff = (day === 0 ? -6 : 1 - day); // Monday as week start
+  x.setDate(x.getDate() + diff);
+  return x;
+}
+function endOfWeek(d = new Date()) {
+  const s = startOfWeek(d);
+  const e = new Date(s); e.setDate(e.getDate() + 6); e.setHours(23, 59, 59, 999);
+  return e;
+}
+function fmtDate(iso) {
+  if (!iso) return null;
+  try { return new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); }
+  catch { return null; }
+}
+
 export default function WorkerDashboard() {
-  const [active, setActive] = useState(null); // {id, clock_in} | null
+  const [active, setActive] = useState(null); // includes activity
   const [tasks, setTasks] = useState([]);
   const [entries, setEntries] = useState([]);
   const [now, setNow] = useState(Date.now());
   const [busy, setBusy] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const load = async () => {
     const [a, t, e] = await Promise.all([
@@ -32,18 +57,19 @@ export default function WorkerDashboard() {
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
 
   const liveSeconds = active ? Math.floor((now - new Date(active.clock_in).getTime()) / 1000) : 0;
+  const currentActivity = active ? activityOf(active.activity) : null;
 
   const todayHours = useMemo(() => {
-    const start = new Date(); start.setHours(0, 0, 0, 0);
+    const start = startOfDay().getTime();
     let total = 0;
     entries.forEach((e) => {
       if (!e.clock_out) return;
       const inT = new Date(e.clock_in).getTime();
-      if (inT >= start.getTime()) total += e.duration_seconds || 0;
+      if (inT >= start) total += e.duration_seconds || 0;
     });
     if (active) {
       const inT = new Date(active.clock_in).getTime();
-      if (inT >= start.getTime()) total += liveSeconds;
+      if (inT >= start) total += liveSeconds;
     }
     return total / 3600;
   }, [entries, active, liveSeconds]);
@@ -53,15 +79,41 @@ export default function WorkerDashboard() {
     [tasks]
   );
 
-  const clockIn = async () => {
+  // Deadlines / weekly potential
+  const dl = useMemo(() => {
+    const todayStart = startOfDay().getTime();
+    const todayEnd = endOfDay().getTime();
+    const weekStart = startOfWeek().getTime();
+    const weekEnd = endOfWeek().getTime();
+    const dueToday = [], dueThisWeek = [], overdue = [], anytime = [];
+    let weeklyPotential = 0;
+    let openTotal = 0;
+    tasks.forEach((t) => {
+      if (t.status === "completed") return;
+      openTotal += Number(t.price);
+      if (!t.due_at) { anytime.push(t); return; }
+      const due = new Date(t.due_at).getTime();
+      if (due < todayStart) overdue.push(t);
+      else if (due <= todayEnd) dueToday.push(t);
+      else if (due <= weekEnd) dueThisWeek.push(t);
+      if (due >= weekStart && due <= weekEnd) weeklyPotential += Number(t.price);
+    });
+    return { dueToday, dueThisWeek, overdue, anytime, weeklyPotential, openTotal };
+  }, [tasks]);
+
+  const clockIn = async (activityKey) => {
     setBusy(true);
-    try { await api.post("/time/clock-in"); toast.success("Clocked in. Get to it."); load(); }
-    catch (e) { toast.error(formatApiError(e)); }
+    try {
+      await api.post("/time/clock-in", { activity: activityKey });
+      toast.success(`Clocked in — ${activityOf(activityKey).label}`);
+      setPickerOpen(false);
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
   };
   const clockOut = async () => {
     setBusy(true);
-    try { await api.post("/time/clock-out"); toast.success("Clocked out. Good work."); load(); }
+    try { await api.post("/time/clock-out"); toast.success("Clocked out"); load(); }
     catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
   };
@@ -79,46 +131,113 @@ export default function WorkerDashboard() {
 
   return (
     <div className="space-y-10">
-      {/* Hero clock-in card */}
-      <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-8 sm:p-12">
+      {/* Hero — clock in / activity */}
+      <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-6 sm:p-10">
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative grid md:grid-cols-2 gap-10 items-center">
-          <div>
-            <div className="text-xs uppercase tracking-widest text-yellow-400">{active ? "Currently working" : "Ready to start"}</div>
-            <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">
+        <div className="relative grid lg:grid-cols-[1fr_auto] gap-8 items-center">
+          <div className="min-w-0">
+            <div className="text-xs uppercase tracking-widest text-yellow-400 flex items-center gap-2">
+              {active ? <>Currently <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${currentActivity.pill}`}>
+                <currentActivity.icon className="w-3 h-3" /> {currentActivity.label}
+              </span></> : "Ready to start"}
+            </div>
+            <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-2">
               {active ? "You're on the clock." : "Punch in to begin."}
             </h1>
-            <div className="mt-6 grid grid-cols-2 gap-4 max-w-md">
-              <Tile label="Shift timer" value={active ? formatDuration(liveSeconds) : "00:00:00"} testid="shift-timer" />
-              <Tile label="Today" value={`${todayHours.toFixed(2)}h`} testid="today-hours" />
-              <Tile label="Earned (tasks)" value={`$${earnings.toFixed(2)}`} testid="earnings-total" accent="text-yellow-400" />
-              <Tile label="Open tasks" value={groups.open.length} testid="open-task-count" />
+
+            {/* Tiles grid 3x2 — earned & weekly potential now visible */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl">
+              <Tile testid="shift-timer"      label="Shift timer"    value={active ? formatDuration(liveSeconds) : "00:00:00"} />
+              <Tile testid="today-hours"      label="Today"          value={`${todayHours.toFixed(2)}h`} />
+              <Tile testid="open-task-count"  label="Open tasks"     value={groups.open.length} />
+              <Tile testid="earnings-total"   label="Earned"         value={`$${earnings.toFixed(2)}`} accent="text-yellow-400" />
+              <Tile testid="weekly-potential" label="This week potential" value={`$${dl.weeklyPotential.toFixed(2)}`}
+                    accent="text-yellow-400" icon={TrendingUp} sub={`if you finish ${dl.dueThisWeek.length + dl.dueToday.length} due tasks`} />
+              <Tile testid="open-total"       label="All open value" value={`$${dl.openTotal.toFixed(2)}`} sub="across all open tasks" />
             </div>
           </div>
 
-          <div className="flex justify-center md:justify-end">
+          <div className="flex justify-center lg:justify-end">
             {active ? (
-              <Button data-testid="clock-out-btn" disabled={busy} onClick={clockOut}
-                className="h-44 w-44 rounded-full bg-red-500 hover:bg-red-400 text-white font-display font-bold text-xl shadow-xl shadow-red-500/30 transition-transform hover:scale-105">
-                <div className="flex flex-col items-center">
-                  {busy ? <Loader2 className="w-7 h-7 animate-spin" /> : <Square className="w-9 h-9 mb-1" />}
-                  Clock out
+              <div className="flex flex-col items-center gap-3">
+                <div className={`relative h-44 w-44 rounded-full ${currentActivity.bg} grid place-items-center shadow-xl ${currentActivity.text} ring-4 ${currentActivity.ring}`}>
+                  <div className="text-center">
+                    <currentActivity.icon className="w-7 h-7 mx-auto" />
+                    <div className="font-display font-bold mt-1 text-sm uppercase tracking-widest">{currentActivity.label}</div>
+                    <div className="font-display font-bold tabular-nums text-lg mt-1">{formatDuration(liveSeconds)}</div>
+                  </div>
                 </div>
-              </Button>
+                <Button data-testid="clock-out-btn" disabled={busy} onClick={clockOut}
+                  className="rounded-full h-11 px-6 bg-red-500 hover:bg-red-400 text-white font-semibold">
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Square className="w-4 h-4 mr-2" /> Clock out</>}
+                </Button>
+              </div>
             ) : (
-              <Button data-testid="clock-in-btn" disabled={busy} onClick={clockIn}
+              <Button data-testid="clock-in-btn" disabled={busy} onClick={() => setPickerOpen((v) => !v)}
                 className="h-44 w-44 rounded-full bg-yellow-400 hover:bg-yellow-300 text-black font-display font-bold text-xl shadow-xl shadow-yellow-400/30 gold-pulse transition-transform hover:scale-105">
                 <div className="flex flex-col items-center">
-                  {busy ? <Loader2 className="w-7 h-7 animate-spin" /> : <Play className="w-9 h-9 mb-1" />}
-                  Clock in
+                  <Play className="w-9 h-9 mb-1" /> Clock in
                 </div>
               </Button>
             )}
           </div>
         </div>
+
+        {/* Activity picker (slides in when Clock In is pressed) */}
+        {!active && pickerOpen && (
+          <div data-testid="activity-picker" className="relative mt-8 pt-8 border-t border-yellow-400/10">
+            <div className="text-xs uppercase tracking-widest text-zinc-500 mb-3">What are you doing?</div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {ACTIVITIES.map((a) => (
+                <button
+                  key={a.key}
+                  data-testid={`activity-${a.key}`}
+                  disabled={busy}
+                  onClick={() => clockIn(a.key)}
+                  className={`group flex flex-col items-center gap-2 p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 hover:border-yellow-400/40 hover:-translate-y-0.5 transition`}
+                >
+                  <div className={`w-12 h-12 rounded-full ${a.bg} ${a.text} grid place-items-center group-hover:scale-110 transition-transform`}>
+                    <a.icon className="w-5 h-5" />
+                  </div>
+                  <div className="font-medium text-sm">{a.label}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Tasks */}
+      {/* Deadlines */}
+      <section data-testid="deadlines-section">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-yellow-400/10 text-yellow-400 grid place-items-center"><CalendarClock className="w-5 h-5" /></div>
+          <div>
+            <h2 className="font-display text-2xl font-semibold tracking-tight">Deadlines</h2>
+            <p className="text-xs text-zinc-500 mt-0.5">What needs to ship today and this week.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-4">
+          <DeadlineBucket
+            testid="bucket-overdue" tone="red" icon={AlertTriangle}
+            title="Overdue" empty="No overdue tasks — nice." tasks={dl.overdue} onComplete={(t) => setStatus(t, "completed")}
+          />
+          <DeadlineBucket
+            testid="bucket-today" tone="yellow" icon={Calendar}
+            title="Due today" empty="Nothing due today." tasks={dl.dueToday} onComplete={(t) => setStatus(t, "completed")}
+          />
+          <DeadlineBucket
+            testid="bucket-week" tone="sky" icon={CalendarClock}
+            title="Due this week" empty="Quiet week ahead." tasks={dl.dueThisWeek} onComplete={(t) => setStatus(t, "completed")}
+          />
+          <DeadlineBucket
+            testid="bucket-anytime" tone="zinc" icon={Hourglass}
+            title="Open · anytime" empty="Inbox zero." tasks={dl.anytime} onComplete={(t) => setStatus(t, "completed")}
+          />
+        </div>
+      </section>
+
+      {/* All Tasks */}
       <section>
         <div className="flex items-end justify-between mb-4">
           <h2 className="font-display text-2xl font-semibold tracking-tight">Your tasks</h2>
@@ -134,37 +253,8 @@ export default function WorkerDashboard() {
             </div>
           )}
           {[...groups.open, ...groups.done].map((t) => (
-            <div key={t.id} data-testid={`worker-task-${t.id}`} className="px-5 sm:px-6 py-4 flex items-center gap-3">
-              <button
-                data-testid={`toggle-task-${t.id}`}
-                onClick={() => setStatus(t, t.status === "completed" ? "assigned" : "completed")}
-                className={`w-9 h-9 rounded-full grid place-items-center border transition ${
-                  t.status === "completed"
-                    ? "bg-green-500/20 border-green-400/40 text-green-400"
-                    : "bg-zinc-900 border-yellow-400/20 text-zinc-500 hover:text-yellow-400"
-                }`}
-                aria-label={t.status === "completed" ? "Mark incomplete" : "Mark complete"}
-              >
-                {t.status === "completed" ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
-              </button>
-              <div className="flex-1 min-w-0">
-                <div className={`font-medium ${t.status === "completed" ? "line-through text-zinc-500" : ""}`}>{t.title}</div>
-                {t.description && <div className="text-xs text-zinc-500 mt-0.5 line-clamp-1">{t.description}</div>}
-              </div>
-              <div className="inline-flex items-center gap-1 text-yellow-400 font-display font-semibold">
-                <BadgeDollarSign className="w-4 h-4" />{Number(t.price).toFixed(2)}
-              </div>
-              {t.status !== "completed" && (
-                <Button data-testid={`worker-start-${t.id}`} size="sm" variant="ghost" onClick={() => setStatus(t, t.status === "in_progress" ? "assigned" : "in_progress")}
-                  className={`rounded-full h-8 px-3 text-xs border ${
-                    t.status === "in_progress"
-                      ? "border-yellow-400/30 text-yellow-300 bg-yellow-400/10"
-                      : "border-yellow-400/20 text-zinc-300 hover:text-yellow-400"
-                  }`}>
-                  {t.status === "in_progress" ? "Working…" : "Start"}
-                </Button>
-              )}
-            </div>
+            <TaskRow key={t.id} t={t} onToggle={() => setStatus(t, t.status === "completed" ? "assigned" : "completed")}
+              onStart={() => setStatus(t, t.status === "in_progress" ? "assigned" : "in_progress")} />
           ))}
         </div>
       </section>
@@ -174,11 +264,98 @@ export default function WorkerDashboard() {
   );
 }
 
-function Tile({ label, value, testid, accent }) {
+function Tile({ label, value, testid, accent, icon: Icon, sub }) {
   return (
     <div data-testid={testid} className="px-4 py-3 rounded-2xl bg-zinc-900/70 border border-zinc-800">
-      <div className="text-[10px] uppercase tracking-widest text-zinc-500">{label}</div>
+      <div className="text-[10px] uppercase tracking-widest text-zinc-500 flex items-center gap-1">
+        {Icon && <Icon className="w-3 h-3" />} {label}
+      </div>
       <div className={`mt-1 font-display text-2xl font-bold tabular-nums ${accent || "text-white"}`}>{value}</div>
+      {sub && <div className="text-[10px] text-zinc-500 mt-0.5">{sub}</div>}
+    </div>
+  );
+}
+
+function DeadlineBucket({ title, tasks, empty, tone, icon: Icon, testid, onComplete }) {
+  const tones = {
+    red:    "border-red-400/30 text-red-300",
+    yellow: "border-yellow-400/40 text-yellow-300",
+    sky:    "border-sky-400/30 text-sky-300",
+    zinc:   "border-zinc-700 text-zinc-300",
+  };
+  const total = tasks.reduce((s, t) => s + Number(t.price), 0);
+  return (
+    <div data-testid={testid} className={`bg-[#121214] border ${tones[tone] ? "" : ""} border-yellow-400/15 rounded-2xl p-5`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs border ${tones[tone] || "border-yellow-400/20"}`}>
+          <Icon className="w-3.5 h-3.5" /> {title}
+          <span className="opacity-60">· {tasks.length}</span>
+        </div>
+        {tasks.length > 0 && (
+          <div className="text-xs text-zinc-400">
+            potential <span className="text-yellow-400 font-display font-semibold">${total.toFixed(2)}</span>
+          </div>
+        )}
+      </div>
+      {tasks.length === 0 ? (
+        <div className="text-sm text-zinc-500 py-3">{empty}</div>
+      ) : (
+        <div className="space-y-2">
+          {tasks.slice(0, 4).map((t) => (
+            <button key={t.id} data-testid={`deadline-task-${t.id}`} onClick={() => onComplete(t)}
+              className="w-full text-left flex items-center gap-3 px-3 py-2 rounded-xl bg-zinc-900/70 hover:bg-zinc-900 border border-zinc-800 transition">
+              <Circle className="w-4 h-4 text-zinc-500" />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{t.title}</div>
+                <div className="text-[11px] text-zinc-500 flex items-center gap-2">
+                  {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
+                  {t.estimated_hours && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h</span>}
+                </div>
+              </div>
+              <div className="text-yellow-400 font-display font-semibold">${Number(t.price).toFixed(2)}</div>
+              <ArrowRight className="w-4 h-4 text-zinc-600" />
+            </button>
+          ))}
+          {tasks.length > 4 && <div className="text-[11px] text-zinc-500 pl-1">+{tasks.length - 4} more</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TaskRow({ t, onToggle, onStart }) {
+  return (
+    <div data-testid={`worker-task-${t.id}`} className="px-5 sm:px-6 py-4 flex items-center gap-3 flex-wrap">
+      <button
+        data-testid={`toggle-task-${t.id}`} onClick={onToggle}
+        className={`w-9 h-9 rounded-full grid place-items-center border transition ${
+          t.status === "completed"
+            ? "bg-green-500/20 border-green-400/40 text-green-400"
+            : "bg-zinc-900 border-yellow-400/20 text-zinc-500 hover:text-yellow-400"
+        }`}>
+        {t.status === "completed" ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
+      </button>
+      <div className="flex-1 min-w-[200px]">
+        <div className={`font-medium ${t.status === "completed" ? "line-through text-zinc-500" : ""}`}>{t.title}</div>
+        <div className="text-xs text-zinc-500 mt-0.5 flex flex-wrap gap-x-3 gap-y-1 items-center">
+          {t.description && <span className="truncate max-w-[260px]">{t.description}</span>}
+          {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
+          {t.estimated_hours && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h budget</span>}
+        </div>
+      </div>
+      <div className="inline-flex items-center gap-1 text-yellow-400 font-display font-semibold">
+        <BadgeDollarSign className="w-4 h-4" />{Number(t.price).toFixed(2)}
+      </div>
+      {t.status !== "completed" && (
+        <Button data-testid={`worker-start-${t.id}`} size="sm" variant="ghost" onClick={onStart}
+          className={`rounded-full h-8 px-3 text-xs border ${
+            t.status === "in_progress"
+              ? "border-yellow-400/30 text-yellow-300 bg-yellow-400/10"
+              : "border-yellow-400/20 text-zinc-300 hover:text-yellow-400"
+          }`}>
+          {t.status === "in_progress" ? "Working…" : "Start"}
+        </Button>
+      )}
     </div>
   );
 }
