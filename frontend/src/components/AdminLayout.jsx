@@ -1,12 +1,14 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight } from "lucide-react";
+import Avatar from "@/components/Avatar";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2 } from "lucide-react";
 
 const items = [
   { to: "/admin",         label: "Overview",  icon: LayoutDashboard, testid: "nav-overview" },
   { to: "/admin/workers", label: "Workers",   icon: Users,           testid: "nav-workers" },
   { to: "/admin/tasks",   label: "Tasks",     icon: ClipboardList,   testid: "nav-tasks" },
   { to: "/admin/payroll", label: "Payroll",   icon: BadgeDollarSign, testid: "nav-payroll" },
+  { to: "/admin/profile", label: "Profile",   icon: UserCircle2,     testid: "nav-profile" },
 ];
 
 export default function AdminLayout({ children }) {
@@ -47,17 +49,20 @@ export default function AdminLayout({ children }) {
           ))}
         </nav>
         <div className="p-4 border-t border-yellow-400/10">
-          <div className="px-3 py-3 rounded-xl bg-zinc-900/60">
-            <div className="text-xs text-zinc-500 uppercase tracking-widest">Signed in</div>
-            <div className="font-medium truncate" data-testid="admin-user-name">{user?.name || user?.email}</div>
-            <button
-              data-testid="logout-btn"
-              onClick={async () => { await logout(); nav("/login"); }}
-              className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm transition"
-            >
-              <LogOut className="w-4 h-4" /> Logout
-            </button>
-          </div>
+          <NavLink to="/admin/profile" data-testid="sidebar-avatar-link" className="px-3 py-3 rounded-xl bg-zinc-900/60 hover:bg-zinc-900 transition flex items-center gap-3">
+            <Avatar url={user?.avatar_url} name={user?.name} size={40} className="ring-2 ring-yellow-400/30" />
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] text-zinc-500 uppercase tracking-widest">Signed in</div>
+              <div className="font-medium truncate" data-testid="admin-user-name">{user?.name || user?.email}</div>
+            </div>
+          </NavLink>
+          <button
+            data-testid="logout-btn"
+            onClick={async () => { await logout(); nav("/login"); }}
+            className="mt-3 w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-sm transition"
+          >
+            <LogOut className="w-4 h-4" /> Logout
+          </button>
         </div>
       </aside>
 

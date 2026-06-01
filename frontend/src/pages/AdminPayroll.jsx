@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
+import Avatar from "@/components/Avatar";
 import { BadgeDollarSign, Clock, CheckCircle2, Activity } from "lucide-react";
 
 export default function AdminPayroll() {
@@ -43,9 +44,7 @@ export default function AdminPayroll() {
           {rows.map((r) => (
             <div key={r.worker.id} data-testid={`payroll-row-${r.worker.id}`} className="px-6 py-5 flex items-center gap-4 flex-wrap">
               <div className="flex items-center gap-3 flex-1 min-w-[180px]">
-                <div className="w-10 h-10 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">
-                  {(r.worker.name || "?")[0]?.toUpperCase()}
-                </div>
+                <Avatar url={r.worker.avatar_url} name={r.worker.name} size={40} />
                 <div className="min-w-0">
                   <div className="font-medium flex items-center gap-2">
                     {r.worker.name}

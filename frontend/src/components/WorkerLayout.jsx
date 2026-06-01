@@ -1,10 +1,12 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { Clock, History, LogOut } from "lucide-react";
+import Avatar from "@/components/Avatar";
+import { Clock, History, LogOut, UserCircle2 } from "lucide-react";
 
 const items = [
-  { to: "/worker",         label: "Workday", icon: Clock,   testid: "nav-workday" },
-  { to: "/worker/history", label: "History", icon: History, testid: "nav-history" },
+  { to: "/worker",         label: "Workday", icon: Clock,        testid: "nav-workday" },
+  { to: "/worker/history", label: "History", icon: History,      testid: "nav-history" },
+  { to: "/worker/profile", label: "Profile", icon: UserCircle2,  testid: "nav-profile" },
 ];
 
 export default function WorkerLayout({ children }) {
@@ -36,10 +38,13 @@ export default function WorkerLayout({ children }) {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-3">
-            <div className="hidden sm:block text-right">
-              <div className="text-sm font-medium" data-testid="worker-user-name">{user?.name}</div>
-              <div className="text-xs text-zinc-500">{user?.email}</div>
-            </div>
+            <NavLink to="/worker/profile" data-testid="topbar-avatar-link" className="flex items-center gap-2 hover:opacity-90 transition">
+              <div className="hidden sm:block text-right">
+                <div className="text-sm font-medium" data-testid="worker-user-name">{user?.name}</div>
+                <div className="text-xs text-zinc-500">{user?.email}</div>
+              </div>
+              <Avatar url={user?.avatar_url} name={user?.name} size={36} className="ring-2 ring-yellow-400/30" />
+            </NavLink>
             <button data-testid="logout-btn" onClick={async () => { await logout(); nav("/login"); }}
               className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-zinc-900 hover:bg-zinc-800 border border-yellow-400/10 text-sm">
               <LogOut className="w-4 h-4" /> Logout

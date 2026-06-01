@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
+import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -96,9 +97,7 @@ export default function AdminWorkers() {
         {workers.map((w) => (
           <div key={w.id} data-testid={`worker-card-${w.id}`} className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-5 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-yellow-400/5 transition">
             <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold text-lg">
-                {(w.name || w.email)[0]?.toUpperCase()}
-              </div>
+              <Avatar url={w.avatar_url} name={w.name || w.email} size={44} />
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{w.name}</div>
                 <div className="text-xs text-zinc-500 flex items-center gap-1 truncate"><Mail className="w-3 h-3" /> {w.email}</div>

@@ -11,6 +11,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminWorkers from "@/pages/AdminWorkers";
 import AdminTasks from "@/pages/AdminTasks";
 import AdminPayroll from "@/pages/AdminPayroll";
+import Profile from "@/pages/Profile";
 import WorkerDashboard from "@/pages/WorkerDashboard";
 import WorkerHistory from "@/pages/WorkerHistory";
 
@@ -48,6 +49,12 @@ function App() {
             } />
             <Route path="/worker/history" element={
               <ProtectedRoute role="worker"><WorkerLayout><WorkerHistory /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/profile" element={
+              <ProtectedRoute role="worker"><WorkerLayout><Profile /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/profile" element={
+              <ProtectedRoute role="admin"><AdminLayout><Profile /></AdminLayout></ProtectedRoute>
             } />
 
             <Route path="*" element={<Navigate to="/" replace />} />

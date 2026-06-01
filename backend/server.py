@@ -12,7 +12,8 @@ from typing import Optional, List
 
 import bcrypt
 import jwt
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+import requests
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Header, Query
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, EmailStr, Field
@@ -23,6 +24,13 @@ ACCESS_TOKEN_MINUTES = 60 * 24  # 24h for simplicity
 REFRESH_TOKEN_DAYS = 7
 MAX_FAILED_ATTEMPTS = 5
 LOCKOUT_MINUTES = 15
+
+# Object storage
+STORAGE_URL = "https://integrations.emergentagent.com/objstore/api/v1/storage"
+APP_NAME = os.environ.get("APP_NAME", "clockwork")
+MAX_AVATAR_BYTES = 3 * 1024 * 1024  # 3 MB
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"}
+_storage_key: Optional[str] = None
 
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
@@ -89,13 +97,70 @@ def clear_auth_cookies(response: Response):
 
 
 def serialize_user(u: dict) -> dict:
+    avatar_path = u.get("avatar_path")
     return {
         "id": u["id"],
         "email": u["email"],
         "name": u.get("name", ""),
         "role": u.get("role", "worker"),
         "created_at": u.get("created_at"),
+        "avatar_path": avatar_path,
+        "avatar_url": f"/api/files/{avatar_path}" if avatar_path else None,
     }
+
+
+# --- Object storage helpers ---
+def init_storage() -> str:
+    global _storage_key
+    if _storage_key:
+        return _storage_key
+    emergent_key = os.environ.get("EMERGENT_LLM_KEY")
+    if not emergent_key:
+        raise RuntimeError("EMERGENT_LLM_KEY not set")
+    resp = requests.post(f"{STORAGE_URL}/init", json={"emergent_key": emergent_key}, timeout=30)
+    resp.raise_for_status()
+    _storage_key = resp.json()["storage_key"]
+    return _storage_key
+
+
+def put_object(path: str, data: bytes, content_type: str) -> dict:
+    key = init_storage()
+    resp = requests.put(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key, "Content-Type": content_type},
+        data=data, timeout=120,
+    )
+    if resp.status_code == 403:
+        # storage key expired, retry once
+        global _storage_key
+        _storage_key = None
+        key = init_storage()
+        resp = requests.put(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key, "Content-Type": content_type},
+            data=data, timeout=120,
+        )
+    resp.raise_for_status()
+    return resp.json()
+
+
+def get_object(path: str):
+    key = init_storage()
+    resp = requests.get(
+        f"{STORAGE_URL}/objects/{path}",
+        headers={"X-Storage-Key": key}, timeout=60,
+    )
+    if resp.status_code == 403:
+        global _storage_key
+        _storage_key = None
+        key = init_storage()
+        resp = requests.get(
+            f"{STORAGE_URL}/objects/{path}",
+            headers={"X-Storage-Key": key}, timeout=60,
+        )
+    resp.raise_for_status()
+    return resp.content, resp.headers.get("Content-Type", "application/octet-stream")
+
 
 
 async def get_current_user(request: Request) -> dict:
@@ -104,6 +169,9 @@ async def get_current_user(request: Request) -> dict:
         auth_header = request.headers.get("Authorization", "")
         if auth_header.startswith("Bearer "):
             token = auth_header[7:]
+    if not token:
+        # fallback: ?auth=<token> query param (used by <img> tags)
+        token = request.query_params.get("auth")
     if not token:
         raise HTTPException(status_code=401, detail="Not authenticated")
     try:
@@ -158,6 +226,10 @@ class TaskUpdate(BaseModel):
     price: Optional[float] = None
     assignee_id: Optional[str] = None
     status: Optional[str] = None  # assigned | in_progress | completed
+
+
+class ProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
 
 
 # --- Brute force ---
@@ -234,6 +306,75 @@ async def refresh_token_endpoint(request: Request, response: Response):
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
 
+# --- Profile (self) ---
+@api_router.patch("/me/profile")
+async def update_profile(req: ProfileUpdate, user: dict = Depends(get_current_user)):
+    await db.users.update_one({"id": user["id"]}, {"$set": {"name": req.name.strip()}})
+    updated = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return serialize_user(updated)
+
+
+@api_router.post("/me/avatar")
+async def upload_avatar(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    content_type = (file.content_type or "").lower()
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
+    data = await file.read()
+    if len(data) == 0:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > MAX_AVATAR_BYTES:
+        raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
+    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+    ext = ext_map.get(content_type, "jpg")
+    path = f"{APP_NAME}/avatars/{user['id']}/{uuid.uuid4()}.{ext}"
+    try:
+        result = put_object(path, data, content_type)
+    except Exception as e:
+        logger.exception("Avatar upload failed")
+        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+    stored_path = result.get("path", path)
+    # soft-delete previous avatar reference if any
+    old = (await db.users.find_one({"id": user["id"]}, {"_id": 0, "avatar_path": 1})) or {}
+    if old.get("avatar_path"):
+        await db.files.update_many({"storage_path": old["avatar_path"]}, {"$set": {"is_deleted": True}})
+    await db.files.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "storage_path": stored_path,
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "is_deleted": False,
+        "created_at": now_utc().isoformat(),
+    })
+    await db.users.update_one({"id": user["id"]}, {"$set": {"avatar_path": stored_path}})
+    updated = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return serialize_user(updated)
+
+
+@api_router.delete("/me/avatar")
+async def delete_avatar(user: dict = Depends(get_current_user)):
+    if user.get("avatar_path"):
+        await db.files.update_many({"storage_path": user["avatar_path"]}, {"$set": {"is_deleted": True}})
+    await db.users.update_one({"id": user["id"]}, {"$set": {"avatar_path": None}})
+    updated = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
+    return serialize_user(updated)
+
+
+# --- File download (auth required; supports ?auth=<token> for <img> tags) ---
+@api_router.get("/files/{path:path}")
+async def download_file(path: str, user: dict = Depends(get_current_user)):
+    record = await db.files.find_one({"storage_path": path, "is_deleted": False})
+    if not record:
+        raise HTTPException(status_code=404, detail="File not found")
+    try:
+        data, content_type = get_object(path)
+    except Exception as e:
+        logger.exception("File download failed")
+        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+    return Response(content=data, media_type=record.get("content_type", content_type))
+
+
+
 # --- Workers (admin) ---
 @api_router.post("/workers")
 async def create_worker(req: CreateWorkerRequest, admin: dict = Depends(require_admin)):
@@ -255,7 +396,7 @@ async def create_worker(req: CreateWorkerRequest, admin: dict = Depends(require_
 @api_router.get("/workers")
 async def list_workers(admin: dict = Depends(require_admin)):
     workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
-    return workers
+    return [serialize_user(w) for w in workers]
 
 
 @api_router.delete("/workers/{worker_id}")
@@ -417,7 +558,7 @@ async def payroll(admin: dict = Depends(require_admin)):
         total_seconds = sum(int(e.get("duration_seconds", 0)) for e in time_entries)
         active = await db.time_entries.find_one({"user_id": w["id"], "clock_out": None}, {"_id": 0})
         result.append({
-            "worker": w,
+            "worker": serialize_user(w),
             "tasks_completed": len(tasks_done),
             "tasks_earnings": round(task_earnings, 2),
             "total_seconds": total_seconds,
@@ -453,6 +594,13 @@ async def startup():
     await db.tasks.create_index("assignee_id")
     await db.time_entries.create_index([("user_id", 1), ("clock_out", 1)])
     await db.login_attempts.create_index("identifier")
+    await db.files.create_index("storage_path")
+    # init object storage
+    try:
+        init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
     # seed admin
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
