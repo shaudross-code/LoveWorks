@@ -353,7 +353,7 @@ function TaskRow({ t, onToggle, onStart }) {
         <div className="text-xs text-zinc-500 mt-0.5 flex flex-wrap gap-x-3 gap-y-1 items-center">
           {t.description && <span className="truncate max-w-[260px]">{t.description}</span>}
           {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
-          {t.daily_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.daily_hours}h/day</span>}
+          {t.daily_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.daily_hours < 1 ? `${Math.round(t.daily_hours * 60)}m/day` : `${t.daily_hours}h/day`}</span>}
           {t.estimated_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
         </div>
       </div>

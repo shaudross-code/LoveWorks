@@ -220,6 +220,9 @@ class TaskCreate(BaseModel):
     assignee_id: str
     due_at: Optional[str] = None  # ISO date or datetime
     estimated_hours: Optional[float] = None
+    daily_hours: Optional[float] = None
+    frequency: Optional[str] = "once"
+    payout_schedule: Optional[str] = "per_task"
 
 
 class TaskUpdate(BaseModel):

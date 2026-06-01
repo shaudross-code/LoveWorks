@@ -36,12 +36,24 @@ const PAYOUT_LABEL = Object.fromEntries(PAYOUTS.map(p => [p.value, p.label]));
 const EMPTY = {
   title: "", description: "", price: "", assignee_id: "",
   due_at: "", estimated_hours: "", daily_hours: "",
+  daily_hours_unit: "hours", // "hours" | "minutes"
   frequency: "once", payout_schedule: "per_task",
 };
 
 function toDateInput(iso) {
   if (!iso) return "";
   try { return new Date(iso).toISOString().slice(0, 10); } catch { return ""; }
+}
+
+function fmtDaily(h) {
+  if (h == null) return "";
+  const v = Number(h);
+  if (!Number.isFinite(v)) return "";
+  if (v < 1) {
+    const mins = Math.round(v * 60);
+    return `${mins}m/day`;
+  }
+  return `${(Math.round(v * 100) / 100)}h/day`;
 }
 
 export default function AdminTasks() {
@@ -63,6 +75,9 @@ export default function AdminTasks() {
 
   const openCreate = () => { setForm(EMPTY); setDialog({ mode: "create" }); };
   const openEdit = (t) => {
+    // Prefer Minutes if the stored value is < 1 hour, so the admin sees a friendly number
+    const dh = t.daily_hours;
+    const useMinutes = dh != null && dh > 0 && dh < 1;
     setForm({
       title: t.title || "",
       description: t.description || "",
@@ -70,7 +85,8 @@ export default function AdminTasks() {
       assignee_id: t.assignee_id,
       due_at: toDateInput(t.due_at),
       estimated_hours: t.estimated_hours != null ? String(t.estimated_hours) : "",
-      daily_hours: t.daily_hours != null ? String(t.daily_hours) : "",
+      daily_hours: dh != null ? String(useMinutes ? Math.round(dh * 60 * 100) / 100 : dh) : "",
+      daily_hours_unit: useMinutes ? "minutes" : "hours",
       frequency: t.frequency || "once",
       payout_schedule: t.payout_schedule || "per_task",
     });
@@ -82,6 +98,14 @@ export default function AdminTasks() {
     if (!form.assignee_id) { toast.error("Pick a worker"); return; }
     if (!form.title.trim()) { toast.error("Title is required"); return; }
     setBusy(true);
+    // Convert daily_hours according to unit toggle
+    let dailyHours = null;
+    if (form.daily_hours) {
+      const v = parseFloat(form.daily_hours);
+      if (Number.isFinite(v) && v >= 0) {
+        dailyHours = form.daily_hours_unit === "minutes" ? v / 60 : v;
+      }
+    }
     const payload = {
       title: form.title.trim(),
       description: form.description,
@@ -89,7 +113,7 @@ export default function AdminTasks() {
       assignee_id: form.assignee_id,
       due_at: form.due_at || null,
       estimated_hours: form.estimated_hours ? parseFloat(form.estimated_hours) : null,
-      daily_hours: form.daily_hours ? parseFloat(form.daily_hours) : null,
+      daily_hours: dailyHours,
       frequency: form.frequency,
       payout_schedule: form.payout_schedule,
     };
@@ -173,7 +197,7 @@ export default function AdminTasks() {
                 {t.description && <span className="truncate max-w-[260px]">· {t.description}</span>}
                 {t.due_at && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {new Date(t.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>}
                 {t.estimated_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
-                {t.daily_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.daily_hours}h/day</span>}
+                {t.daily_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {fmtDaily(t.daily_hours)}</span>}
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -247,19 +271,47 @@ export default function AdminTasks() {
               </div>
               <div>
                 <label className="text-xs uppercase tracking-widest text-zinc-500">Total est. hours</label>
-                <Input data-testid="task-estimated-hours" type="number" min="0" step="0.5" placeholder="e.g., 4"
+                <Input data-testid="task-estimated-hours" type="number" min="0" step="0.05" inputMode="decimal" placeholder="e.g., 3.75"
                   value={form.estimated_hours}
                   onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
                   className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                <div className="text-[10px] text-zinc-500 mt-1">Decimals allowed — e.g., 3.75 hours.</div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs uppercase tracking-widest text-zinc-500">Daily hours required</label>
-                <Input data-testid="task-daily-hours" type="number" min="0" step="0.25" placeholder="e.g., 1.5"
+                <div className="flex items-center justify-between">
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Daily required</label>
+                  <div className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full p-0.5">
+                    {["hours", "minutes"].map((u) => (
+                      <button
+                        key={u}
+                        type="button"
+                        data-testid={`unit-${u}`}
+                        onClick={() => setForm((f) => ({ ...f, daily_hours_unit: u }))}
+                        className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-widest transition ${
+                          form.daily_hours_unit === u ? "bg-yellow-400 text-black font-semibold" : "text-zinc-400 hover:text-white"
+                        }`}
+                      >
+                        {u === "hours" ? "Hours" : "Minutes"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <Input
+                  data-testid="task-daily-hours"
+                  type="number"
+                  min="0"
+                  step={form.daily_hours_unit === "minutes" ? "1" : "0.05"}
+                  inputMode="decimal"
+                  placeholder={form.daily_hours_unit === "minutes" ? "e.g., 45" : "e.g., 1.5"}
                   value={form.daily_hours}
                   onChange={(e) => setForm({ ...form, daily_hours: e.target.value })}
-                  className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"
+                />
+                <div className="text-[10px] text-zinc-500 mt-1">
+                  Stored internally as hours · 45 min = 0.75h
+                </div>
               </div>
               <div>
                 <label className="text-xs uppercase tracking-widest text-zinc-500">Frequency</label>
