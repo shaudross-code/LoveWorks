@@ -784,24 +784,47 @@ async def list_time_entries(user: dict = Depends(get_current_user), user_id: Opt
 @api_router.get("/payroll")
 async def payroll(admin: dict = Depends(require_admin)):
     workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
-    result = []
-    for w in workers:
-        tasks_done = await db.tasks.find({"assignee_id": w["id"], "status": "completed"}, {"_id": 0}).to_list(1000)
-        task_earnings = sum(float(t.get("price", 0)) for t in tasks_done)
-        time_entries = await db.time_entries.find(
-            {"user_id": w["id"], "clock_out": {"$ne": None}}, {"_id": 0}
-        ).to_list(2000)
-        total_seconds = sum(int(e.get("duration_seconds", 0)) for e in time_entries)
-        active = await db.time_entries.find_one({"user_id": w["id"], "clock_out": None}, {"_id": 0})
-        result.append({
+    worker_ids = [w["id"] for w in workers]
+    if not worker_ids:
+        return []
+
+    # Batch fetch: completed tasks + all time entries (only the fields we need)
+    tasks_done = await db.tasks.find(
+        {"assignee_id": {"$in": worker_ids}, "status": "completed"},
+        {"_id": 0, "assignee_id": 1, "price": 1},
+    ).to_list(10000)
+    time_entries = await db.time_entries.find(
+        {"user_id": {"$in": worker_ids}},
+        {"_id": 0, "user_id": 1, "clock_out": 1, "duration_seconds": 1},
+    ).to_list(20000)
+
+    earnings_by_worker: dict[str, float] = {}
+    completed_count_by_worker: dict[str, int] = {}
+    for t in tasks_done:
+        wid = t["assignee_id"]
+        earnings_by_worker[wid] = earnings_by_worker.get(wid, 0.0) + float(t.get("price", 0))
+        completed_count_by_worker[wid] = completed_count_by_worker.get(wid, 0) + 1
+
+    seconds_by_worker: dict[str, int] = {}
+    active_by_worker: dict[str, bool] = {}
+    for e in time_entries:
+        wid = e["user_id"]
+        if e.get("clock_out"):
+            seconds_by_worker[wid] = seconds_by_worker.get(wid, 0) + int(e.get("duration_seconds", 0))
+        else:
+            active_by_worker[wid] = True
+
+    return [
+        {
             "worker": serialize_user(w),
-            "tasks_completed": len(tasks_done),
-            "tasks_earnings": round(task_earnings, 2),
-            "total_seconds": total_seconds,
-            "total_hours": round(total_seconds / 3600.0, 2),
-            "currently_clocked_in": bool(active),
-        })
-    return result
+            "tasks_completed": completed_count_by_worker.get(w["id"], 0),
+            "tasks_earnings": round(earnings_by_worker.get(w["id"], 0.0), 2),
+            "total_seconds": seconds_by_worker.get(w["id"], 0),
+            "total_hours": round(seconds_by_worker.get(w["id"], 0) / 3600.0, 2),
+            "currently_clocked_in": active_by_worker.get(w["id"], False),
+        }
+        for w in workers
+    ]
 
 
 # --- Health ---
@@ -813,14 +836,25 @@ async def root():
 # --- App setup ---
 app.include_router(api_router)
 
-frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[frontend_url],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+cors_origins_env = os.environ.get("CORS_ORIGINS", "*").strip()
+if cors_origins_env in ("", "*"):
+    # Permissive but credentials-friendly: match localhost (dev) + emergent preview & prod domains.
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origin_regex=r"https?://(localhost(:\d+)?|.*\.emergentagent\.com|.*\.emergent\.host)",
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+else:
+    origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 @app.on_event("startup")
