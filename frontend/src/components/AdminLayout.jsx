@@ -1,12 +1,13 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2 } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target } from "lucide-react";
 
 const items = [
   { to: "/admin",         label: "Overview",  icon: LayoutDashboard, testid: "nav-overview" },
   { to: "/admin/workers", label: "Workers",   icon: Users,           testid: "nav-workers" },
   { to: "/admin/tasks",   label: "Tasks",     icon: ClipboardList,   testid: "nav-tasks" },
+  { to: "/admin/goals",   label: "Goals",     icon: Target,          testid: "nav-goals" },
   { to: "/admin/payroll", label: "Payroll",   icon: BadgeDollarSign, testid: "nav-payroll" },
   { to: "/admin/profile", label: "Profile",   icon: UserCircle2,     testid: "nav-profile" },
 ];

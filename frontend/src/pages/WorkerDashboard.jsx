@@ -3,6 +3,7 @@ import api, { formatApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles } from "lucide-react";
 import { toast } from "sonner";
+import GoalsCard from "@/components/GoalsCard";
 
 function formatDuration(seconds) {
   const s = Math.max(0, Math.floor(seconds));
@@ -167,6 +168,8 @@ export default function WorkerDashboard() {
           ))}
         </div>
       </section>
+
+      <GoalsCard />
     </div>
   );
 }

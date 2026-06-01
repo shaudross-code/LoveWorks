@@ -232,6 +232,16 @@ class ProfileUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=80)
 
 
+class GoalUpdate(BaseModel):
+    title: Optional[str] = Field(default=None, min_length=1, max_length=160)
+    product_link: Optional[str] = Field(default=None, max_length=500)
+    deadline: Optional[str] = None  # ISO date (YYYY-MM-DD) or full ISO datetime
+
+
+class GoalComplete(BaseModel):
+    appreciation: Optional[str] = Field(default=None, max_length=500)
+
+
 # --- Brute force ---
 async def check_lockout(identifier: str):
     rec = await db.login_attempts.find_one({"identifier": identifier})
@@ -372,6 +382,176 @@ async def download_file(path: str, user: dict = Depends(get_current_user)):
         logger.exception("File download failed")
         raise HTTPException(status_code=502, detail=f"Storage error: {e}")
     return Response(content=data, media_type=record.get("content_type", content_type))
+
+
+# --- Goals ---
+def _parse_deadline(s: Optional[str]) -> Optional[str]:
+    if not s:
+        return None
+    s = s.strip()
+    if not s:
+        return None
+    try:
+        # accept YYYY-MM-DD or full ISO
+        if len(s) == 10:
+            dt = datetime.fromisoformat(s).replace(tzinfo=timezone.utc)
+        else:
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+        return dt.isoformat()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid deadline format (use YYYY-MM-DD)")
+
+
+def _attach_goal_image_url(g: dict) -> dict:
+    g = dict(g)
+    p = g.get("image_path")
+    g["image_url"] = f"/api/files/{p}" if p else None
+    return g
+
+
+@api_router.post("/goals")
+async def create_goal(
+    title: str = Query(default=None),
+    product_link: Optional[str] = Query(default=None),
+    deadline: Optional[str] = Query(default=None),
+    file: Optional[UploadFile] = File(default=None),
+    user: dict = Depends(get_current_user),
+):
+    # Accept multipart form OR query params; pydantic on multipart is tricky so use Form-style via query
+    from fastapi import Form  # noqa: F401  (kept for clarity)
+    if not title or not title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    image_path = None
+    if file is not None:
+        content_type = (file.content_type or "").lower()
+        if content_type not in ALLOWED_IMAGE_TYPES:
+            raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
+        data = await file.read()
+        if len(data) > MAX_AVATAR_BYTES:
+            raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
+        if data:
+            ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+            ext = ext_map.get(content_type, "jpg")
+            path = f"{APP_NAME}/goals/{user['id']}/{uuid.uuid4()}.{ext}"
+            try:
+                result = put_object(path, data, content_type)
+            except Exception as e:
+                raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+            image_path = result.get("path", path)
+            await db.files.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": user["id"],
+                "storage_path": image_path,
+                "content_type": content_type,
+                "size": result.get("size", len(data)),
+                "is_deleted": False,
+                "created_at": now_utc().isoformat(),
+            })
+    goal = {
+        "id": str(uuid.uuid4()),
+        "owner_id": user["id"],
+        "title": title.strip(),
+        "product_link": (product_link or "").strip() or None,
+        "image_path": image_path,
+        "deadline": _parse_deadline(deadline),
+        "status": "open",
+        "appreciation": None,
+        "completed_at": None,
+        "completed_by": None,
+        "created_at": now_utc().isoformat(),
+    }
+    await db.goals.insert_one(goal)
+    goal.pop("_id", None)
+    return _attach_goal_image_url(goal)
+
+
+@api_router.get("/goals")
+async def list_goals(
+    user: dict = Depends(get_current_user),
+    owner_id: Optional[str] = None,
+):
+    query: dict = {}
+    if user["role"] == "worker":
+        query["owner_id"] = user["id"]
+    elif owner_id:
+        query["owner_id"] = owner_id
+    goals = await db.goals.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
+    goals = [_attach_goal_image_url(g) for g in goals]
+    if user["role"] == "admin":
+        owner_ids = list({g["owner_id"] for g in goals})
+        owners = await db.users.find({"id": {"$in": owner_ids}}, {"_id": 0, "password_hash": 0}).to_list(1000)
+        omap = {o["id"]: serialize_user(o) for o in owners}
+        for g in goals:
+            g["owner"] = omap.get(g["owner_id"])
+    return goals
+
+
+@api_router.patch("/goals/{goal_id}")
+async def update_goal(goal_id: str, req: GoalUpdate, user: dict = Depends(get_current_user)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your goal")
+    update: dict = {}
+    if req.title is not None:
+        update["title"] = req.title.strip()
+    if req.product_link is not None:
+        update["product_link"] = req.product_link.strip() or None
+    if req.deadline is not None:
+        update["deadline"] = _parse_deadline(req.deadline) if req.deadline else None
+    if not update:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    await db.goals.update_one({"id": goal_id}, {"$set": update})
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
+@api_router.post("/goals/{goal_id}/complete")
+async def complete_goal(goal_id: str, req: GoalComplete, admin: dict = Depends(require_admin)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    await db.goals.update_one(
+        {"id": goal_id},
+        {"$set": {
+            "status": "completed",
+            "appreciation": (req.appreciation or "").strip() or None,
+            "completed_at": now_utc().isoformat(),
+            "completed_by": admin["id"],
+        }},
+    )
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
+@api_router.post("/goals/{goal_id}/reopen")
+async def reopen_goal(goal_id: str, admin: dict = Depends(require_admin)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    await db.goals.update_one(
+        {"id": goal_id},
+        {"$set": {"status": "open", "completed_at": None, "completed_by": None, "appreciation": None}},
+    )
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
+@api_router.delete("/goals/{goal_id}")
+async def delete_goal(goal_id: str, user: dict = Depends(get_current_user)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your goal")
+    if goal.get("image_path"):
+        await db.files.update_many({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
+    await db.goals.delete_one({"id": goal_id})
+    return {"ok": True}
+
 
 
 
@@ -595,6 +775,7 @@ async def startup():
     await db.time_entries.create_index([("user_id", 1), ("clock_out", 1)])
     await db.login_attempts.create_index("identifier")
     await db.files.create_index("storage_path")
+    await db.goals.create_index("owner_id")
     # init object storage
     try:
         init_storage()
