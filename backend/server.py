@@ -218,7 +218,9 @@ class TaskCreate(BaseModel):
     description: Optional[str] = ""
     price: float
     assignee_id: str
-    due_at: Optional[str] = None  # ISO date or datetime
+    due_at: Optional[str] = None  # ISO date or datetime (one-time deadline date)
+    due_time: Optional[str] = None  # "HH:MM" 24h — time-of-day cutoff
+    due_day_of_week: Optional[int] = None  # 0=Mon..6=Sun (used for weekly recurring)
     estimated_hours: Optional[float] = None
     daily_hours: Optional[float] = None
     frequency: Optional[str] = "once"
@@ -232,6 +234,8 @@ class TaskUpdate(BaseModel):
     assignee_id: Optional[str] = None
     status: Optional[str] = None  # assigned | in_progress | completed
     due_at: Optional[str] = None
+    due_time: Optional[str] = None
+    due_day_of_week: Optional[int] = None
     estimated_hours: Optional[float] = None
     daily_hours: Optional[float] = None
     frequency: Optional[str] = None
@@ -627,6 +631,37 @@ def _validate_payout(v: Optional[str]) -> Optional[str]:
     return v
 
 
+def _validate_due_time(v: Optional[str]) -> Optional[str]:
+    """Accepts 'HH:MM' (24h) or 'HH:MM:SS' — returns 'HH:MM' normalized, or None."""
+    if v is None:
+        return None
+    s = v.strip()
+    if not s:
+        return None
+    parts = s.split(":")
+    if len(parts) < 2 or len(parts) > 3:
+        raise HTTPException(status_code=400, detail="due_time must be HH:MM (24h)")
+    try:
+        h = int(parts[0]); m = int(parts[1])
+    except ValueError:
+        raise HTTPException(status_code=400, detail="due_time must be HH:MM (24h)")
+    if not (0 <= h <= 23 and 0 <= m <= 59):
+        raise HTTPException(status_code=400, detail="due_time must be HH:MM (24h)")
+    return f"{h:02d}:{m:02d}"
+
+
+def _validate_dow(v):
+    if v is None:
+        return None
+    try:
+        n = int(v)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="due_day_of_week must be 0..6 (0=Mon)")
+    if not (0 <= n <= 6):
+        raise HTTPException(status_code=400, detail="due_day_of_week must be 0..6 (0=Mon)")
+    return n
+
+
 @api_router.post("/tasks")
 async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
     worker = await db.users.find_one({"id": req.assignee_id, "role": "worker"})
@@ -643,6 +678,8 @@ async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
         "created_at": now_utc().isoformat(),
         "completed_at": None,
         "due_at": _parse_deadline(req.due_at),
+        "due_time": _validate_due_time(req.due_time),
+        "due_day_of_week": _validate_dow(req.due_day_of_week),
         "estimated_hours": float(req.estimated_hours) if req.estimated_hours is not None else None,
         "daily_hours": float(req.daily_hours) if req.daily_hours is not None else None,
         "frequency": _validate_frequency(req.frequency) or "once",
@@ -703,6 +740,11 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
                 update["completed_at"] = now_utc().isoformat()
         if req.due_at is not None:
             update["due_at"] = _parse_deadline(req.due_at) if req.due_at else None
+        if req.due_time is not None:
+            update["due_time"] = _validate_due_time(req.due_time) if req.due_time else None
+        if req.due_day_of_week is not None:
+            # explicit empty string handling: an empty/-1 means clear
+            update["due_day_of_week"] = _validate_dow(req.due_day_of_week) if req.due_day_of_week != -1 else None
         if req.estimated_hours is not None:
             update["estimated_hours"] = float(req.estimated_hours) if req.estimated_hours else None
         if req.daily_hours is not None:

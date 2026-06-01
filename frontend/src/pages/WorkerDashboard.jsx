@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
   CalendarClock, Calendar, AlertTriangle, Hourglass, TrendingUp, ArrowRight,
-  Repeat, Wallet,
+  Repeat, Wallet, Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
@@ -36,6 +36,15 @@ function fmtDate(iso) {
   if (!iso) return null;
   try { return new Date(iso).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" }); }
   catch { return null; }
+}
+const DOW_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+function fmtTime12(hhmm) {
+  if (!hhmm) return "";
+  const [h, m] = hhmm.split(":").map(Number);
+  if (!Number.isFinite(h)) return hhmm;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
 export default function WorkerDashboard() {
@@ -353,6 +362,8 @@ function TaskRow({ t, onToggle, onStart }) {
         <div className="text-xs text-zinc-500 mt-0.5 flex flex-wrap gap-x-3 gap-y-1 items-center">
           {t.description && <span className="truncate max-w-[260px]">{t.description}</span>}
           {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
+          {t.due_day_of_week != null && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {DOW_NAMES[t.due_day_of_week]}</span>}
+          {t.due_time && <span className="text-yellow-300"><Clock className="inline w-3 h-3 -mt-0.5" /> by {fmtTime12(t.due_time)}</span>}
           {t.daily_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.daily_hours < 1 ? `${Math.round(t.daily_hours * 60)}m/day` : `${t.daily_hours}h/day`}</span>}
           {t.estimated_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
         </div>

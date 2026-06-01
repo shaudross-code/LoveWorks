@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Trash2, ClipboardList, Loader2, BadgeDollarSign, Calendar, Hourglass,
-  Pencil, Repeat, Wallet,
+  Pencil, Repeat, Wallet, Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -32,11 +32,23 @@ const PAYOUTS = [
 ];
 const FREQ_LABEL = Object.fromEntries(FREQUENCIES.map(f => [f.value, f.label]));
 const PAYOUT_LABEL = Object.fromEntries(PAYOUTS.map(p => [p.value, p.label]));
+const DAYS_OF_WEEK = [
+  { value: "0", label: "Monday",    short: "Mon" },
+  { value: "1", label: "Tuesday",   short: "Tue" },
+  { value: "2", label: "Wednesday", short: "Wed" },
+  { value: "3", label: "Thursday",  short: "Thu" },
+  { value: "4", label: "Friday",    short: "Fri" },
+  { value: "5", label: "Saturday",  short: "Sat" },
+  { value: "6", label: "Sunday",    short: "Sun" },
+];
+const DOW_LABEL = Object.fromEntries(DAYS_OF_WEEK.map(d => [d.value, d.label]));
+const DOW_SHORT = Object.fromEntries(DAYS_OF_WEEK.map(d => [d.value, d.short]));
 
 const EMPTY = {
   title: "", description: "", price: "", assignee_id: "",
-  due_at: "", estimated_hours: "", daily_hours: "",
-  daily_hours_unit: "hours", // "hours" | "minutes"
+  due_at: "", due_time: "", due_day_of_week: "",
+  estimated_hours: "", daily_hours: "",
+  daily_hours_unit: "hours",
   frequency: "once", payout_schedule: "per_task",
 };
 
@@ -54,6 +66,15 @@ function fmtDaily(h) {
     return `${mins}m/day`;
   }
   return `${(Math.round(v * 100) / 100)}h/day`;
+}
+
+function fmtTime12(hhmm) {
+  if (!hhmm) return "";
+  const [h, m] = hhmm.split(":").map(Number);
+  if (!Number.isFinite(h)) return hhmm;
+  const ampm = h >= 12 ? "PM" : "AM";
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, "0")} ${ampm}`;
 }
 
 export default function AdminTasks() {
@@ -87,6 +108,8 @@ export default function AdminTasks() {
       estimated_hours: t.estimated_hours != null ? String(t.estimated_hours) : "",
       daily_hours: dh != null ? String(useMinutes ? Math.round(dh * 60 * 100) / 100 : dh) : "",
       daily_hours_unit: useMinutes ? "minutes" : "hours",
+      due_time: t.due_time || "",
+      due_day_of_week: t.due_day_of_week != null ? String(t.due_day_of_week) : "",
       frequency: t.frequency || "once",
       payout_schedule: t.payout_schedule || "per_task",
     });
@@ -112,6 +135,8 @@ export default function AdminTasks() {
       price: parseFloat(form.price),
       assignee_id: form.assignee_id,
       due_at: form.due_at || null,
+      due_time: form.due_time || null,
+      due_day_of_week: form.due_day_of_week === "" ? -1 : parseInt(form.due_day_of_week, 10),
       estimated_hours: form.estimated_hours ? parseFloat(form.estimated_hours) : null,
       daily_hours: dailyHours,
       frequency: form.frequency,
@@ -196,6 +221,8 @@ export default function AdminTasks() {
                 <span>{t.assignee_name}</span>
                 {t.description && <span className="truncate max-w-[260px]">· {t.description}</span>}
                 {t.due_at && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {new Date(t.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>}
+                {t.due_day_of_week != null && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {DOW_LABEL[String(t.due_day_of_week)]}</span>}
+                {t.due_time && <span className="text-yellow-300"><Clock className="inline w-3 h-3 -mt-0.5" /> by {fmtTime12(t.due_time)}</span>}
                 {t.estimated_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
                 {t.daily_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {fmtDaily(t.daily_hours)}</span>}
               </div>
@@ -264,20 +291,47 @@ export default function AdminTasks() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs uppercase tracking-widest text-zinc-500">Deadline</label>
+                <label className="text-xs uppercase tracking-widest text-zinc-500">Deadline date</label>
                 <Input data-testid="task-due-at" type="date" value={form.due_at}
                   onChange={(e) => setForm({ ...form, due_at: e.target.value })}
                   className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11 [color-scheme:dark]" />
+                <div className="text-[10px] text-zinc-500 mt-1">For one-time tasks. Recurring tasks ignore this.</div>
               </div>
               <div>
-                <label className="text-xs uppercase tracking-widest text-zinc-500">Total est. hours</label>
-                <Input data-testid="task-estimated-hours" type="number" min="0" step="any" inputMode="decimal" placeholder="e.g., 3.33"
-                  value={form.estimated_hours}
-                  onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
-                  className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
-                <div className="text-[10px] text-zinc-500 mt-1">Any decimal — 3.33, 7.5, 0.25, anything.</div>
+                <label className="text-xs uppercase tracking-widest text-zinc-500">Due time</label>
+                <Input data-testid="task-due-time" type="time" value={form.due_time}
+                  onChange={(e) => setForm({ ...form, due_time: e.target.value })}
+                  className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11 [color-scheme:dark]" />
+                <div className="text-[10px] text-zinc-500 mt-1">e.g., 18:00 = by 6 PM</div>
               </div>
             </div>
+
+            {form.frequency === "weekly" && (
+              <div>
+                <label className="text-xs uppercase tracking-widest text-zinc-500">Day of week</label>
+                <Select value={form.due_day_of_week} onValueChange={(v) => setForm({ ...form, due_day_of_week: v })}>
+                  <SelectTrigger data-testid="task-due-dow" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11">
+                    <SelectValue placeholder="Pick a day…" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+                    {DAYS_OF_WEEK.map(d => (
+                      <SelectItem key={d.value} value={d.value} data-testid={`dow-${d.value}`}>{d.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="text-[10px] text-zinc-500 mt-1">e.g., Friday by 6 PM = pick Friday + set Due time 18:00.</div>
+              </div>
+            )}
+
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">Total est. hours</label>
+              <Input data-testid="task-estimated-hours" type="number" min="0" step="any" inputMode="decimal" placeholder="e.g., 3.33"
+                value={form.estimated_hours}
+                onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
+                className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+              <div className="text-[10px] text-zinc-500 mt-1">Any decimal — 3.33, 7.5, 0.25, anything.</div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <div className="flex items-center justify-between">
