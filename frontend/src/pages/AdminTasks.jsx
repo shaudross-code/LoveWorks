@@ -271,11 +271,11 @@ export default function AdminTasks() {
               </div>
               <div>
                 <label className="text-xs uppercase tracking-widest text-zinc-500">Total est. hours</label>
-                <Input data-testid="task-estimated-hours" type="number" min="0" step="0.05" inputMode="decimal" placeholder="e.g., 3.75"
+                <Input data-testid="task-estimated-hours" type="number" min="0" step="any" inputMode="decimal" placeholder="e.g., 3.33"
                   value={form.estimated_hours}
                   onChange={(e) => setForm({ ...form, estimated_hours: e.target.value })}
                   className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
-                <div className="text-[10px] text-zinc-500 mt-1">Decimals allowed — e.g., 3.75 hours.</div>
+                <div className="text-[10px] text-zinc-500 mt-1">Any decimal — 3.33, 7.5, 0.25, anything.</div>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -302,7 +302,7 @@ export default function AdminTasks() {
                   data-testid="task-daily-hours"
                   type="number"
                   min="0"
-                  step={form.daily_hours_unit === "minutes" ? "1" : "0.05"}
+                  step="any"
                   inputMode="decimal"
                   placeholder={form.daily_hours_unit === "minutes" ? "e.g., 45" : "e.g., 1.5"}
                   value={form.daily_hours}
