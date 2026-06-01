@@ -2,114 +2,109 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  background-color: #09090B;
+  color: #FFFFFF;
+}
+
 body {
-    margin: 0;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: "Manrope", "Helvetica Neue", system-ui, sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family:
-        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+.font-display {
+  font-family: "Outfit", "Helvetica Neue", system-ui, sans-serif;
+  letter-spacing: -0.02em;
 }
 
-@layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
-    }
+.font-body {
+  font-family: "Manrope", system-ui, sans-serif;
 }
 
 @layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
+  :root {
+    --background: 240 6% 6%;
+    --foreground: 0 0% 100%;
+    --card: 240 5% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 5% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 48 96% 53%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 48 50% 50% / 0.18;
+    --input: 240 5% 18%;
+    --ring: 48 96% 53%;
+    --radius: 0.875rem;
+  }
 }
 
 @layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
-    }
+  * {
+    border-color: rgba(250, 204, 21, 0.18);
+  }
+  body {
+    background-color: #09090B;
+    color: #FFFFFF;
+  }
+}
 
-    [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
-    }
+/* Gold pulsing ring used for the clock-in CTA */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55), 0 0 60px 0 rgba(250, 204, 21, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 24px rgba(250, 204, 21, 0), 0 0 80px 8px rgba(250, 204, 21, 0.35);
+  }
+}
+.gold-pulse {
+  animation: goldPulse 2.4s ease-out infinite;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.5s ease-out both; }
+
+/* Selection */
+::selection {
+  background: #FACC15;
+  color: #000;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0b0b0d; }
+::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #FACC15; }
+
+/* Sonner toast custom dark gold */
+[data-sonner-toaster] {
+  --normal-bg: #121214;
+  --normal-text: #FFF;
+  --normal-border: rgba(250, 204, 21, 0.25);
+  --success-bg: #121214;
+  --success-text: #FACC15;
+  --error-bg: #121214;
+  --error-text: #F87171;
+}
+
+@layer base {
+  [data-debug-wrapper="true"] { display: contents !important; }
 }

@@ -1,88 +1,479 @@
-from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
-from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
-import os
-import logging
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
-from typing import List
-import uuid
-from datetime import datetime, timezone
-
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-# MongoDB connection
+import os
+import uuid
+import logging
+from datetime import datetime, timezone, timedelta
+from typing import Optional, List
+
+import bcrypt
+import jwt
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends
+from starlette.middleware.cors import CORSMiddleware
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel, EmailStr, Field
+
+# --- Config ---
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_MINUTES = 60 * 24  # 24h for simplicity
+REFRESH_TOKEN_DAYS = 7
+MAX_FAILED_ATTEMPTS = 5
+LOCKOUT_MINUTES = 15
+
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# Create the main app without a prefix
-app = FastAPI()
-
-# Create a router with the /api prefix
+app = FastAPI(title="ClockWork API")
 api_router = APIRouter(prefix="/api")
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Define Models
-class StatusCheck(BaseModel):
-    model_config = ConfigDict(extra="ignore")  # Ignore MongoDB's _id field
-    
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    client_name: str
-    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-class StatusCheckCreate(BaseModel):
-    client_name: str
+# --- Helpers ---
+def now_utc() -> datetime:
+    return datetime.now(timezone.utc)
 
-# Add your routes to the router instead of directly to app
+
+def hash_password(password: str) -> str:
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(password.encode("utf-8"), salt).decode("utf-8")
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    try:
+        return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        return False
+
+
+def get_jwt_secret() -> str:
+    return os.environ["JWT_SECRET"]
+
+
+def create_access_token(user_id: str, email: str, role: str) -> str:
+    payload = {
+        "sub": user_id,
+        "email": email,
+        "role": role,
+        "type": "access",
+        "exp": now_utc() + timedelta(minutes=ACCESS_TOKEN_MINUTES),
+    }
+    return jwt.encode(payload, get_jwt_secret(), algorithm=JWT_ALGORITHM)
+
+
+def create_refresh_token(user_id: str) -> str:
+    payload = {
+        "sub": user_id,
+        "type": "refresh",
+        "exp": now_utc() + timedelta(days=REFRESH_TOKEN_DAYS),
+    }
+    return jwt.encode(payload, get_jwt_secret(), algorithm=JWT_ALGORITHM)
+
+
+def set_auth_cookies(response: Response, access: str, refresh: str):
+    response.set_cookie("access_token", access, httponly=True, secure=True,
+                        samesite="none", max_age=ACCESS_TOKEN_MINUTES * 60, path="/")
+    response.set_cookie("refresh_token", refresh, httponly=True, secure=True,
+                        samesite="none", max_age=REFRESH_TOKEN_DAYS * 86400, path="/")
+
+
+def clear_auth_cookies(response: Response):
+    response.delete_cookie("access_token", path="/")
+    response.delete_cookie("refresh_token", path="/")
+
+
+def serialize_user(u: dict) -> dict:
+    return {
+        "id": u["id"],
+        "email": u["email"],
+        "name": u.get("name", ""),
+        "role": u.get("role", "worker"),
+        "created_at": u.get("created_at"),
+    }
+
+
+async def get_current_user(request: Request) -> dict:
+    token = request.cookies.get("access_token")
+    if not token:
+        auth_header = request.headers.get("Authorization", "")
+        if auth_header.startswith("Bearer "):
+            token = auth_header[7:]
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    try:
+        payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+        if payload.get("type") != "access":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        user.pop("password_hash", None)
+        return user
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+
+async def require_admin(user: dict = Depends(get_current_user)) -> dict:
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return user
+
+
+# --- Models ---
+class RegisterRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    name: str
+
+
+class LoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class CreateWorkerRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    name: str
+
+
+class TaskCreate(BaseModel):
+    title: str
+    description: Optional[str] = ""
+    price: float
+    assignee_id: str
+
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    assignee_id: Optional[str] = None
+    status: Optional[str] = None  # assigned | in_progress | completed
+
+
+# --- Brute force ---
+async def check_lockout(identifier: str):
+    rec = await db.login_attempts.find_one({"identifier": identifier})
+    if not rec:
+        return
+    if rec.get("count", 0) >= MAX_FAILED_ATTEMPTS:
+        last = rec.get("last_attempt")
+        if isinstance(last, str):
+            last = datetime.fromisoformat(last)
+        if last and (now_utc() - last) < timedelta(minutes=LOCKOUT_MINUTES):
+            raise HTTPException(status_code=429, detail="Too many failed attempts. Try again later.")
+
+
+async def record_failed(identifier: str):
+    await db.login_attempts.update_one(
+        {"identifier": identifier},
+        {"$inc": {"count": 1}, "$set": {"last_attempt": now_utc().isoformat()}},
+        upsert=True,
+    )
+
+
+async def clear_failed(identifier: str):
+    await db.login_attempts.delete_one({"identifier": identifier})
+
+
+# --- Auth endpoints ---
+@api_router.post("/auth/login")
+async def login(req: LoginRequest, request: Request, response: Response):
+    email = req.email.lower().strip()
+    ip = request.client.host if request.client else "unknown"
+    identifier = f"{ip}:{email}"
+    await check_lockout(identifier)
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user or not verify_password(req.password, user["password_hash"]):
+        await record_failed(identifier)
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    await clear_failed(identifier)
+    access = create_access_token(user["id"], user["email"], user["role"])
+    refresh = create_refresh_token(user["id"])
+    set_auth_cookies(response, access, refresh)
+    return {"user": serialize_user(user), "access_token": access, "token_type": "bearer"}
+
+
+@api_router.post("/auth/logout")
+async def logout(response: Response, user: dict = Depends(get_current_user)):
+    clear_auth_cookies(response)
+    return {"ok": True}
+
+
+@api_router.get("/auth/me")
+async def me(user: dict = Depends(get_current_user)):
+    return serialize_user(user)
+
+
+@api_router.post("/auth/refresh")
+async def refresh_token_endpoint(request: Request, response: Response):
+    token = request.cookies.get("refresh_token")
+    if not token:
+        raise HTTPException(status_code=401, detail="No refresh token")
+    try:
+        payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
+        if payload.get("type") != "refresh":
+            raise HTTPException(status_code=401, detail="Invalid token type")
+        user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0})
+        if not user:
+            raise HTTPException(status_code=401, detail="User not found")
+        access = create_access_token(user["id"], user["email"], user["role"])
+        response.set_cookie("access_token", access, httponly=True, secure=True,
+                            samesite="none", max_age=ACCESS_TOKEN_MINUTES * 60, path="/")
+        return {"access_token": access}
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
+
+# --- Workers (admin) ---
+@api_router.post("/workers")
+async def create_worker(req: CreateWorkerRequest, admin: dict = Depends(require_admin)):
+    email = req.email.lower().strip()
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="Email already in use")
+    user_doc = {
+        "id": str(uuid.uuid4()),
+        "email": email,
+        "password_hash": hash_password(req.password),
+        "name": req.name,
+        "role": "worker",
+        "created_at": now_utc().isoformat(),
+    }
+    await db.users.insert_one(user_doc)
+    return serialize_user(user_doc)
+
+
+@api_router.get("/workers")
+async def list_workers(admin: dict = Depends(require_admin)):
+    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    return workers
+
+
+@api_router.delete("/workers/{worker_id}")
+async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
+    res = await db.users.delete_one({"id": worker_id, "role": "worker"})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    await db.tasks.delete_many({"assignee_id": worker_id})
+    await db.time_entries.delete_many({"user_id": worker_id})
+    return {"ok": True}
+
+
+# --- Tasks ---
+@api_router.post("/tasks")
+async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
+    worker = await db.users.find_one({"id": req.assignee_id, "role": "worker"})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    task = {
+        "id": str(uuid.uuid4()),
+        "title": req.title,
+        "description": req.description or "",
+        "price": float(req.price),
+        "assignee_id": req.assignee_id,
+        "status": "assigned",
+        "created_by": admin["id"],
+        "created_at": now_utc().isoformat(),
+        "completed_at": None,
+    }
+    await db.tasks.insert_one(task)
+    task.pop("_id", None)
+    return task
+
+
+@api_router.get("/tasks")
+async def list_tasks(user: dict = Depends(get_current_user), assignee_id: Optional[str] = None):
+    query: dict = {}
+    if user["role"] == "worker":
+        query["assignee_id"] = user["id"]
+    elif assignee_id:
+        query["assignee_id"] = assignee_id
+    tasks = await db.tasks.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
+    # attach assignee_name for admin convenience
+    if user["role"] == "admin":
+        worker_ids = list({t["assignee_id"] for t in tasks})
+        workers = await db.users.find({"id": {"$in": worker_ids}}, {"_id": 0, "id": 1, "name": 1, "email": 1}).to_list(1000)
+        wmap = {w["id"]: w for w in workers}
+        for t in tasks:
+            w = wmap.get(t["assignee_id"], {})
+            t["assignee_name"] = w.get("name", "Unknown")
+            t["assignee_email"] = w.get("email", "")
+    return tasks
+
+
+@api_router.patch("/tasks/{task_id}")
+async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_current_user)):
+    task = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    # workers may only update status of their own tasks
+    update: dict = {}
+    if user["role"] == "worker":
+        if task["assignee_id"] != user["id"]:
+            raise HTTPException(status_code=403, detail="Not your task")
+        if req.status not in ("in_progress", "completed", "assigned"):
+            raise HTTPException(status_code=400, detail="Workers may only update status")
+        update["status"] = req.status
+        if req.status == "completed":
+            update["completed_at"] = now_utc().isoformat()
+    else:
+        if req.title is not None:
+            update["title"] = req.title
+        if req.description is not None:
+            update["description"] = req.description
+        if req.price is not None:
+            update["price"] = float(req.price)
+        if req.assignee_id is not None:
+            update["assignee_id"] = req.assignee_id
+        if req.status is not None:
+            update["status"] = req.status
+            if req.status == "completed":
+                update["completed_at"] = now_utc().isoformat()
+    if not update:
+        raise HTTPException(status_code=400, detail="No fields to update")
+    await db.tasks.update_one({"id": task_id}, {"$set": update})
+    updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    return updated
+
+
+@api_router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str, admin: dict = Depends(require_admin)):
+    res = await db.tasks.delete_one({"id": task_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return {"ok": True}
+
+
+# --- Time entries / Clock ---
+@api_router.post("/time/clock-in")
+async def clock_in(user: dict = Depends(get_current_user)):
+    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
+    if active:
+        raise HTTPException(status_code=400, detail="You are already clocked in")
+    entry = {
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "clock_in": now_utc().isoformat(),
+        "clock_out": None,
+        "duration_seconds": 0,
+    }
+    await db.time_entries.insert_one(entry)
+    entry.pop("_id", None)
+    return entry
+
+
+@api_router.post("/time/clock-out")
+async def clock_out(user: dict = Depends(get_current_user)):
+    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
+    if not active:
+        raise HTTPException(status_code=400, detail="You are not clocked in")
+    clock_in_dt = datetime.fromisoformat(active["clock_in"])
+    out_dt = now_utc()
+    duration = int((out_dt - clock_in_dt).total_seconds())
+    await db.time_entries.update_one(
+        {"id": active["id"]},
+        {"$set": {"clock_out": out_dt.isoformat(), "duration_seconds": duration}},
+    )
+    return {**active, "clock_out": out_dt.isoformat(), "duration_seconds": duration}
+
+
+@api_router.get("/time/active")
+async def active_entry(user: dict = Depends(get_current_user)):
+    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
+    return active or {}
+
+
+@api_router.get("/time/entries")
+async def list_time_entries(user: dict = Depends(get_current_user), user_id: Optional[str] = None):
+    query: dict = {}
+    if user["role"] == "worker":
+        query["user_id"] = user["id"]
+    elif user_id:
+        query["user_id"] = user_id
+    entries = await db.time_entries.find(query, {"_id": 0}).sort("clock_in", -1).to_list(2000)
+    return entries
+
+
+# --- Payroll ---
+@api_router.get("/payroll")
+async def payroll(admin: dict = Depends(require_admin)):
+    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    result = []
+    for w in workers:
+        tasks_done = await db.tasks.find({"assignee_id": w["id"], "status": "completed"}, {"_id": 0}).to_list(1000)
+        task_earnings = sum(float(t.get("price", 0)) for t in tasks_done)
+        time_entries = await db.time_entries.find(
+            {"user_id": w["id"], "clock_out": {"$ne": None}}, {"_id": 0}
+        ).to_list(2000)
+        total_seconds = sum(int(e.get("duration_seconds", 0)) for e in time_entries)
+        active = await db.time_entries.find_one({"user_id": w["id"], "clock_out": None}, {"_id": 0})
+        result.append({
+            "worker": w,
+            "tasks_completed": len(tasks_done),
+            "tasks_earnings": round(task_earnings, 2),
+            "total_seconds": total_seconds,
+            "total_hours": round(total_seconds / 3600.0, 2),
+            "currently_clocked_in": bool(active),
+        })
+    return result
+
+
+# --- Health ---
 @api_router.get("/")
 async def root():
-    return {"message": "Hello World"}
+    return {"message": "ClockWork API", "ok": True}
 
-@api_router.post("/status", response_model=StatusCheck)
-async def create_status_check(input: StatusCheckCreate):
-    status_dict = input.model_dump()
-    status_obj = StatusCheck(**status_dict)
-    
-    # Convert to dict and serialize datetime to ISO string for MongoDB
-    doc = status_obj.model_dump()
-    doc['timestamp'] = doc['timestamp'].isoformat()
-    
-    _ = await db.status_checks.insert_one(doc)
-    return status_obj
 
-@api_router.get("/status", response_model=List[StatusCheck])
-async def get_status_checks():
-    # Exclude MongoDB's _id field from the query results
-    status_checks = await db.status_checks.find({}, {"_id": 0}).to_list(1000)
-    
-    # Convert ISO string timestamps back to datetime objects
-    for check in status_checks:
-        if isinstance(check['timestamp'], str):
-            check['timestamp'] = datetime.fromisoformat(check['timestamp'])
-    
-    return status_checks
-
-# Include the router in the main app
+# --- App setup ---
 app.include_router(api_router)
 
+frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 app.add_middleware(
     CORSMiddleware,
+    allow_origins=[frontend_url],
     allow_credentials=True,
-    allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+
+@app.on_event("startup")
+async def startup():
+    await db.users.create_index("email", unique=True)
+    await db.users.create_index("id", unique=True)
+    await db.tasks.create_index("assignee_id")
+    await db.time_entries.create_index([("user_id", 1), ("clock_out", 1)])
+    await db.login_attempts.create_index("identifier")
+    # seed admin
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com").lower()
+    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    existing = await db.users.find_one({"email": admin_email})
+    if not existing:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()),
+            "email": admin_email,
+            "password_hash": hash_password(admin_password),
+            "name": "Administrator",
+            "role": "admin",
+            "created_at": now_utc().isoformat(),
+        })
+        logger.info(f"Seeded admin user: {admin_email}")
+    elif not verify_password(admin_password, existing["password_hash"]):
+        await db.users.update_one(
+            {"email": admin_email},
+            {"$set": {"password_hash": hash_password(admin_password)}},
+        )
+        logger.info(f"Updated admin password for: {admin_email}")
+
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
