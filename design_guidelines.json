@@ -1,0 +1,90 @@
+{
+  "theme": "Dark",
+  "archetype": "Archetype 5 (Luxury) mixed with Archetype 3 (Pastel & Soft) structural playfulness",
+  "domain": "Dashboard/Tool",
+  "colors": {
+    "background": "#09090B",
+    "surface": "#121214",
+    "surface_hover": "#1A1A1D",
+    "border": "rgba(250, 204, 21, 0.2)",
+    "primary": "#FACC15",
+    "primary_hover": "#FDE047",
+    "primary_foreground": "#000000",
+    "secondary": "#27272A",
+    "secondary_foreground": "#FAFAFA",
+    "text_main": "#FFFFFF",
+    "text_muted": "#A1A1AA",
+    "accent_success": "#4ADE80",
+    "accent_danger": "#F87171"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Outfit, sans-serif",
+      "weights": ["400", "600", "700"],
+      "tracking": "tracking-tight"
+    },
+    "body": {
+      "font_family": "Manrope, sans-serif",
+      "weights": ["400", "500", "600"]
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl font-bold tracking-tight text-white",
+      "h2": "text-2xl sm:text-3xl font-semibold tracking-tight text-white",
+      "h3": "text-xl sm:text-2xl font-semibold text-white",
+      "h4": "text-lg font-medium text-white",
+      "p": "text-base text-zinc-400 leading-relaxed",
+      "small": "text-sm text-zinc-500 uppercase tracking-widest"
+    }
+  },
+  "layout_and_spacing": {
+    "grid_system": "MODE B: THE CONTROL ROOM GRID (Dense, functional, gap-6)",
+    "container_padding": "p-6 sm:p-8 md:p-12",
+    "card_padding": "p-6",
+    "border_radius": "rounded-2xl"
+  },
+  "components_strategy": {
+    "buttons": "Rounded-full for the primary Clock In/Out CTA to add structural playfulness. Solid gold (#FACC15) with black text. Use subtle scale on hover. Add data-testid to all.",
+    "cards": "Solid background (#121214) with a subtle 1px border (border-yellow-400/20). Rounded-2xl for a friendly feel despite the dark luxury theme.",
+    "inputs": "Shadcn UI customized: bg-zinc-900 border-zinc-800 focus:border-yellow-400 focus:ring-1 focus:ring-yellow-400/50 rounded-xl.",
+    "tables": "Go cardless for lists if possible. Left aligned. Row hover bg-zinc-800/50.",
+    "navigation": "Collapsible left sidebar for Admin. Topbar for Worker. Use Glassmorphism backdrop-blur-xl bg-black/60 for sticky elements.",
+    "toast": "Use Sonner for toast notifications, dark theme with gold icons.",
+    "modal": "Shadcn Dialog, centered, backdrop-blur-sm, rounded-2xl."
+  },
+  "interactions_and_motion": {
+    "hover_states": "Buttons must have explicit hover text colors and bg colors. Cards elevate slightly -translate-y-1 shadow-lg shadow-yellow-400/5.",
+    "transitions": "transition-all duration-200 ease-in-out",
+    "clock_in_button": "Pulsing animation: animate-pulse on the drop-shadow or ring to encourage interaction. Make it massive and prominent in the UI."
+  },
+  "icons": {
+    "library": "lucide-react",
+    "style": "Clean, scalable strokes. 24px default."
+  },
+  "media": {
+    "image_urls": [
+      {
+        "url": "https://images.unsplash.com/photo-1646627928999-48734570fff3?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwyfHxjb21wYW55JTIwbG9nbyUyMGdlb21ldHJpYyUyMGdvbGQlMjBvbiUyMGJsYWNrfGVufDB8fHx8MTc4MDM0MTg2NXww&ixlib=rb-4.1.0&q=85",
+        "category": "logo",
+        "description": "Gold letter on a black background, to be used as the main company logo in the header/sidebar."
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1576533247967-79124db83e48?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NzV8MHwxfHNlYXJjaHwzfHxwcm9mZXNzaW9uYWwlMjB3b3JrZXIlMjBhdmF0YXIlMjBwcm9maWxlJTIwcGhvdG98ZW58MHx8fHwxNzgwMzQxODY1fDA&ixlib=rb-4.1.0&q=85",
+        "category": "avatar",
+        "description": "Professional worker avatar photo for the user profile dropdown/Admin view."
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Ensure all fonts are loaded properly via Google Fonts (Outfit and Manrope) in index.html.",
+    "Ensure you write .js (React with JavaScript) instead of TypeScript (.tsx) for the frontend.",
+    "Do NOT use 'Inter' for headings. Apply Outfit instead.",
+    "Build a robust layout for Admin with a sidebar, and a simpler topbar layout for the Worker dashboard.",
+    "Implement JWT auth (email/password) handling for Admin and Worker.",
+    "Admin Dashboard: View all workers, form to create worker accounts, assign tasks with title/description/fixed price, view payroll dashboard with per-worker total earnings.",
+    "Worker Dashboard: MUST feature a massive 'Clock In / Clock Out' primary action with active shift timer and today's hours.",
+    "Worker Dashboard: Display task list (assigned/in-progress/completed) with price visible. Allow marking tasks as complete to log earnings.",
+    "Include a 'Time entries history' per worker section.",
+    "Do not use transparent backgrounds for the header/sidebar.",
+    "Add 'data-testid' to ALL interactive elements (buttons, inputs, task items)."
+  ]
+}
