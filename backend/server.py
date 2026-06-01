@@ -230,6 +230,9 @@ class TaskUpdate(BaseModel):
     status: Optional[str] = None  # assigned | in_progress | completed
     due_at: Optional[str] = None
     estimated_hours: Optional[float] = None
+    daily_hours: Optional[float] = None
+    frequency: Optional[str] = None
+    payout_schedule: Optional[str] = None
 
 
 class ClockInRequest(BaseModel):
@@ -599,6 +602,26 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
 
 # --- Tasks ---
 VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting"}
+VALID_FREQUENCIES = {"once", "daily", "weekly", "monthly"}
+VALID_PAYOUTS = {"per_task", "daily", "weekly", "monthly"}
+
+
+def _validate_frequency(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return None
+    v = v.lower().strip()
+    if v not in VALID_FREQUENCIES:
+        raise HTTPException(status_code=400, detail=f"Invalid frequency. Use one of: {sorted(VALID_FREQUENCIES)}")
+    return v
+
+
+def _validate_payout(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return None
+    v = v.lower().strip()
+    if v not in VALID_PAYOUTS:
+        raise HTTPException(status_code=400, detail=f"Invalid payout_schedule. Use one of: {sorted(VALID_PAYOUTS)}")
+    return v
 
 
 @api_router.post("/tasks")
@@ -618,6 +641,9 @@ async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
         "completed_at": None,
         "due_at": _parse_deadline(req.due_at),
         "estimated_hours": float(req.estimated_hours) if req.estimated_hours is not None else None,
+        "daily_hours": float(req.daily_hours) if req.daily_hours is not None else None,
+        "frequency": _validate_frequency(req.frequency) or "once",
+        "payout_schedule": _validate_payout(req.payout_schedule) or "per_task",
     }
     await db.tasks.insert_one(task)
     task.pop("_id", None)
@@ -676,6 +702,12 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
             update["due_at"] = _parse_deadline(req.due_at) if req.due_at else None
         if req.estimated_hours is not None:
             update["estimated_hours"] = float(req.estimated_hours) if req.estimated_hours else None
+        if req.daily_hours is not None:
+            update["daily_hours"] = float(req.daily_hours) if req.daily_hours else None
+        if req.frequency is not None:
+            update["frequency"] = _validate_frequency(req.frequency)
+        if req.payout_schedule is not None:
+            update["payout_schedule"] = _validate_payout(req.payout_schedule)
     if not update:
         raise HTTPException(status_code=400, detail="No fields to update")
     await db.tasks.update_one({"id": task_id}, {"$set": update})

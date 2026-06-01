@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import {
   Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
   CalendarClock, Calendar, AlertTriangle, Hourglass, TrendingUp, ArrowRight,
+  Repeat, Wallet,
 } from "lucide-react";
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
@@ -336,11 +337,24 @@ function TaskRow({ t, onToggle, onStart }) {
         {t.status === "completed" ? <CheckCircle2 className="w-5 h-5" /> : <Circle className="w-5 h-5" />}
       </button>
       <div className="flex-1 min-w-[200px]">
-        <div className={`font-medium ${t.status === "completed" ? "line-through text-zinc-500" : ""}`}>{t.title}</div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className={`font-medium ${t.status === "completed" ? "line-through text-zinc-500" : ""}`}>{t.title}</div>
+          {t.frequency && t.frequency !== "once" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-sky-400/15 text-sky-300 uppercase tracking-widest">
+              <Repeat className="w-3 h-3" /> {t.frequency}
+            </span>
+          )}
+          {t.payout_schedule && t.payout_schedule !== "per_task" && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-emerald-400/15 text-emerald-300 uppercase tracking-widest">
+              <Wallet className="w-3 h-3" /> paid {t.payout_schedule}
+            </span>
+          )}
+        </div>
         <div className="text-xs text-zinc-500 mt-0.5 flex flex-wrap gap-x-3 gap-y-1 items-center">
           {t.description && <span className="truncate max-w-[260px]">{t.description}</span>}
           {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
-          {t.estimated_hours && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h budget</span>}
+          {t.daily_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.daily_hours}h/day</span>}
+          {t.estimated_hours != null && <span><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
         </div>
       </div>
       <div className="inline-flex items-center gap-1 text-yellow-400 font-display font-semibold">
