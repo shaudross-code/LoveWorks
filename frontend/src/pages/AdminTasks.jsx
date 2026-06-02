@@ -217,9 +217,13 @@ export default function AdminTasks() {
                   </span>
                 )}
               </div>
+              {t.description && (
+                <div data-testid={`task-desc-${t.id}`} className="text-sm text-zinc-300 mt-1.5 whitespace-pre-wrap break-words">
+                  {t.description}
+                </div>
+              )}
               <div className="text-xs text-zinc-500 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span>{t.assignee_name}</span>
-                {t.description && <span className="truncate max-w-[260px]">· {t.description}</span>}
                 {t.due_at && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {new Date(t.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>}
                 {t.due_day_of_week != null && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {DOW_LABEL[String(t.due_day_of_week)]}</span>}
                 {t.due_time && <span className="text-yellow-300"><Clock className="inline w-3 h-3 -mt-0.5" /> by {fmtTime12(t.due_time)}</span>}

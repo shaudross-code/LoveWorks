@@ -359,8 +359,12 @@ function TaskRow({ t, onToggle, onStart }) {
             </span>
           )}
         </div>
-        <div className="text-xs text-zinc-500 mt-0.5 flex flex-wrap gap-x-3 gap-y-1 items-center">
-          {t.description && <span className="truncate max-w-[260px]">{t.description}</span>}
+        {t.description && (
+          <div data-testid={`worker-task-desc-${t.id}`} className="text-sm text-zinc-300 mt-1.5 whitespace-pre-wrap break-words">
+            {t.description}
+          </div>
+        )}
+        <div className="text-xs text-zinc-500 mt-1 flex flex-wrap gap-x-3 gap-y-1 items-center">
           {t.due_at && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {fmtDate(t.due_at)}</span>}
           {t.due_day_of_week != null && <span><Calendar className="inline w-3 h-3 -mt-0.5" /> {DOW_NAMES[t.due_day_of_week]}</span>}
           {t.due_time && <span className="text-yellow-300"><Clock className="inline w-3 h-3 -mt-0.5" /> by {fmtTime12(t.due_time)}</span>}
