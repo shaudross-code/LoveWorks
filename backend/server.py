@@ -104,6 +104,7 @@ def serialize_user(u: dict) -> dict:
         "name": u.get("name", ""),
         "role": u.get("role", "worker"),
         "created_at": u.get("created_at"),
+        "last_seen_at": u.get("last_seen_at"),
         "avatar_path": avatar_path,
         "avatar_url": f"/api/files/{avatar_path}" if avatar_path else None,
     }
@@ -182,6 +183,22 @@ async def get_current_user(request: Request) -> dict:
         if not user:
             raise HTTPException(status_code=401, detail="User not found")
         user.pop("password_hash", None)
+        # Best-effort presence touch (throttled to once per 30s per user)
+        try:
+            last = user.get("last_seen_at")
+            should_touch = True
+            if last:
+                try:
+                    if (now_utc() - datetime.fromisoformat(last)).total_seconds() < 30:
+                        should_touch = False
+                except Exception:
+                    pass
+            if should_touch:
+                ts = now_utc().isoformat()
+                await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen_at": ts}})
+                user["last_seen_at"] = ts
+        except Exception:
+            pass
         return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
@@ -1007,6 +1024,136 @@ async def payroll(admin: dict = Depends(require_admin)):
         }
         for w in workers
     ]
+
+
+# --- Admin live worker monitor ---
+PRESENCE_WINDOW_SECONDS = 120  # active in last 2 min => "online"
+WORKDAYS_PER_WEEK = 5
+
+
+@api_router.get("/admin/worker-status")
+async def admin_worker_status(admin: dict = Depends(require_admin)):
+    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    if not workers:
+        return []
+    worker_ids = [w["id"] for w in workers]
+    now = now_utc()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())  # Monday 00:00 UTC
+
+    entries_week = await db.time_entries.find(
+        {"user_id": {"$in": worker_ids}, "clock_in": {"$gte": week_start.isoformat()}},
+        {"_id": 0},
+    ).to_list(10000)
+    leftover_active = await db.time_entries.find(
+        {"user_id": {"$in": worker_ids}, "clock_out": None, "clock_in": {"$lt": week_start.isoformat()}},
+        {"_id": 0},
+    ).to_list(1000)
+    active_map: dict = {}
+    for e in entries_week:
+        if e.get("clock_out") is None:
+            active_map[e["user_id"]] = e
+    for e in leftover_active:
+        active_map.setdefault(e["user_id"], e)
+
+    open_tasks = await db.tasks.find(
+        {"assignee_id": {"$in": worker_ids}, "status": {"$ne": "completed"}},
+        {"_id": 0, "assignee_id": 1, "daily_hours": 1, "estimated_hours": 1, "frequency": 1, "title": 1, "status": 1},
+    ).to_list(10000)
+
+    results = []
+    for w in workers:
+        wid = w["id"]
+        today_seconds = 0
+        week_seconds = 0
+        for e in entries_week:
+            if e["user_id"] != wid:
+                continue
+            try:
+                in_dt = datetime.fromisoformat(e["clock_in"])
+            except Exception:
+                continue
+            if e.get("clock_out"):
+                try:
+                    out_dt = datetime.fromisoformat(e["clock_out"])
+                except Exception:
+                    out_dt = now
+            else:
+                out_dt = now
+            seg_start = max(in_dt, week_start)
+            seg_end = max(seg_start, out_dt)
+            week_seconds += int((seg_end - seg_start).total_seconds())
+            t_seg_start = max(in_dt, today_start)
+            if seg_end > t_seg_start:
+                today_seconds += int((seg_end - t_seg_start).total_seconds())
+        # Leftover active that started before this week
+        le = active_map.get(wid)
+        if le:
+            try:
+                le_in = datetime.fromisoformat(le["clock_in"])
+                if le_in < week_start:
+                    week_seconds += int((now - week_start).total_seconds())
+                    today_seconds += int((now - today_start).total_seconds())
+            except Exception:
+                pass
+
+        # Required hours
+        daily_required = 0.0
+        weekly_required = 0.0
+        open_count = 0
+        for t in open_tasks:
+            if t["assignee_id"] != wid:
+                continue
+            open_count += 1
+            dh = float(t.get("daily_hours") or 0)
+            est = float(t.get("estimated_hours") or 0)
+            freq = t.get("frequency") or "once"
+            if dh > 0:
+                if freq == "daily":
+                    daily_required += dh
+                    weekly_required += dh * WORKDAYS_PER_WEEK
+                elif freq == "weekly":
+                    daily_required += dh
+                    weekly_required += dh * WORKDAYS_PER_WEEK
+                elif freq == "monthly":
+                    daily_required += dh / 4.0
+                    weekly_required += dh * WORKDAYS_PER_WEEK
+                else:  # once
+                    daily_required += dh
+                    weekly_required += dh * WORKDAYS_PER_WEEK
+            elif est > 0 and freq in ("weekly", "once"):
+                weekly_required += est
+
+        last_seen = w.get("last_seen_at")
+        online = False
+        if last_seen:
+            try:
+                online = (now - datetime.fromisoformat(last_seen)).total_seconds() < PRESENCE_WINDOW_SECONDS
+            except Exception:
+                pass
+        active = active_map.get(wid)
+        today_hours = today_seconds / 3600.0
+        week_hours = week_seconds / 3600.0
+        results.append({
+            "worker": serialize_user(w),
+            "online": online,
+            "last_seen_at": last_seen,
+            "currently_clocked_in": bool(active),
+            "active_activity": active.get("activity") if active else None,
+            "active_clock_in_at": active.get("clock_in") if active else None,
+            "today_worked_seconds": today_seconds,
+            "week_worked_seconds": week_seconds,
+            "today_worked_hours": round(today_hours, 2),
+            "week_worked_hours": round(week_hours, 2),
+            "daily_required_hours": round(daily_required, 2),
+            "weekly_required_hours": round(weekly_required, 2),
+            "today_left_hours": round(max(0.0, daily_required - today_hours), 2),
+            "week_left_hours": round(max(0.0, weekly_required - week_hours), 2),
+            "open_tasks_count": open_count,
+        })
+    # sort: online first, then currently_clocked_in, then by name
+    results.sort(key=lambda r: (not r["online"], not r["currently_clocked_in"], (r["worker"]["name"] or "").lower()))
+    return results
 
 
 # --- Notifications ---
