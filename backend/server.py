@@ -246,6 +246,110 @@ class ClockInRequest(BaseModel):
     activity: Optional[str] = "working"  # working | studying | break | cleaning | workout | parenting
 
 
+class AnnouncementCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=140)
+    body: str = Field(min_length=1, max_length=4000)
+    tag: Optional[str] = "update"  # update | feature | maintenance | announcement
+
+
+# --- Awards catalog ---
+AWARDS_CATALOG = {
+    "first_task":       {"title": "First on the Board", "description": "You completed your very first task", "icon": "sparkle"},
+    "five_tasks":       {"title": "High Five",          "description": "5 tasks completed",                   "icon": "high-five"},
+    "ten_tasks":        {"title": "Bronze Worker",      "description": "10 tasks completed",                  "icon": "medal-bronze"},
+    "twentyfive_tasks": {"title": "Silver Worker",      "description": "25 tasks completed",                  "icon": "medal-silver"},
+    "fifty_tasks":      {"title": "Gold Worker",        "description": "50 tasks completed",                  "icon": "medal-gold"},
+    "hundred_tasks":    {"title": "Platinum Worker",    "description": "100 tasks completed",                 "icon": "trophy"},
+    "early_bird":       {"title": "Early Bird",         "description": "Completed a task before its due time","icon": "sunrise"},
+    "streak_3":         {"title": "3-Day Streak",       "description": "Clocked in 3 days in a row",          "icon": "flame"},
+    "streak_7":         {"title": "Week Warrior",       "description": "Clocked in 7 days in a row",          "icon": "flame-gold"},
+}
+TASK_AWARD_THRESHOLDS = [
+    (1,   "first_task"),
+    (5,   "five_tasks"),
+    (10,  "ten_tasks"),
+    (25,  "twentyfive_tasks"),
+    (50,  "fifty_tasks"),
+    (100, "hundred_tasks"),
+]
+
+
+# --- Notification & award helpers ---
+async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None) -> dict:
+    doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "type": ntype,
+        "title": title,
+        "body": body or "",
+        "link": link,
+        "meta": meta or {},
+        "read": False,
+        "created_at": now_utc().isoformat(),
+    }
+    await db.notifications.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+async def grant_award(user_id: str, code: str) -> Optional[dict]:
+    if code not in AWARDS_CATALOG:
+        return None
+    existing = await db.awards.find_one({"user_id": user_id, "code": code})
+    if existing:
+        return None
+    info = AWARDS_CATALOG[code]
+    doc = {
+        "id": str(uuid.uuid4()),
+        "user_id": user_id,
+        "code": code,
+        "title": info["title"],
+        "description": info["description"],
+        "icon": info["icon"],
+        "earned_at": now_utc().isoformat(),
+    }
+    await db.awards.insert_one(doc)
+    doc.pop("_id", None)
+    await notify(
+        user_id, "award",
+        f"🏆 New award: {info['title']}",
+        info["description"],
+        link="/worker/awards",
+        meta={"code": code, "icon": info["icon"]},
+    )
+    return doc
+
+
+async def evaluate_task_count_awards(user_id: str):
+    count = await db.tasks.count_documents({"assignee_id": user_id, "status": "completed"})
+    for threshold, code in TASK_AWARD_THRESHOLDS:
+        if count >= threshold:
+            await grant_award(user_id, code)
+
+
+async def evaluate_clockin_streak(user_id: str):
+    """Compute distinct clock-in dates (UTC) and grant streak awards for 3, 7 consecutive days ending today."""
+    entries = await db.time_entries.find({"user_id": user_id}, {"_id": 0, "clock_in": 1}).to_list(2000)
+    days = set()
+    for e in entries:
+        try:
+            days.add(datetime.fromisoformat(e["clock_in"]).date())
+        except Exception:
+            continue
+    if not days:
+        return
+    today = now_utc().date()
+    streak = 0
+    cur = today
+    while cur in days:
+        streak += 1
+        cur = cur - timedelta(days=1)
+    if streak >= 3:
+        await grant_award(user_id, "streak_3")
+    if streak >= 7:
+        await grant_award(user_id, "streak_7")
+
+
 class ProfileUpdate(BaseModel):
     name: str = Field(min_length=1, max_length=80)
 
@@ -642,7 +746,8 @@ def _validate_due_time(v: Optional[str]) -> Optional[str]:
     if len(parts) < 2 or len(parts) > 3:
         raise HTTPException(status_code=400, detail="due_time must be HH:MM (24h)")
     try:
-        h = int(parts[0]); m = int(parts[1])
+        h = int(parts[0])
+        m = int(parts[1])
     except ValueError:
         raise HTTPException(status_code=400, detail="due_time must be HH:MM (24h)")
     if not (0 <= h <= 23 and 0 <= m <= 59):
@@ -687,6 +792,25 @@ async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
     }
     await db.tasks.insert_one(task)
     task.pop("_id", None)
+    # Notify the assignee about the new task
+    when_parts = []
+    if task.get("due_at"):
+        try:
+            when_parts.append(datetime.fromisoformat(task["due_at"]).strftime("%b %d"))
+        except Exception:
+            pass
+    if task.get("due_day_of_week") is not None:
+        when_parts.append(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][task["due_day_of_week"]])
+    if task.get("due_time"):
+        when_parts.append(f"by {task['due_time']}")
+    when_str = " · ".join(when_parts) if when_parts else "no deadline"
+    await notify(
+        req.assignee_id, "task_assigned",
+        f"New task: {task['title']}",
+        f"${float(task['price']):.2f} · {when_str}",
+        link="/worker",
+        meta={"task_id": task["id"]},
+    )
     return task
 
 
@@ -757,6 +881,20 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         raise HTTPException(status_code=400, detail="No fields to update")
     await db.tasks.update_one({"id": task_id}, {"$set": update})
     updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    # Award + notify on task completion
+    if update.get("status") == "completed" and task.get("status") != "completed":
+        owner_id = updated["assignee_id"]
+        # Early-bird award if completed before due_time today
+        if updated.get("due_time"):
+            try:
+                hh, mm = [int(x) for x in updated["due_time"].split(":")[:2]]
+                now = now_utc()
+                deadline_today = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+                if now <= deadline_today:
+                    await grant_award(owner_id, "early_bird")
+            except Exception:
+                pass
+        await evaluate_task_count_awards(owner_id)
     return updated
 
 
@@ -787,6 +925,8 @@ async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(
     }
     await db.time_entries.insert_one(entry)
     entry.pop("_id", None)
+    # Evaluate streak awards
+    await evaluate_clockin_streak(user["id"])
     return entry
 
 
@@ -869,6 +1009,101 @@ async def payroll(admin: dict = Depends(require_admin)):
     ]
 
 
+# --- Notifications ---
+@api_router.get("/notifications")
+async def list_notifications(user: dict = Depends(get_current_user), limit: int = 50):
+    items = await db.notifications.find(
+        {"user_id": user["id"]}, {"_id": 0}
+    ).sort("created_at", -1).limit(min(max(limit, 1), 200)).to_list(200)
+    unread = await db.notifications.count_documents({"user_id": user["id"], "read": False})
+    return {"items": items, "unread": unread}
+
+
+@api_router.post("/notifications/{nid}/read")
+async def mark_notification_read(nid: str, user: dict = Depends(get_current_user)):
+    await db.notifications.update_one(
+        {"id": nid, "user_id": user["id"]},
+        {"$set": {"read": True}},
+    )
+    return {"ok": True}
+
+
+@api_router.post("/notifications/read-all")
+async def mark_all_read(user: dict = Depends(get_current_user)):
+    await db.notifications.update_many(
+        {"user_id": user["id"], "read": False},
+        {"$set": {"read": True}},
+    )
+    return {"ok": True}
+
+
+# --- Awards ---
+@api_router.get("/awards/catalog")
+async def awards_catalog(user: dict = Depends(get_current_user)):
+    return [{"code": code, **info} for code, info in AWARDS_CATALOG.items()]
+
+
+@api_router.get("/awards")
+async def list_awards(user: dict = Depends(get_current_user), user_id: Optional[str] = None):
+    target = user_id if (user["role"] == "admin" and user_id) else user["id"]
+    earned = await db.awards.find({"user_id": target}, {"_id": 0}).sort("earned_at", -1).to_list(500)
+    earned_codes = {a["code"] for a in earned}
+    catalog = []
+    for code, info in AWARDS_CATALOG.items():
+        match = next((a for a in earned if a["code"] == code), None)
+        catalog.append({
+            "code": code,
+            **info,
+            "earned": code in earned_codes,
+            "earned_at": match["earned_at"] if match else None,
+        })
+    return {"earned_count": len(earned), "total": len(AWARDS_CATALOG), "items": catalog}
+
+
+# --- Announcements ---
+@api_router.post("/announcements")
+async def create_announcement(req: AnnouncementCreate, admin: dict = Depends(require_admin)):
+    tag = (req.tag or "update").lower().strip()
+    if tag not in {"update", "feature", "maintenance", "announcement"}:
+        tag = "update"
+    doc = {
+        "id": str(uuid.uuid4()),
+        "title": req.title.strip(),
+        "body": req.body.strip(),
+        "tag": tag,
+        "created_by": admin["id"],
+        "created_at": now_utc().isoformat(),
+    }
+    await db.announcements.insert_one(doc)
+    doc.pop("_id", None)
+    # Fan-out a notification to every worker
+    workers = await db.users.find({"role": "worker"}, {"_id": 0, "id": 1}).to_list(2000)
+    icon = {"feature": "✨", "maintenance": "🛠️", "announcement": "📣", "update": "📣"}.get(tag, "📣")
+    for w in workers:
+        await notify(
+            w["id"], "announcement",
+            f"{icon} {doc['title']}",
+            doc["body"][:160],
+            link="/worker/announcements",
+            meta={"announcement_id": doc["id"], "tag": tag},
+        )
+    return doc
+
+
+@api_router.get("/announcements")
+async def list_announcements(user: dict = Depends(get_current_user)):
+    items = await db.announcements.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return items
+
+
+@api_router.delete("/announcements/{aid}")
+async def delete_announcement(aid: str, admin: dict = Depends(require_admin)):
+    res = await db.announcements.delete_one({"id": aid})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Announcement not found")
+    return {"ok": True}
+
+
 # --- Health ---
 @api_router.get("/")
 async def root():
@@ -908,6 +1143,9 @@ async def startup():
     await db.login_attempts.create_index("identifier")
     await db.files.create_index("storage_path")
     await db.goals.create_index("owner_id")
+    await db.notifications.create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
+    await db.awards.create_index([("user_id", 1), ("code", 1)], unique=True)
+    await db.announcements.create_index("created_at")
     # init object storage
     try:
         init_storage()

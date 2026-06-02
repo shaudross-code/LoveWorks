@@ -13,6 +13,8 @@ import AdminTasks from "@/pages/AdminTasks";
 import AdminPayroll from "@/pages/AdminPayroll";
 import Profile from "@/pages/Profile";
 import AdminGoals from "@/pages/AdminGoals";
+import Awards from "@/pages/Awards";
+import Announcements from "@/pages/Announcements";
 import WorkerDashboard from "@/pages/WorkerDashboard";
 import WorkerHistory from "@/pages/WorkerHistory";
 
@@ -47,12 +49,21 @@ function App() {
             <Route path="/admin/goals" element={
               <ProtectedRoute role="admin"><AdminLayout><AdminGoals /></AdminLayout></ProtectedRoute>
             } />
+            <Route path="/admin/announcements" element={
+              <ProtectedRoute role="admin"><AdminLayout><Announcements /></AdminLayout></ProtectedRoute>
+            } />
 
             <Route path="/worker" element={
               <ProtectedRoute role="worker"><WorkerLayout><WorkerDashboard /></WorkerLayout></ProtectedRoute>
             } />
             <Route path="/worker/history" element={
               <ProtectedRoute role="worker"><WorkerLayout><WorkerHistory /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/awards" element={
+              <ProtectedRoute role="worker"><WorkerLayout><Awards /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/announcements" element={
+              <ProtectedRoute role="worker"><WorkerLayout><Announcements /></WorkerLayout></ProtectedRoute>
             } />
             <Route path="/worker/profile" element={
               <ProtectedRoute role="worker"><WorkerLayout><Profile /></WorkerLayout></ProtectedRoute>

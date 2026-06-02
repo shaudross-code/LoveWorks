@@ -1,12 +1,15 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
-import { Clock, History, LogOut, UserCircle2 } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
+import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone } from "lucide-react";
 
 const items = [
-  { to: "/worker",         label: "Workday", icon: Clock,        testid: "nav-workday" },
-  { to: "/worker/history", label: "History", icon: History,      testid: "nav-history" },
-  { to: "/worker/profile", label: "Profile", icon: UserCircle2,  testid: "nav-profile" },
+  { to: "/worker",                label: "Workday",      icon: Clock,        testid: "nav-workday" },
+  { to: "/worker/history",        label: "History",      icon: History,      testid: "nav-history" },
+  { to: "/worker/awards",         label: "Awards",       icon: Trophy,       testid: "nav-awards" },
+  { to: "/worker/announcements",  label: "What's new",   icon: Megaphone,    testid: "nav-announcements" },
+  { to: "/worker/profile",        label: "Profile",      icon: UserCircle2,  testid: "nav-profile" },
 ];
 
 export default function WorkerLayout({ children }) {
@@ -38,6 +41,7 @@ export default function WorkerLayout({ children }) {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-3">
+            <NotificationBell />
             <NavLink to="/worker/profile" data-testid="topbar-avatar-link" className="flex items-center gap-2 hover:opacity-90 transition">
               <div className="hidden sm:block text-right">
                 <div className="text-sm font-medium" data-testid="worker-user-name">{user?.name}</div>

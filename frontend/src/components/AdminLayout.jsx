@@ -1,15 +1,17 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target } from "lucide-react";
+import NotificationBell from "@/components/NotificationBell";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone } from "lucide-react";
 
 const items = [
-  { to: "/admin",         label: "Overview",  icon: LayoutDashboard, testid: "nav-overview" },
-  { to: "/admin/workers", label: "Workers",   icon: Users,           testid: "nav-workers" },
-  { to: "/admin/tasks",   label: "Tasks",     icon: ClipboardList,   testid: "nav-tasks" },
-  { to: "/admin/goals",   label: "Goals",     icon: Target,          testid: "nav-goals" },
-  { to: "/admin/payroll", label: "Payroll",   icon: BadgeDollarSign, testid: "nav-payroll" },
-  { to: "/admin/profile", label: "Profile",   icon: UserCircle2,     testid: "nav-profile" },
+  { to: "/admin",                label: "Overview",       icon: LayoutDashboard, testid: "nav-overview" },
+  { to: "/admin/workers",        label: "Workers",        icon: Users,           testid: "nav-workers" },
+  { to: "/admin/tasks",          label: "Tasks",          icon: ClipboardList,   testid: "nav-tasks" },
+  { to: "/admin/goals",          label: "Goals",          icon: Target,          testid: "nav-goals" },
+  { to: "/admin/payroll",        label: "Payroll",        icon: BadgeDollarSign, testid: "nav-payroll" },
+  { to: "/admin/announcements",  label: "Announcements",  icon: Megaphone,       testid: "nav-announcements" },
+  { to: "/admin/profile",        label: "Profile",        icon: UserCircle2,     testid: "nav-profile" },
 ];
 
 export default function AdminLayout({ children }) {
@@ -22,10 +24,11 @@ export default function AdminLayout({ children }) {
         <div className="px-6 pt-8 pb-6 border-b border-yellow-400/10">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold text-lg">C</div>
-            <div>
+            <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-lg leading-none">ClockWork</div>
               <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Admin Console</div>
             </div>
+            <NotificationBell />
           </div>
         </div>
         <nav className="flex-1 px-3 py-5 space-y-1">
@@ -76,6 +79,7 @@ export default function AdminLayout({ children }) {
         <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-sm flex items-center gap-1">
           <LogOut className="w-4 h-4" /> Logout
         </button>
+        <div className="ml-2"><NotificationBell /></div>
       </div>
       <div className="md:hidden h-14" />
 
