@@ -11,6 +11,7 @@ import {
   Pencil, Repeat, Wallet, Clock,
 } from "lucide-react";
 import { toast } from "sonner";
+import SpeakButton from "@/components/SpeakButton";
 
 const STATUS = ["all", "assigned", "in_progress", "completed"];
 const STATUS_STYLE = {
@@ -205,6 +206,12 @@ export default function AdminTasks() {
             <div className="flex-1 min-w-[260px]">
               <div className="flex items-center gap-2 flex-wrap">
                 <div className="font-medium">{t.title}</div>
+                <SpeakButton
+                  testid={`speak-task-${t.id}`}
+                  text={`${t.title}. ${t.description || ""}`}
+                  label="Read task aloud"
+                  size={14}
+                />
                 <span className={`px-2.5 py-0.5 rounded-full text-xs ${STATUS_STYLE[t.status]}`}>{t.status.replace("_", " ")}</span>
                 {t.frequency && t.frequency !== "once" && (
                   <span className="px-2.5 py-0.5 rounded-full text-xs bg-sky-400/15 text-sky-300 inline-flex items-center gap-1">

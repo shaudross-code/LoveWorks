@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
+import SpeakButton from "@/components/SpeakButton";
 import { ACTIVITIES, activityOf } from "@/lib/activities";
 
 function formatDuration(seconds) {
@@ -348,6 +349,12 @@ function TaskRow({ t, onToggle, onStart }) {
       <div className="flex-1 min-w-[200px]">
         <div className="flex items-center gap-2 flex-wrap">
           <div className={`font-medium ${t.status === "completed" ? "line-through text-zinc-500" : ""}`}>{t.title}</div>
+          <SpeakButton
+            testid={`speak-task-${t.id}`}
+            text={`${t.title}. ${t.description || ""}`}
+            label="Read task aloud"
+            size={14}
+          />
           {t.frequency && t.frequency !== "once" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-sky-400/15 text-sky-300 uppercase tracking-widest">
               <Repeat className="w-3 h-3" /> {t.frequency}
