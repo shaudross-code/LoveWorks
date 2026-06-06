@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import { activityOf } from "@/lib/activities";
+import WeeklyStrip from "@/components/WeeklyStrip";
 
 function timeAgo(iso) {
   if (!iso) return "never";
@@ -223,29 +224,7 @@ export default function AdminWorkers() {
 
               {/* Weekly completion strip — Mon..Sun */}
               <div className="mt-4">
-                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Completed this week</div>
-                <div className="grid grid-cols-7 gap-1.5">
-                  {(s.completions_by_day || []).map((d) => {
-                    const todayIdx = (new Date().getDay() + 6) % 7; // 0=Mon
-                    const isToday = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][todayIdx] === d.day;
-                    const has = d.count > 0;
-                    return (
-                      <div
-                        key={d.day}
-                        data-testid={`day-${w.id}-${d.day}`}
-                        title={has ? `${d.day}: ${d.count} task${d.count === 1 ? "" : "s"} · $${d.earned.toFixed(2)}${d.titles?.length ? "\n• " + d.titles.join("\n• ") : ""}` : `${d.day}: nothing yet`}
-                        className={`rounded-lg px-1 py-2 text-center border transition ${
-                          has
-                            ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-black border-yellow-500"
-                            : "bg-zinc-900/60 text-zinc-500 border-zinc-800"
-                        } ${isToday ? "ring-2 ring-yellow-400/60" : ""}`}
-                      >
-                        <div className="text-[9px] uppercase tracking-widest font-semibold opacity-80">{d.day}</div>
-                        <div className={`font-display text-base font-bold tabular-nums ${has ? "" : "text-zinc-600"}`}>{d.count}</div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <WeeklyStrip days={s.completions_by_day || []} streak={s.streak_days || 0} />
               </div>
             </div>
           );

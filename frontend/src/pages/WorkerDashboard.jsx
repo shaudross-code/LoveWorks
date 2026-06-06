@@ -9,6 +9,7 @@ import {
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
 import SpeakButton from "@/components/SpeakButton";
+import WeeklyStrip from "@/components/WeeklyStrip";
 import { ACTIVITIES, activityOf } from "@/lib/activities";
 
 function formatDuration(seconds) {
@@ -55,14 +56,16 @@ export default function WorkerDashboard() {
   const [now, setNow] = useState(Date.now());
   const [busy, setBusy] = useState(false);
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [weekly, setWeekly] = useState({ streak_days: 0, completions_by_day: [] });
 
   const load = async () => {
-    const [a, t, e] = await Promise.all([
-      api.get("/time/active"), api.get("/tasks"), api.get("/time/entries"),
+    const [a, t, e, wk] = await Promise.all([
+      api.get("/time/active"), api.get("/tasks"), api.get("/time/entries"), api.get("/me/weekly-activity"),
     ]);
     setActive(a.data && a.data.id ? a.data : null);
     setTasks(t.data);
     setEntries(e.data);
+    setWeekly(wk.data);
   };
   useEffect(() => { load(); }, []);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
@@ -268,6 +271,11 @@ export default function WorkerDashboard() {
               onStart={() => setStatus(t, t.status === "in_progress" ? "assigned" : "in_progress")} />
           ))}
         </div>
+      </section>
+
+      {/* Weekly completion strip */}
+      <section data-testid="worker-weekly-strip" className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-5">
+        <WeeklyStrip days={weekly.completions_by_day || []} streak={weekly.streak_days || 0} title="Your week" />
       </section>
 
       <GoalsCard />

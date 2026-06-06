@@ -1254,7 +1254,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         {"assignee_id": {"$in": worker_ids}, "status": "completed", "completed_at": {"$gte": week_start.isoformat()}},
         {"_id": 0, "assignee_id": 1, "completed_at": 1, "title": 1, "price": 1},
     ).to_list(10000)
-    completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
+    completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
     for t in completed_week:
         try:
             done = datetime.fromisoformat(t["completed_at"])
@@ -1271,6 +1271,45 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         slot["earned"] += float(t.get("price") or 0)
         if len(slot["titles"]) < 5:
             slot["titles"].append(t.get("title", ""))
+
+    # Hours clocked per weekday this week
+    for e in entries_week:
+        wid = e.get("user_id")
+        if wid not in completions_by_day:
+            continue
+        try:
+            in_dt = datetime.fromisoformat(e["clock_in"])
+        except Exception:
+            continue
+        if e.get("clock_out"):
+            try:
+                out_dt = datetime.fromisoformat(e["clock_out"])
+            except Exception:
+                out_dt = now
+        else:
+            out_dt = now
+        seg_start = max(in_dt, week_start)
+        cur = seg_start
+        # split across day boundaries so hours land on the right weekday
+        while cur < out_dt:
+            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            chunk_end = min(out_dt, day_end)
+            secs = max(0, int((chunk_end - cur).total_seconds()))
+            dow = cur.weekday()
+            if 0 <= dow <= 6:
+                completions_by_day[wid][dow]["hours"] += secs / 3600.0
+            cur = chunk_end
+
+    # Compute streak (consecutive days ending today w/ any completion)
+    def _compute_streak(slots: list) -> int:
+        today_idx = now.weekday()  # 0=Mon..6=Sun
+        s = 0
+        for k in range(today_idx + 1):
+            if slots[today_idx - k]["count"] > 0:
+                s += 1
+            else:
+                break
+        return s
 
     results = []
     for w in workers:
@@ -1361,14 +1400,81 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             "today_left_hours": round(max(0.0, daily_required - today_hours), 2),
             "week_left_hours": round(max(0.0, weekly_required - week_hours), 2),
             "open_tasks_count": open_count,
+            "streak_days": _compute_streak(completions_by_day.get(wid, [])),
             "completions_by_day": [
-                {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "titles": s["titles"]}
+                {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2), "titles": s["titles"]}
                 for d, s in zip(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], completions_by_day.get(wid, []))
             ],
         })
     # sort: online first, then currently_clocked_in, then by name
     results.sort(key=lambda r: (not r["online"], not r["currently_clocked_in"], (r["worker"]["name"] or "").lower()))
     return results
+
+
+@api_router.get("/me/weekly-activity")
+async def my_weekly_activity(user: dict = Depends(get_current_user)):
+    """Returns the requesting user's own weekly completion strip + streak."""
+    now = now_utc()
+    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_start = today_start - timedelta(days=today_start.weekday())
+    uid = user["id"]
+
+    completed = await db.tasks.find(
+        {"assignee_id": uid, "status": "completed", "completed_at": {"$gte": week_start.isoformat()}},
+        {"_id": 0, "completed_at": 1, "title": 1, "price": 1},
+    ).to_list(2000)
+    entries = await db.time_entries.find(
+        {"user_id": uid, "clock_in": {"$gte": week_start.isoformat()}},
+        {"_id": 0, "clock_in": 1, "clock_out": 1},
+    ).to_list(2000)
+    slots = [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)]
+    for t in completed:
+        try:
+            done = datetime.fromisoformat(t["completed_at"])
+            if done.tzinfo is None:
+                done = done.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        slot = slots[done.weekday()]
+        slot["count"] += 1
+        slot["earned"] += float(t.get("price") or 0)
+        if len(slot["titles"]) < 5:
+            slot["titles"].append(t.get("title", ""))
+    for e in entries:
+        try:
+            in_dt = datetime.fromisoformat(e["clock_in"])
+        except Exception:
+            continue
+        if e.get("clock_out"):
+            try:
+                out_dt = datetime.fromisoformat(e["clock_out"])
+            except Exception:
+                out_dt = now
+        else:
+            out_dt = now
+        cur = max(in_dt, week_start)
+        while cur < out_dt:
+            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            chunk_end = min(out_dt, day_end)
+            secs = max(0, int((chunk_end - cur).total_seconds()))
+            dow = cur.weekday()
+            if 0 <= dow <= 6:
+                slots[dow]["hours"] += secs / 3600.0
+            cur = chunk_end
+    today_idx = now.weekday()
+    streak = 0
+    for k in range(today_idx + 1):
+        if slots[today_idx - k]["count"] > 0:
+            streak += 1
+        else:
+            break
+    return {
+        "streak_days": streak,
+        "completions_by_day": [
+            {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2), "titles": s["titles"]}
+            for d, s in zip(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], slots)
+        ],
+    }
 
 
 # --- Notifications ---
