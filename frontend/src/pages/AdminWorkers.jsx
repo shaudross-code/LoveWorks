@@ -47,9 +47,12 @@ export default function AdminWorkers() {
   useEffect(() => { load(); }, [load]);
   useEffect(() => {
     const poll = setInterval(load, 20000);
-    const tick = setInterval(() => setNow(Date.now()), 1000);
-    return () => { clearInterval(poll); clearInterval(tick); };
+    return () => clearInterval(poll);
   }, [load]);
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(tick);
+  }, []);
 
   const create = async (e) => {
     e.preventDefault();
@@ -117,7 +120,7 @@ export default function AdminWorkers() {
                 <label className="text-xs uppercase tracking-widest text-zinc-500">Temporary password</label>
                 <Input data-testid="worker-password" required minLength={6} type="text" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })}
                   className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
-                <div className="text-xs text-zinc-500 mt-1">They'll use this to log in. Share it securely.</div>
+                <div className="text-xs text-zinc-500 mt-1">They&apos;ll use this to log in. Share it securely.</div>
               </div>
               <DialogFooter>
                 <Button data-testid="submit-create-worker" type="submit" disabled={busy} className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
@@ -134,7 +137,7 @@ export default function AdminWorkers() {
           <div className="col-span-full text-center bg-[#121214] border border-yellow-400/15 rounded-2xl p-10">
             <BadgeCheck className="w-8 h-8 text-yellow-400 mx-auto" />
             <div className="mt-3 font-display text-xl">No workers yet</div>
-            <div className="text-sm text-zinc-500">Click "New worker" to invite your first teammate.</div>
+            <div className="text-sm text-zinc-500">Click &quot;New worker&quot; to invite your first teammate.</div>
           </div>
         )}
         {statuses.map((s) => {
@@ -216,6 +219,33 @@ export default function AdminWorkers() {
               </div>
               <div className="mt-3 text-xs text-zinc-500 inline-flex items-center gap-1">
                 <ClipboardList className="w-3 h-3" /> {s.open_tasks_count} open task{s.open_tasks_count === 1 ? "" : "s"}
+              </div>
+
+              {/* Weekly completion strip — Mon..Sun */}
+              <div className="mt-4">
+                <div className="text-[10px] uppercase tracking-widest text-zinc-500 mb-2">Completed this week</div>
+                <div className="grid grid-cols-7 gap-1.5">
+                  {(s.completions_by_day || []).map((d) => {
+                    const todayIdx = (new Date().getDay() + 6) % 7; // 0=Mon
+                    const isToday = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][todayIdx] === d.day;
+                    const has = d.count > 0;
+                    return (
+                      <div
+                        key={d.day}
+                        data-testid={`day-${w.id}-${d.day}`}
+                        title={has ? `${d.day}: ${d.count} task${d.count === 1 ? "" : "s"} · $${d.earned.toFixed(2)}${d.titles?.length ? "\n• " + d.titles.join("\n• ") : ""}` : `${d.day}: nothing yet`}
+                        className={`rounded-lg px-1 py-2 text-center border transition ${
+                          has
+                            ? "bg-gradient-to-br from-yellow-400 to-amber-500 text-black border-yellow-500"
+                            : "bg-zinc-900/60 text-zinc-500 border-zinc-800"
+                        } ${isToday ? "ring-2 ring-yellow-400/60" : ""}`}
+                      >
+                        <div className="text-[9px] uppercase tracking-widest font-semibold opacity-80">{d.day}</div>
+                        <div className={`font-display text-base font-bold tabular-nums ${has ? "" : "text-zinc-600"}`}>{d.count}</div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           );

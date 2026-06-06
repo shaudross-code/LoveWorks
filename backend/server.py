@@ -1249,6 +1249,29 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         {"_id": 0, "assignee_id": 1, "daily_hours": 1, "estimated_hours": 1, "frequency": 1, "title": 1, "status": 1},
     ).to_list(10000)
 
+    # Completed this week, for per-weekday counts
+    completed_week = await db.tasks.find(
+        {"assignee_id": {"$in": worker_ids}, "status": "completed", "completed_at": {"$gte": week_start.isoformat()}},
+        {"_id": 0, "assignee_id": 1, "completed_at": 1, "title": 1, "price": 1},
+    ).to_list(10000)
+    completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
+    for t in completed_week:
+        try:
+            done = datetime.fromisoformat(t["completed_at"])
+            if done.tzinfo is None:
+                done = done.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        wid = t.get("assignee_id")
+        if wid not in completions_by_day:
+            continue
+        dow = done.weekday()
+        slot = completions_by_day[wid][dow]
+        slot["count"] += 1
+        slot["earned"] += float(t.get("price") or 0)
+        if len(slot["titles"]) < 5:
+            slot["titles"].append(t.get("title", ""))
+
     results = []
     for w in workers:
         wid = w["id"]
@@ -1338,6 +1361,10 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             "today_left_hours": round(max(0.0, daily_required - today_hours), 2),
             "week_left_hours": round(max(0.0, weekly_required - week_hours), 2),
             "open_tasks_count": open_count,
+            "completions_by_day": [
+                {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "titles": s["titles"]}
+                for d, s in zip(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], completions_by_day.get(wid, []))
+            ],
         })
     # sort: online first, then currently_clocked_in, then by name
     results.sort(key=lambda r: (not r["online"], not r["currently_clocked_in"], (r["worker"]["name"] or "").lower()))
