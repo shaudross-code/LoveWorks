@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "@/lib/api";
-import { Users, ClipboardList, BadgeDollarSign, Activity, Clock } from "lucide-react";
+import { Users, ClipboardList, BadgeDollarSign, Activity, Clock, TrendingUp, CalendarRange } from "lucide-react";
 
 function Stat({ icon: Icon, label, value, accent, testid }) {
   return (
@@ -17,21 +17,25 @@ function Stat({ icon: Icon, label, value, accent, testid }) {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ workers: 0, tasks: 0, completed: 0, earnings: 0, hours: 0, active: 0 });
+  const [stats, setStats] = useState({ workers: 0, tasks: 0, completed: 0, earnings: 0, hours: 0, active: 0, potential_weekly: 0, potential_monthly: 0 });
   const [recent, setRecent] = useState([]);
+  const [byWorker, setByWorker] = useState([]);
 
   useEffect(() => {
     (async () => {
-      const [w, t, p] = await Promise.all([
-        api.get("/workers"), api.get("/tasks"), api.get("/payroll"),
+      const [w, t, p, ws] = await Promise.all([
+        api.get("/workers"), api.get("/tasks"), api.get("/payroll"), api.get("/admin/worker-status"),
       ]);
       const tasks = t.data;
       const completed = tasks.filter(x => x.status === "completed").length;
       const earnings = p.data.reduce((s, x) => s + x.tasks_earnings, 0);
       const hours = p.data.reduce((s, x) => s + x.total_hours, 0);
       const active = p.data.filter(x => x.currently_clocked_in).length;
-      setStats({ workers: w.data.length, tasks: tasks.length, completed, earnings, hours, active });
+      const potential_weekly = ws.data.reduce((s, x) => s + (x.potential_weekly || 0), 0);
+      const potential_monthly = ws.data.reduce((s, x) => s + (x.potential_monthly || 0), 0);
+      setStats({ workers: w.data.length, tasks: tasks.length, completed, earnings, hours, active, potential_weekly, potential_monthly });
       setRecent(tasks.slice(0, 6));
+      setByWorker(ws.data);
     })();
   }, []);
 
@@ -50,6 +54,53 @@ export default function AdminDashboard() {
         <Stat testid="stat-tasks"     icon={ClipboardList}  label="Tasks Assigned"   value={stats.tasks} />
         <Stat testid="stat-completed" icon={ClipboardList}  label="Completed"        value={stats.completed} accent="bg-green-400/10 text-green-400" />
         <Stat testid="stat-earnings"  icon={BadgeDollarSign}label="Total Payroll"    value={`$${stats.earnings.toFixed(2)}`} />
+      </div>
+
+      {/* Potential earnings — if every open task gets completed */}
+      <div className="bg-[#121214] border border-yellow-400/15 rounded-2xl">
+        <div className="px-6 py-5 border-b border-yellow-400/10 flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h2 className="font-display text-xl font-semibold flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-yellow-400" /> Potential earnings
+            </h2>
+            <p className="text-xs text-zinc-500 mt-0.5">If every worker completes all open tasks on schedule.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-widest text-zinc-500">This week</div>
+              <div className="font-display text-2xl font-bold text-yellow-400 tabular-nums" data-testid="potential-weekly-total">${stats.potential_weekly.toFixed(2)}</div>
+            </div>
+            <div className="text-right pl-4 border-l border-yellow-400/10">
+              <div className="text-[10px] uppercase tracking-widest text-zinc-500">This month</div>
+              <div className="font-display text-2xl font-bold text-emerald-400 tabular-nums" data-testid="potential-monthly-total">${stats.potential_monthly.toFixed(2)}</div>
+            </div>
+          </div>
+        </div>
+        <div className="divide-y divide-yellow-400/5">
+          {byWorker.length === 0 && (
+            <div className="px-6 py-8 text-zinc-500 text-sm">No workers yet — invite one to see projections.</div>
+          )}
+          {byWorker.map((s) => (
+            <div key={s.worker.id} data-testid={`potential-row-${s.worker.id}`} className="px-6 py-4 flex items-center gap-4 flex-wrap">
+              <div className="flex-1 min-w-[180px]">
+                <div className="font-medium">{s.worker.name}</div>
+                <div className="text-xs text-zinc-500 inline-flex items-center gap-1 mt-0.5">
+                  <CalendarRange className="w-3 h-3" /> {s.open_tasks_count} open task{s.open_tasks_count === 1 ? "" : "s"}
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <div className="text-[10px] uppercase tracking-widest text-zinc-500">Weekly</div>
+                  <div className="font-display text-lg font-semibold text-yellow-400 tabular-nums">${(s.potential_weekly || 0).toFixed(2)}</div>
+                </div>
+                <div className="text-right pl-4 border-l border-yellow-400/10">
+                  <div className="text-[10px] uppercase tracking-widest text-zinc-500">Monthly</div>
+                  <div className="font-display text-lg font-semibold text-emerald-400 tabular-nums">${(s.potential_monthly || 0).toFixed(2)}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="bg-[#121214] border border-yellow-400/15 rounded-2xl">

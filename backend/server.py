@@ -1246,7 +1246,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
 
     open_tasks = await db.tasks.find(
         {"assignee_id": {"$in": worker_ids}, "status": {"$ne": "completed"}},
-        {"_id": 0, "assignee_id": 1, "daily_hours": 1, "estimated_hours": 1, "frequency": 1, "title": 1, "status": 1},
+        {"_id": 0, "assignee_id": 1, "daily_hours": 1, "estimated_hours": 1, "frequency": 1, "title": 1, "status": 1, "price": 1},
     ).to_list(10000)
 
     # Completed this week, for per-weekday counts
@@ -1347,10 +1347,13 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             except Exception:
                 pass
 
-        # Required hours
+        # Required hours + potential earnings
         daily_required = 0.0
         weekly_required = 0.0
         open_count = 0
+        potential_weekly = 0.0
+        potential_monthly = 0.0
+        WORKDAYS_PER_MONTH = 20
         for t in open_tasks:
             if t["assignee_id"] != wid:
                 continue
@@ -1358,6 +1361,21 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             dh = float(t.get("daily_hours") or 0)
             est = float(t.get("estimated_hours") or 0)
             freq = t.get("frequency") or "once"
+            price = float(t.get("price") or 0)
+            # Potential earnings rollup
+            if freq == "daily":
+                potential_weekly  += price * WORKDAYS_PER_WEEK
+                potential_monthly += price * WORKDAYS_PER_MONTH
+            elif freq == "weekly":
+                potential_weekly  += price
+                potential_monthly += price * 4
+            elif freq == "monthly":
+                potential_weekly  += price / 4.0
+                potential_monthly += price
+            else:  # once
+                potential_weekly  += price
+                potential_monthly += price
+            # Required hours (existing logic)
             if dh > 0:
                 if freq == "daily":
                     daily_required += dh
@@ -1400,6 +1418,8 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             "today_left_hours": round(max(0.0, daily_required - today_hours), 2),
             "week_left_hours": round(max(0.0, weekly_required - week_hours), 2),
             "open_tasks_count": open_count,
+            "potential_weekly": round(potential_weekly, 2),
+            "potential_monthly": round(potential_monthly, 2),
             "streak_days": _compute_streak(completions_by_day.get(wid, [])),
             "completions_by_day": [
                 {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2), "titles": s["titles"]}
