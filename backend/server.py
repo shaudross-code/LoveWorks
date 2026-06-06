@@ -375,6 +375,9 @@ class GoalUpdate(BaseModel):
     title: Optional[str] = Field(default=None, min_length=1, max_length=160)
     product_link: Optional[str] = Field(default=None, max_length=500)
     deadline: Optional[str] = None  # ISO date (YYYY-MM-DD) or full ISO datetime
+    target_amount: Optional[float] = None
+    period: Optional[str] = None  # daily | weekly | yearly
+    allocation_percent: Optional[float] = None  # 0..100
 
 
 class GoalComplete(BaseModel):
@@ -550,16 +553,43 @@ def _attach_goal_image_url(g: dict) -> dict:
     return g
 
 
+VALID_GOAL_PERIODS = {"daily", "weekly", "yearly"}
+
+
+def _validate_goal_period(v: Optional[str]) -> Optional[str]:
+    if v is None:
+        return None
+    s = v.lower().strip()
+    if not s:
+        return None
+    if s not in VALID_GOAL_PERIODS:
+        raise HTTPException(status_code=400, detail=f"Invalid period. Use one of: {sorted(VALID_GOAL_PERIODS)}")
+    return s
+
+
+def _validate_allocation(v) -> Optional[float]:
+    if v is None:
+        return None
+    try:
+        n = float(v)
+    except (TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="allocation_percent must be a number 0..100")
+    if not (0 <= n <= 100):
+        raise HTTPException(status_code=400, detail="allocation_percent must be 0..100")
+    return n
+
+
 @api_router.post("/goals")
 async def create_goal(
     title: str = Query(default=None),
     product_link: Optional[str] = Query(default=None),
     deadline: Optional[str] = Query(default=None),
+    target_amount: Optional[float] = Query(default=None),
+    period: Optional[str] = Query(default=None),
+    allocation_percent: Optional[float] = Query(default=None),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
-    # Accept multipart form OR query params; pydantic on multipart is tricky so use Form-style via query
-    from fastapi import Form  # noqa: F401  (kept for clarity)
     if not title or not title.strip():
         raise HTTPException(status_code=400, detail="Title is required")
     image_path = None
@@ -595,6 +625,9 @@ async def create_goal(
         "product_link": (product_link or "").strip() or None,
         "image_path": image_path,
         "deadline": _parse_deadline(deadline),
+        "target_amount": float(target_amount) if target_amount is not None else None,
+        "period": _validate_goal_period(period) or "weekly",
+        "allocation_percent": _validate_allocation(allocation_percent) if allocation_percent is not None else 100.0,
         "status": "open",
         "appreciation": None,
         "completed_at": None,
@@ -604,6 +637,73 @@ async def create_goal(
     await db.goals.insert_one(goal)
     goal.pop("_id", None)
     return _attach_goal_image_url(goal)
+
+
+def _start_of_day(dt: datetime) -> datetime:
+    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+
+
+def _start_of_week(dt: datetime) -> datetime:
+    sod = _start_of_day(dt)
+    return sod - timedelta(days=sod.weekday())  # Monday 00:00
+
+
+def _start_of_year(dt: datetime) -> datetime:
+    return dt.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
+    """Return {user_id: {'today': X, 'week': X, 'year': X}} sums of completed task prices."""
+    if not user_ids:
+        return {}
+    year_start = _start_of_year(ref).isoformat()
+    tasks = await db.tasks.find(
+        {"assignee_id": {"$in": user_ids}, "status": "completed", "completed_at": {"$gte": year_start}},
+        {"_id": 0, "assignee_id": 1, "price": 1, "completed_at": 1},
+    ).to_list(50000)
+    today_s = _start_of_day(ref)
+    week_s = _start_of_week(ref)
+    out: dict = {uid: {"today": 0.0, "week": 0.0, "year": 0.0} for uid in user_ids}
+    for t in tasks:
+        try:
+            done = datetime.fromisoformat(t["completed_at"])
+            if done.tzinfo is None:
+                done = done.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        price = float(t.get("price") or 0)
+        rec = out.get(t["assignee_id"])
+        if not rec:
+            continue
+        rec["year"] += price
+        if done >= week_s:
+            rec["week"] += price
+        if done >= today_s:
+            rec["today"] += price
+    return out
+
+
+def _attach_goal_progress(g: dict, buckets: dict) -> dict:
+    alloc = float(g.get("allocation_percent") or 0) / 100.0
+    earn = buckets.get(g["owner_id"]) or {"today": 0.0, "week": 0.0, "year": 0.0}
+    contrib_today = round(earn["today"] * alloc, 2)
+    contrib_week  = round(earn["week"]  * alloc, 2)
+    contrib_year  = round(earn["year"]  * alloc, 2)
+    period = g.get("period") or "weekly"
+    contrib_period = {"daily": contrib_today, "weekly": contrib_week, "yearly": contrib_year}[period]
+    target = g.get("target_amount")
+    pct = 0.0
+    if target and float(target) > 0:
+        pct = round(min(100.0, (contrib_period / float(target)) * 100.0), 1)
+    g = dict(g)
+    g["progress"] = {
+        "today": contrib_today,
+        "week": contrib_week,
+        "year": contrib_year,
+        "period_amount": contrib_period,
+        "pct_of_target": pct,
+    }
+    return g
 
 
 @api_router.get("/goals")
@@ -618,8 +718,12 @@ async def list_goals(
         query["owner_id"] = owner_id
     goals = await db.goals.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
     goals = [_attach_goal_image_url(g) for g in goals]
+
+    owner_ids = list({g["owner_id"] for g in goals})
+    buckets = await _earnings_buckets_for_users(owner_ids, now_utc())
+    goals = [_attach_goal_progress(g, buckets) for g in goals]
+
     if user["role"] == "admin":
-        owner_ids = list({g["owner_id"] for g in goals})
         owners = await db.users.find({"id": {"$in": owner_ids}}, {"_id": 0, "password_hash": 0}).to_list(1000)
         omap = {o["id"]: serialize_user(o) for o in owners}
         for g in goals:
@@ -641,6 +745,12 @@ async def update_goal(goal_id: str, req: GoalUpdate, user: dict = Depends(get_cu
         update["product_link"] = req.product_link.strip() or None
     if req.deadline is not None:
         update["deadline"] = _parse_deadline(req.deadline) if req.deadline else None
+    if req.target_amount is not None:
+        update["target_amount"] = float(req.target_amount) if req.target_amount else None
+    if req.period is not None:
+        update["period"] = _validate_goal_period(req.period)
+    if req.allocation_percent is not None:
+        update["allocation_percent"] = _validate_allocation(req.allocation_percent)
     if not update:
         raise HTTPException(status_code=400, detail="No fields to update")
     await db.goals.update_one({"id": goal_id}, {"$set": update})
