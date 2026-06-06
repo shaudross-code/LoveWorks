@@ -10,6 +10,8 @@ import {
   TrendingUp, BadgeDollarSign, Percent,
 } from "lucide-react";
 import { toast } from "sonner";
+import Reactions from "@/components/Reactions";
+import CongratsModal from "@/components/CongratsModal";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const PERIODS = [
@@ -42,14 +44,21 @@ const EMPTY = { title: "", product_link: "", deadline: "", target_amount: "", pe
 
 export default function GoalsCard() {
   const [goals, setGoals] = useState([]);
-  const [dialog, setDialog] = useState(null); // {mode:"create"} | {mode:"edit", goal}
+  const [dialog, setDialog] = useState(null);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState(EMPTY);
   const [file, setFile] = useState(null);
+  const [congrats, setCongrats] = useState(null);
   const fileRef = useRef(null);
 
-  const load = async () => { const { data } = await api.get("/goals"); setGoals(data); };
-  useEffect(() => { load(); }, []);
+  const load = async () => {
+    const { data } = await api.get("/goals");
+    setGoals(data);
+    // Find newest unacknowledged completed goal and pop the modal
+    const unack = data.find((g) => g.status === "completed" && g.completed_at && !g.acknowledged_at);
+    if (unack && (!congrats || congrats.id !== unack.id)) setCongrats(unack);
+  };
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
 
   const openCreate = () => { setForm(EMPTY); setFile(null); setDialog({ mode: "create" }); };
   const openEdit = (g) => {
@@ -222,6 +231,10 @@ export default function GoalsCard() {
                       <div><span className="text-yellow-400 font-semibold">From your admin:</span> {g.appreciation}</div>
                     </div>
                   )}
+
+                  <div className="mt-3">
+                    <Reactions goal={g} onChange={(u) => setGoals((gs) => gs.map((x) => x.id === u.id ? { ...x, reactions: u.reactions } : x))} />
+                  </div>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
@@ -302,6 +315,7 @@ export default function GoalsCard() {
           </form>
         </DialogContent>
       </Dialog>
+      {congrats && <CongratsModal goal={congrats} onClose={() => setCongrats(null)} />}
     </section>
   );
 }

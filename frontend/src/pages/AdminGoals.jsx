@@ -9,6 +9,16 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Target, Calendar, ExternalLink, Sparkles, CheckCircle2, Clock, AlertTriangle, RotateCcw, Loader2, Percent, BadgeDollarSign, TrendingUp, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import Reactions from "@/components/Reactions";
+
+const QUICK_QUOTES = [
+  "🛒 Ordering it soon!",
+  "✅ It's already ordered.",
+  "📦 It will be shipped soon.",
+  "👏 Good job — you earned it!",
+  "🌟 So proud of you!",
+  "🎉 Way to go — crushed it!",
+];
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const STATUS_TABS = ["all", "open", "overdue", "completed"];
@@ -246,6 +256,10 @@ export default function AdminGoals() {
                 </div>
               )}
 
+              <div className="mt-3">
+                <Reactions goal={g} onChange={(u) => setGoals((gs) => gs.map((x) => x.id === u.id ? { ...x, reactions: u.reactions } : x))} />
+              </div>
+
               <div className="mt-4 flex items-center gap-2 justify-end">
                 <Button data-testid={`edit-goal-${g.id}`} onClick={() => openEdit(g)} variant="ghost"
                   className="text-zinc-300 hover:text-yellow-400 rounded-full h-9 px-4 border border-yellow-400/20">
@@ -319,7 +333,20 @@ export default function AdminGoals() {
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
-                <div className="text-sm text-zinc-400">Add a note of appreciation — the worker will see it on their dashboard.</div>
+                <div className="text-sm text-zinc-400">Pick a quick note or write your own — the worker will see it in a big congrats popup.</div>
+                <div className="flex flex-wrap gap-2">
+                  {QUICK_QUOTES.map((q) => (
+                    <button
+                      key={q}
+                      type="button"
+                      data-testid={`quote-${q.replace(/[^a-z]/gi, '').slice(0, 12)}`}
+                      onClick={() => setAppreciation(q)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-zinc-900 border border-yellow-400/20 hover:border-yellow-400/60 hover:bg-yellow-400/10 transition"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
                 <Textarea data-testid="appreciation-textarea" value={appreciation} onChange={(e) => setAppreciation(e.target.value)}
                   placeholder="You earned this. Proud of the hustle."
                   className="bg-zinc-900 border-zinc-800 text-white rounded-xl min-h-24" />

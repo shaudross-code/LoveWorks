@@ -384,6 +384,13 @@ class GoalComplete(BaseModel):
     appreciation: Optional[str] = Field(default=None, max_length=500)
 
 
+class GoalReact(BaseModel):
+    emoji: str = Field(min_length=1, max_length=12)
+
+
+REACTION_EMOJIS = {"👍", "❤️", "🔥", "🎉", "⭐", "💪", "🙌", "💎"}
+
+
 # --- Brute force ---
 async def check_lockout(identifier: str):
     rec = await db.login_attempts.find_one({"identifier": identifier})
@@ -784,10 +791,67 @@ async def complete_goal(goal_id: str, req: GoalComplete, admin: dict = Depends(r
             "appreciation": (req.appreciation or "").strip() or None,
             "completed_at": now_utc().isoformat(),
             "completed_by": admin["id"],
+            "acknowledged_at": None,
         }},
+    )
+    # Notify worker
+    await notify(
+        goal["owner_id"], "goal_completed",
+        f"🎉 Goal achieved: {goal.get('title','')}",
+        (req.appreciation or "Your admin just celebrated this goal."),
+        link="/worker",
+        meta={"goal_id": goal_id},
     )
     updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     return _attach_goal_image_url(updated)
+
+
+@api_router.post("/goals/{goal_id}/react")
+async def react_to_goal(goal_id: str, req: GoalReact, user: dict = Depends(get_current_user)):
+    emoji = req.emoji.strip()
+    if emoji not in REACTION_EMOJIS:
+        raise HTTPException(status_code=400, detail=f"Use one of: {sorted(REACTION_EMOJIS)}")
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    reactions = list(goal.get("reactions") or [])
+    existing_idx = next(
+        (i for i, r in enumerate(reactions) if r.get("by_id") == user["id"] and r.get("emoji") == emoji),
+        None,
+    )
+    if existing_idx is not None:
+        # toggle off
+        reactions.pop(existing_idx)
+    else:
+        reactions.append({
+            "emoji": emoji,
+            "by_id": user["id"],
+            "by_name": user.get("name") or user["email"],
+            "at": now_utc().isoformat(),
+        })
+        # notify the goal owner (only if reactor is not the owner)
+        if user["id"] != goal["owner_id"]:
+            await notify(
+                goal["owner_id"], "goal_reaction",
+                f"{emoji} {user.get('name') or 'Admin'} reacted",
+                f'On your goal "{goal.get("title","")}"',
+                link="/worker",
+                meta={"goal_id": goal_id, "emoji": emoji},
+            )
+    await db.goals.update_one({"id": goal_id}, {"$set": {"reactions": reactions}})
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
+@api_router.post("/goals/{goal_id}/acknowledge")
+async def acknowledge_goal(goal_id: str, user: dict = Depends(get_current_user)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if goal["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your goal")
+    await db.goals.update_one({"id": goal_id}, {"$set": {"acknowledged_at": now_utc().isoformat()}})
+    return {"ok": True}
 
 
 @api_router.post("/goals/{goal_id}/reopen")
