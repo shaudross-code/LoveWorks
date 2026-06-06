@@ -553,7 +553,7 @@ def _attach_goal_image_url(g: dict) -> dict:
     return g
 
 
-VALID_GOAL_PERIODS = {"daily", "weekly", "yearly"}
+VALID_GOAL_PERIODS = {"daily", "weekly", "monthly", "yearly"}
 
 
 def _validate_goal_period(v: Optional[str]) -> Optional[str]:
@@ -648,6 +648,10 @@ def _start_of_week(dt: datetime) -> datetime:
     return sod - timedelta(days=sod.weekday())  # Monday 00:00
 
 
+def _start_of_month(dt: datetime) -> datetime:
+    return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
 def _start_of_year(dt: datetime) -> datetime:
     return dt.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
 
@@ -663,7 +667,8 @@ async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
     ).to_list(50000)
     today_s = _start_of_day(ref)
     week_s = _start_of_week(ref)
-    out: dict = {uid: {"today": 0.0, "week": 0.0, "year": 0.0} for uid in user_ids}
+    month_s = _start_of_month(ref)
+    out: dict = {uid: {"today": 0.0, "week": 0.0, "month": 0.0, "year": 0.0} for uid in user_ids}
     for t in tasks:
         try:
             done = datetime.fromisoformat(t["completed_at"])
@@ -676,6 +681,8 @@ async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
         if not rec:
             continue
         rec["year"] += price
+        if done >= month_s:
+            rec["month"] += price
         if done >= week_s:
             rec["week"] += price
         if done >= today_s:
@@ -685,12 +692,18 @@ async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
 
 def _attach_goal_progress(g: dict, buckets: dict) -> dict:
     alloc = float(g.get("allocation_percent") or 0) / 100.0
-    earn = buckets.get(g["owner_id"]) or {"today": 0.0, "week": 0.0, "year": 0.0}
+    earn = buckets.get(g["owner_id"]) or {"today": 0.0, "week": 0.0, "month": 0.0, "year": 0.0}
     contrib_today = round(earn["today"] * alloc, 2)
     contrib_week  = round(earn["week"]  * alloc, 2)
+    contrib_month = round(earn.get("month", 0.0) * alloc, 2)
     contrib_year  = round(earn["year"]  * alloc, 2)
     period = g.get("period") or "weekly"
-    contrib_period = {"daily": contrib_today, "weekly": contrib_week, "yearly": contrib_year}[period]
+    contrib_period = {
+        "daily": contrib_today,
+        "weekly": contrib_week,
+        "monthly": contrib_month,
+        "yearly": contrib_year,
+    }.get(period, contrib_week)
     target = g.get("target_amount")
     pct = 0.0
     if target and float(target) > 0:
@@ -699,6 +712,7 @@ def _attach_goal_progress(g: dict, buckets: dict) -> dict:
     g["progress"] = {
         "today": contrib_today,
         "week": contrib_week,
+        "month": contrib_month,
         "year": contrib_year,
         "period_amount": contrib_period,
         "pct_of_target": pct,

@@ -13,11 +13,12 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const STATUS_TABS = ["all", "open", "overdue", "completed"];
 const PERIODS = [
-  { value: "daily",  label: "Daily" },
-  { value: "weekly", label: "Weekly" },
-  { value: "yearly", label: "Yearly" },
+  { value: "daily",   label: "Daily" },
+  { value: "weekly",  label: "Weekly" },
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly",  label: "Yearly" },
 ];
-const PERIOD_LABEL = { daily: "Daily", weekly: "Weekly", yearly: "Yearly" };
+const PERIOD_LABEL = { daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly" };
 
 function fmtDate(iso) {
   if (!iso) return null;
@@ -214,7 +215,7 @@ export default function AdminGoals() {
                             <div className="h-full bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                           </div>
                         )}
-                        <div className="mt-3 grid grid-cols-3 gap-2 text-[11px]">
+                        <div className="mt-3 grid grid-cols-4 gap-2 text-[11px]">
                           <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
                             <div className="uppercase tracking-widest text-zinc-500">Today</div>
                             <div className="font-display text-sm font-semibold text-white tabular-nums">${(g.progress?.today || 0).toFixed(2)}</div>
@@ -222,6 +223,10 @@ export default function AdminGoals() {
                           <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
                             <div className="uppercase tracking-widest text-zinc-500">Week</div>
                             <div className="font-display text-sm font-semibold text-white tabular-nums">${(g.progress?.week || 0).toFixed(2)}</div>
+                          </div>
+                          <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
+                            <div className="uppercase tracking-widest text-zinc-500">Month</div>
+                            <div className="font-display text-sm font-semibold text-white tabular-nums">${(g.progress?.month || 0).toFixed(2)}</div>
                           </div>
                           <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
                             <div className="uppercase tracking-widest text-zinc-500">Year</div>
