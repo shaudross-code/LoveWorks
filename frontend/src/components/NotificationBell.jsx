@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
-import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart } from "lucide-react";
+import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart, CheckCircle2 } from "lucide-react";
 
 const TYPE_ICON = {
   task_assigned:   ClipboardList,
   task_updated:    ClipboardList,
   task_due_soon:   AlarmClock,
+  task_completed:  CheckCircle2,
   award:           Trophy,
   announcement:    Megaphone,
   goal_assigned:   Target,
@@ -17,6 +18,7 @@ const TYPE_COLOR = {
   task_assigned:   "text-sky-400 bg-sky-400/10",
   task_updated:    "text-amber-300 bg-amber-300/10",
   task_due_soon:   "text-red-400 bg-red-400/10",
+  task_completed:  "text-emerald-400 bg-emerald-400/10",
   award:           "text-yellow-400 bg-yellow-400/10",
   announcement:    "text-emerald-400 bg-emerald-400/10",
   goal_assigned:   "text-fuchsia-400 bg-fuchsia-400/10",

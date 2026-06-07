@@ -1252,17 +1252,32 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
     # Award + notify on task completion
     if update.get("status") == "completed" and task.get("status") != "completed":
         owner_id = updated["assignee_id"]
-        # Early-bird award if completed before due_time today
+        # Early-bird award if completed before due_time today (LOCAL TZ)
         if updated.get("due_time"):
             try:
                 hh, mm = [int(x) for x in updated["due_time"].split(":")[:2]]
-                now = now_utc()
-                deadline_today = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
-                if now <= deadline_today:
+                now_l = now_local()
+                deadline_today = now_l.replace(hour=hh, minute=mm, second=0, microsecond=0)
+                if now_l <= deadline_today:
                     await grant_award(owner_id, "early_bird")
             except Exception:
                 pass
         await evaluate_task_count_awards(owner_id)
+        # Ping admins so they know a task got completed
+        try:
+            worker = await db.users.find_one({"id": owner_id}, {"_id": 0, "name": 1, "email": 1})
+            wname = (worker or {}).get("name") or (worker or {}).get("email") or "A worker"
+            admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(50)
+            for a in admins:
+                await notify(
+                    a["id"], "task_completed",
+                    f"✅ {wname} finished: {updated.get('title','task')}",
+                    f"Earned ${float(updated.get('price') or 0):.2f}",
+                    link="/admin",
+                    meta={"task_id": task_id, "worker_id": owner_id},
+                )
+        except Exception as e:
+            logger.warning(f"task_completed admin notify failed: {e}")
     return updated
 
 

@@ -32,6 +32,21 @@
 - Text-to-speech for task descriptions (Web Speech API, browser native)
 - Profile avatars via Emergent Object Storage
 - **(Jun 2026) Admin Overview "Potential Earnings" card** — totals + per-worker weekly & monthly projections from `/api/admin/worker-status` (`potential_weekly`, `potential_monthly`)
+- **(Jun 2026) Worker notifications closed all gaps** — bell + Web Push (Service Worker + VAPID):
+  - Task created/assigned → worker ping (existing)
+  - Task edited (price, due_time, due_at, due_day_of_week, title) → worker ping ("task_updated")
+  - Task reassigned → both new + previous assignees pinged
+  - Goal assigned by admin (NEW: `POST /api/goals?assignee_id=…` admin path) → worker ping ("goal_assigned")
+  - Task completed → admin gets a "task_completed" ping with worker name + earnings
+  - Background reminder loop (60s tick) fires `task_due_soon` 30 min before due_time (TZ-aware)
+  - `PushPrompt` banner on worker dashboard + Profile toggle; `/api/push/{public-key,subscribe,unsubscribe,test}` endpoints
+- **(Jun 2026) Timezone audit & fix (CRITICAL)** — all window math (weekly strip, goal periods, streaks, reminders) now runs in `APP_TZ` (env `WEEK_TZ`, default America/Chicago) instead of UTC:
+  - `_start_of_{day,week,month,year}` return tz-aware datetimes in APP_TZ
+  - `iso_utc()` serializes to UTC for Mongo string-range queries
+  - Per-weekday assignment uses `done.astimezone(APP_TZ).weekday()`
+  - Streak award + reminder loop use local "today"
+  - Tests at `/app/backend/tests/test_timezone.py` (6 unit + integrated seed test passing)
+  - 21/21 testing-agent backend cases pass on iteration_3
 
 ## Prioritized backlog (next phases)
 **P1**
