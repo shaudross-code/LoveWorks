@@ -9,6 +9,10 @@ import uuid
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
+try:
+    from zoneinfo import ZoneInfo
+except ImportError:  # Python <3.9 fallback (won't hit on our base image)
+    ZoneInfo = None  # type: ignore
 
 import bcrypt
 import jwt
@@ -1630,6 +1634,42 @@ async def startup():
     await db.time_entries.create_index([("user_id", 1), ("clock_out", 1)])
     await db.login_attempts.create_index("identifier")
     await db.files.create_index("storage_path")
+    await db.goals.create_index("owner_id")
+    await db.notifications.create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
+    await db.awards.create_index([("user_id", 1), ("code", 1)], unique=True)
+    await db.announcements.create_index("created_at")
+    # init object storage
+    try:
+        init_storage()
+        logger.info("Object storage initialized")
+    except Exception as e:
+        logger.error(f"Storage init failed: {e}")
+    # seed admin
+    admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com").lower()
+    admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
+    existing = await db.users.find_one({"email": admin_email})
+    if not existing:
+        await db.users.insert_one({
+            "id": str(uuid.uuid4()),
+            "email": admin_email,
+            "password_hash": hash_password(admin_password),
+            "name": "Administrator",
+            "role": "admin",
+            "created_at": now_utc().isoformat(),
+        })
+        logger.info(f"Seeded admin user: {admin_email}")
+    elif not verify_password(admin_password, existing["password_hash"]):
+        await db.users.update_one(
+            {"email": admin_email},
+            {"$set": {"password_hash": hash_password(admin_password)}},
+        )
+        logger.info(f"Updated admin password for: {admin_email}")
+
+
+@app.on_event("shutdown")
+async def shutdown_db_client():
+    client.close()
+age_path")
     await db.goals.create_index("owner_id")
     await db.notifications.create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
     await db.awards.create_index([("user_id", 1), ("code", 1)], unique=True)
