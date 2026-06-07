@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Target, Calendar, ExternalLink, Sparkles, CheckCircle2, Clock, AlertTriangle, RotateCcw, Loader2, Percent, BadgeDollarSign, TrendingUp, Pencil, Plus, UserCircle2 } from "lucide-react";
+import { Target, Calendar, ExternalLink, Sparkles, CheckCircle2, Clock, AlertTriangle, RotateCcw, Loader2, Percent, BadgeDollarSign, TrendingUp, Pencil, Plus, UserCircle2, Image as ImageIcon, Upload, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import Reactions from "@/components/Reactions";
 
@@ -136,6 +136,39 @@ export default function AdminGoals() {
       load();
     } catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
+  };
+
+  const editFileRef = useRef(null);
+  const [uploadingImg, setUploadingImg] = useState(false);
+
+  const onPickImage = () => editFileRef.current?.click();
+
+  const uploadGoalImage = async (file) => {
+    if (!dialog?.goal || !file) return;
+    if (file.size > 3 * 1024 * 1024) { toast.error("Image too large (max 3 MB)"); return; }
+    setUploadingImg(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const { data } = await api.post(`/goals/${dialog.goal.id}/image`, fd, { headers: { "Content-Type": "multipart/form-data" } });
+      // refresh both the dialog goal and the list
+      setDialog((d) => d?.goal ? { ...d, goal: { ...d.goal, image_url: data.image_url, image_path: data.image_path } } : d);
+      toast.success("Image updated");
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setUploadingImg(false); if (editFileRef.current) editFileRef.current.value = ""; }
+  };
+
+  const removeGoalImage = async () => {
+    if (!dialog?.goal) return;
+    setUploadingImg(true);
+    try {
+      const { data } = await api.delete(`/goals/${dialog.goal.id}/image`);
+      setDialog((d) => d?.goal ? { ...d, goal: { ...d.goal, image_url: data.image_url, image_path: null } } : d);
+      toast.success("Image removed");
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setUploadingImg(false); }
   };
 
   const confirmComplete = async () => {
@@ -405,7 +438,36 @@ export default function AdminGoals() {
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="text-sm text-zinc-400">Adjust the target, period, and what % of every task earned counts toward this goal.</div>
+                <div className="text-sm text-zinc-400">Update the photo, target, period, and what % of every task earned counts toward this goal.</div>
+                {/* Image */}
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><ImageIcon className="w-3 h-3" /> Goal photo</label>
+                  <div className="mt-2 flex items-center gap-4">
+                    <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-zinc-900 border border-yellow-400/20 shrink-0 grid place-items-center">
+                      {dialog?.goal?.image_url ? (
+                        <img src={dialog.goal.image_url} alt={`Goal photo for ${dialog.goal.title || "goal"}`} className="w-full h-full object-cover" data-testid="edit-image-preview" />
+                      ) : (
+                        <ImageIcon className="w-7 h-7 text-zinc-700" />
+                      )}
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <input ref={editFileRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden"
+                        onChange={(e) => uploadGoalImage(e.target.files?.[0])} data-testid="edit-image-input" />
+                      <Button data-testid="edit-image-upload-btn" type="button" onClick={onPickImage} disabled={uploadingImg}
+                        className="bg-yellow-400 hover:bg-yellow-300 text-black rounded-full h-9 px-4 text-sm font-semibold">
+                        {uploadingImg ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Upload className="w-4 h-4 mr-1.5" />}
+                        {dialog?.goal?.image_url ? "Replace photo" : "Upload photo"}
+                      </Button>
+                      {dialog?.goal?.image_url && (
+                        <Button data-testid="edit-image-remove-btn" type="button" onClick={removeGoalImage} disabled={uploadingImg}
+                          variant="ghost" className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-full h-9 px-3 text-sm">
+                          <Trash2 className="w-4 h-4 mr-1.5" /> Remove
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-zinc-500 mt-2">JPEG, PNG, WEBP, or GIF — up to 3 MB.</div>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><BadgeDollarSign className="w-3 h-3" /> Target amount</label>

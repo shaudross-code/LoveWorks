@@ -893,6 +893,60 @@ async def update_goal(goal_id: str, req: GoalUpdate, user: dict = Depends(get_cu
     return _attach_goal_image_url(updated)
 
 
+@api_router.post("/goals/{goal_id}/image")
+async def upload_goal_image(goal_id: str, file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your goal")
+    content_type = (file.content_type or "").lower()
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > MAX_AVATAR_BYTES:
+        raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
+    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+    ext = ext_map.get(content_type, "jpg")
+    path = f"{APP_NAME}/goals/{goal['owner_id']}/{uuid.uuid4()}.{ext}"
+    try:
+        result = put_object(path, data, content_type)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+    image_path = result.get("path", path)
+    await db.files.insert_one({
+        "id": str(uuid.uuid4()),
+        "user_id": user["id"],
+        "storage_path": image_path,
+        "content_type": content_type,
+        "size": result.get("size", len(data)),
+        "is_deleted": False,
+        "created_at": now_utc().isoformat(),
+    })
+    # Soft-delete the previous image
+    if goal.get("image_path"):
+        await db.files.update_one({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
+    await db.goals.update_one({"id": goal_id}, {"$set": {"image_path": image_path}})
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
+@api_router.delete("/goals/{goal_id}/image")
+async def delete_goal_image(goal_id: str, user: dict = Depends(get_current_user)):
+    goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    if not goal:
+        raise HTTPException(status_code=404, detail="Goal not found")
+    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your goal")
+    if goal.get("image_path"):
+        await db.files.update_one({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
+    await db.goals.update_one({"id": goal_id}, {"$set": {"image_path": None}})
+    updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
+    return _attach_goal_image_url(updated)
+
+
 @api_router.post("/goals/{goal_id}/complete")
 async def complete_goal(goal_id: str, req: GoalComplete, admin: dict = Depends(require_admin)):
     goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
