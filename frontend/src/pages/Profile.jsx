@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Camera, Loader2, Save, Trash2, User } from "lucide-react";
 import { toast } from "sonner";
+import { PushSettings } from "@/components/PushPrompt";
 
 export default function Profile() {
   const { user, setUser } = useAuth();
@@ -128,6 +129,16 @@ export default function Profile() {
             {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Save className="w-4 h-4 mr-2" /> Save</>}
           </Button>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-yellow-400/10">
+          <div className="text-xs uppercase tracking-widest text-zinc-500">Notifications</div>
+          <div className="mt-2 text-sm text-zinc-400 max-w-xl">
+            Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when ClockWork is closed.
+          </div>
+          <div className="mt-3">
+            <PushSettings />
+          </div>
+        </div>
       </div>
     </div>
   );

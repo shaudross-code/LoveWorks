@@ -6,6 +6,8 @@ load_dotenv(ROOT_DIR / '.env')
 
 import os
 import uuid
+import json as _json
+import asyncio
 import logging
 from datetime import datetime, timezone, timedelta
 from typing import Optional, List
@@ -21,6 +23,13 @@ from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depend
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, EmailStr, Field
+try:
+    from pywebpush import webpush, WebPushException
+    PUSH_AVAILABLE = True
+except Exception:  # pragma: no cover
+    webpush = None
+    WebPushException = Exception
+    PUSH_AVAILABLE = False
 
 # --- Config ---
 JWT_ALGORITHM = "HS256"
@@ -39,6 +48,15 @@ _storage_key: Optional[str] = None
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+# Web Push (VAPID)
+VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")
+VAPID_PRIVATE_KEY = (os.environ.get("VAPID_PRIVATE_KEY", "") or "").replace("\\n", "\n")
+VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:admin@clockwork.com")
+
+# Task due-soon reminder window
+REMINDER_LEAD_MINUTES = 30  # notify worker 30 min before due_time
+REMINDER_LOOP_SECONDS = 60  # scheduler tick
 
 app = FastAPI(title="ClockWork API")
 api_router = APIRouter(prefix="/api")
@@ -310,7 +328,44 @@ async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Opt
     }
     await db.notifications.insert_one(doc)
     doc.pop("_id", None)
+    # Fire-and-forget Web Push (browser OS-level notification)
+    try:
+        await send_web_push(user_id, title, body or "", link=link, meta=doc.get("meta") or {})
+    except Exception as e:
+        logger.warning(f"web push failed for {user_id}: {e}")
     return doc
+
+
+async def send_web_push(user_id: str, title: str, body: str, link: Optional[str] = None, meta: Optional[dict] = None) -> None:
+    """Send a Web Push to every active subscription for this user."""
+    if not (PUSH_AVAILABLE and VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY):
+        return
+    subs = await db.push_subscriptions.find({"user_id": user_id, "is_active": True}, {"_id": 0}).to_list(50)
+    if not subs:
+        return
+    payload = _json.dumps({"title": title, "body": body, "link": link or "/", "meta": meta or {}})
+    dead: list = []
+    for s in subs:
+        try:
+            webpush(
+                subscription_info=s["subscription"],
+                data=payload,
+                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_claims={"sub": VAPID_SUBJECT},
+                ttl=60 * 60 * 12,  # 12h
+            )
+        except WebPushException as e:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+            if status in (404, 410):
+                dead.append(s["endpoint"])
+            else:
+                logger.warning(f"webpush failed: {e}")
+        except Exception as e:
+            logger.warning(f"webpush error: {e}")
+    if dead:
+        await db.push_subscriptions.update_many(
+            {"endpoint": {"$in": dead}}, {"$set": {"is_active": False}}
+        )
 
 
 async def grant_award(user_id: str, code: str) -> Optional[dict]:
@@ -598,11 +653,23 @@ async def create_goal(
     target_amount: Optional[float] = Query(default=None),
     period: Optional[str] = Query(default=None),
     allocation_percent: Optional[float] = Query(default=None),
+    assignee_id: Optional[str] = Query(default=None),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
     if not title or not title.strip():
         raise HTTPException(status_code=400, detail="Title is required")
+    # Admin can assign a goal to a worker; workers always own their own goal
+    owner_id = user["id"]
+    assigned_by_admin = False
+    if assignee_id and user["role"] == "admin":
+        worker = await db.users.find_one({"id": assignee_id, "role": "worker"})
+        if not worker:
+            raise HTTPException(status_code=404, detail="Worker not found")
+        owner_id = assignee_id
+        assigned_by_admin = True
+    elif assignee_id and user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can assign goals to others")
     image_path = None
     if file is not None:
         content_type = (file.content_type or "").lower()
@@ -614,7 +681,7 @@ async def create_goal(
         if data:
             ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
             ext = ext_map.get(content_type, "jpg")
-            path = f"{APP_NAME}/goals/{user['id']}/{uuid.uuid4()}.{ext}"
+            path = f"{APP_NAME}/goals/{owner_id}/{uuid.uuid4()}.{ext}"
             try:
                 result = put_object(path, data, content_type)
             except Exception as e:
@@ -631,7 +698,7 @@ async def create_goal(
             })
     goal = {
         "id": str(uuid.uuid4()),
-        "owner_id": user["id"],
+        "owner_id": owner_id,
         "title": title.strip(),
         "product_link": (product_link or "").strip() or None,
         "image_path": image_path,
@@ -643,10 +710,20 @@ async def create_goal(
         "appreciation": None,
         "completed_at": None,
         "completed_by": None,
+        "assigned_by": user["id"] if assigned_by_admin else None,
         "created_at": now_utc().isoformat(),
     }
     await db.goals.insert_one(goal)
     goal.pop("_id", None)
+    if assigned_by_admin and owner_id != user["id"]:
+        target_str = f" · target ${float(target_amount):.0f}" if target_amount else ""
+        await notify(
+            owner_id, "goal_assigned",
+            f"🎯 New goal: {goal['title']}",
+            f"Set by your admin{target_str}",
+            link="/worker",
+            meta={"goal_id": goal["id"]},
+        )
     return _attach_goal_image_url(goal)
 
 
@@ -1090,6 +1167,55 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         raise HTTPException(status_code=400, detail="No fields to update")
     await db.tasks.update_one({"id": task_id}, {"$set": update})
     updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    # --- Admin-edit notifications to worker(s) ---
+    if user["role"] == "admin":
+        # Build a single composite message rather than spamming many notifications
+        changes: list = []
+        if "price" in update and float(update["price"]) != float(task.get("price") or 0):
+            changes.append(f"price → ${float(update['price']):.2f}")
+        if "due_time" in update and update["due_time"] != task.get("due_time"):
+            changes.append(f"due time → {update['due_time'] or 'cleared'}")
+        if "due_at" in update and update["due_at"] != task.get("due_at"):
+            try:
+                pretty = datetime.fromisoformat(update["due_at"]).strftime("%b %d") if update["due_at"] else "cleared"
+            except Exception:
+                pretty = update["due_at"] or "cleared"
+            changes.append(f"deadline → {pretty}")
+        if "due_day_of_week" in update and update["due_day_of_week"] != task.get("due_day_of_week"):
+            dow = update["due_day_of_week"]
+            day_str = (["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][dow]) if isinstance(dow, int) and 0 <= dow <= 6 else "cleared"
+            changes.append(f"day → {day_str}")
+        if "title" in update and update["title"] != task.get("title"):
+            changes.append("title updated")
+        # Reassignment: ping new assignee, and the previous one if they lost it
+        reassigned = "assignee_id" in update and update["assignee_id"] != task.get("assignee_id")
+        if reassigned:
+            await notify(
+                update["assignee_id"], "task_assigned",
+                f"Task assigned to you: {updated['title']}",
+                f"${float(updated.get('price') or 0):.2f}",
+                link="/worker",
+                meta={"task_id": task_id},
+            )
+            if task.get("assignee_id"):
+                await notify(
+                    task["assignee_id"], "task_updated",
+                    f"Task reassigned: {task.get('title','')}",
+                    "This task was moved off your list.",
+                    link="/worker",
+                    meta={"task_id": task_id},
+                )
+        elif changes:
+            await notify(
+                updated["assignee_id"], "task_updated",
+                f"Task updated: {updated['title']}",
+                " · ".join(changes),
+                link="/worker",
+                meta={"task_id": task_id},
+            )
+        # Reset reminder dedup on any deadline/assignee change so the new schedule re-fires
+        if reassigned or any(k in update for k in ("due_at", "due_time", "due_day_of_week", "frequency")):
+            await db.tasks.update_one({"id": task_id}, {"$set": {"last_reminder_date": None}})
     # Award + notify on task completion
     if update.get("status") == "completed" and task.get("status") != "completed":
         owner_id = updated["assignee_id"]
@@ -1596,6 +1722,132 @@ async def delete_announcement(aid: str, admin: dict = Depends(require_admin)):
     return {"ok": True}
 
 
+# --- Push subscriptions (Web Push / Service Worker) ---
+class PushSubscribeRequest(BaseModel):
+    subscription: dict  # browser PushSubscription.toJSON() — endpoint, keys{p256dh,auth}
+
+
+@api_router.get("/push/public-key")
+async def push_public_key():
+    return {"key": VAPID_PUBLIC_KEY, "available": bool(VAPID_PUBLIC_KEY and PUSH_AVAILABLE)}
+
+
+@api_router.post("/push/subscribe")
+async def push_subscribe(req: PushSubscribeRequest, user: dict = Depends(get_current_user)):
+    sub = req.subscription or {}
+    endpoint = sub.get("endpoint")
+    if not endpoint:
+        raise HTTPException(status_code=400, detail="Invalid subscription")
+    await db.push_subscriptions.update_one(
+        {"endpoint": endpoint},
+        {"$set": {
+            "endpoint": endpoint,
+            "user_id": user["id"],
+            "subscription": sub,
+            "is_active": True,
+            "updated_at": now_utc().isoformat(),
+        }, "$setOnInsert": {"created_at": now_utc().isoformat()}},
+        upsert=True,
+    )
+    return {"ok": True}
+
+
+@api_router.post("/push/unsubscribe")
+async def push_unsubscribe(req: PushSubscribeRequest, user: dict = Depends(get_current_user)):
+    endpoint = (req.subscription or {}).get("endpoint")
+    if endpoint:
+        await db.push_subscriptions.update_one(
+            {"endpoint": endpoint, "user_id": user["id"]},
+            {"$set": {"is_active": False}},
+        )
+    return {"ok": True}
+
+
+@api_router.post("/push/test")
+async def push_test(user: dict = Depends(get_current_user)):
+    """Lets a user verify their push setup by sending themselves a test notification."""
+    await notify(
+        user["id"], "test",
+        "🔔 Push test",
+        "If you saw this as an OS notification, you're all set.",
+        link="/worker",
+        meta={"test": True},
+    )
+    return {"ok": True}
+
+
+# --- Background scheduler: task due-time reminders ---
+def _task_is_due_today(task: dict, today_local: datetime) -> bool:
+    freq = (task.get("frequency") or "once").lower()
+    if freq == "daily":
+        return True
+    if freq == "weekly":
+        dow = task.get("due_day_of_week")
+        return dow is None or dow == today_local.weekday()
+    if freq == "monthly":
+        # Treat monthly as due on the 1st-of-month at due_time (simple)
+        return today_local.day == 1
+    # once
+    if task.get("due_at"):
+        try:
+            return datetime.fromisoformat(task["due_at"]).date() == today_local.date()
+        except Exception:
+            return False
+    dow = task.get("due_day_of_week")
+    return dow is not None and dow == today_local.weekday()
+
+
+async def reminder_loop():
+    """Every minute, find tasks due within REMINDER_LEAD_MINUTES and ping their assignee."""
+    await asyncio.sleep(8)  # let server warm up
+    while True:
+        try:
+            now = now_utc()
+            today_iso = now.date().isoformat()
+            cursor = db.tasks.find(
+                {"status": {"$ne": "completed"}, "due_time": {"$ne": None}},
+                {"_id": 0},
+            )
+            async for task in cursor:
+                try:
+                    if task.get("last_reminder_date") == today_iso:
+                        continue
+                    if not _task_is_due_today(task, now):
+                        continue
+                    due_time = task.get("due_time") or ""
+                    try:
+                        hh, mm = [int(x) for x in due_time.split(":")[:2]]
+                    except Exception:
+                        continue
+                    due_today = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
+                    delta_min = (due_today - now).total_seconds() / 60.0
+                    if 0 < delta_min <= REMINDER_LEAD_MINUTES:
+                        await db.tasks.update_one(
+                            {"id": task["id"], "last_reminder_date": {"$ne": today_iso}},
+                            {"$set": {"last_reminder_date": today_iso, "last_reminder_at": now.isoformat()}},
+                        )
+                        # confirm we won the race before notifying
+                        fresh = await db.tasks.find_one({"id": task["id"]}, {"_id": 0, "last_reminder_date": 1, "assignee_id": 1, "title": 1, "price": 1, "due_time": 1})
+                        if not fresh or fresh.get("last_reminder_date") != today_iso:
+                            continue
+                        mins_left = max(1, int(round(delta_min)))
+                        await notify(
+                            fresh["assignee_id"], "task_due_soon",
+                            f"⏰ Due in {mins_left} min: {fresh.get('title','')}",
+                            f"By {fresh.get('due_time','')} · ${float(fresh.get('price') or 0):.2f}",
+                            link="/worker",
+                            meta={"task_id": task["id"], "due_time": fresh.get("due_time"), "minutes_left": mins_left},
+                        )
+                except Exception as e:
+                    logger.warning(f"reminder per-task error: {e}")
+        except Exception as e:
+            logger.error(f"reminder_loop tick error: {e}")
+        await asyncio.sleep(REMINDER_LOOP_SECONDS)
+
+
+_reminder_task_ref = {"task": None}
+
+
 # --- Health ---
 @api_router.get("/")
 async def root():
@@ -1638,6 +1890,8 @@ async def startup():
     await db.notifications.create_index([("user_id", 1), ("read", 1), ("created_at", -1)])
     await db.awards.create_index([("user_id", 1), ("code", 1)], unique=True)
     await db.announcements.create_index("created_at")
+    await db.push_subscriptions.create_index("endpoint", unique=True)
+    await db.push_subscriptions.create_index([("user_id", 1), ("is_active", 1)])
     # init object storage
     try:
         init_storage()
@@ -1664,6 +1918,11 @@ async def startup():
             {"$set": {"password_hash": hash_password(admin_password)}},
         )
         logger.info(f"Updated admin password for: {admin_email}")
+
+    # Start background task-reminder scheduler
+    if _reminder_task_ref.get("task") is None or _reminder_task_ref["task"].done():
+        _reminder_task_ref["task"] = asyncio.create_task(reminder_loop())
+        logger.info(f"Reminder loop started (lead={REMINDER_LEAD_MINUTES}min, tick={REMINDER_LOOP_SECONDS}s)")
 
 
 @app.on_event("shutdown")

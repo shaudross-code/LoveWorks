@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Target, Calendar, ExternalLink, Sparkles, CheckCircle2, Clock, AlertTriangle, RotateCcw, Loader2, Percent, BadgeDollarSign, TrendingUp, Pencil } from "lucide-react";
+import { Target, Calendar, ExternalLink, Sparkles, CheckCircle2, Clock, AlertTriangle, RotateCcw, Loader2, Percent, BadgeDollarSign, TrendingUp, Pencil, Plus, UserCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import Reactions from "@/components/Reactions";
 
@@ -53,15 +53,21 @@ function statusBadge(s) {
 
 export default function AdminGoals() {
   const [goals, setGoals] = useState([]);
+  const [workers, setWorkers] = useState([]);
   const [filter, setFilter] = useState("all");
-  const [dialog, setDialog] = useState(null); // {goal, mode: 'complete' | 'edit'}
+  const [dialog, setDialog] = useState(null); // {goal, mode: 'complete' | 'edit'} | {mode: 'assign'}
   const [appreciation, setAppreciation] = useState("");
   const [editForm, setEditForm] = useState({ target_amount: "", period: "weekly", allocation_percent: "100" });
+  const [assignForm, setAssignForm] = useState({
+    assignee_id: "", title: "", target_amount: "", period: "weekly",
+    allocation_percent: "100", deadline: "", product_link: "",
+  });
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const { data } = await api.get("/goals");
-    setGoals(data);
+    const [g, w] = await Promise.all([api.get("/goals"), api.get("/workers")]);
+    setGoals(g.data);
+    setWorkers(w.data);
   };
   useEffect(() => { load(); }, []);
 
@@ -84,6 +90,36 @@ export default function AdminGoals() {
       allocation_percent: g.allocation_percent != null ? String(g.allocation_percent) : "100",
     });
     setDialog({ goal: g, mode: "edit" });
+  };
+
+  const openAssign = () => {
+    setAssignForm({
+      assignee_id: workers[0]?.id || "",
+      title: "", target_amount: "", period: "weekly",
+      allocation_percent: "100", deadline: "", product_link: "",
+    });
+    setDialog({ mode: "assign" });
+  };
+
+  const confirmAssign = async () => {
+    if (!assignForm.assignee_id) { toast.error("Pick a worker"); return; }
+    if (!assignForm.title.trim()) { toast.error("Add a title"); return; }
+    setBusy(true);
+    try {
+      const params = new URLSearchParams();
+      params.set("title", assignForm.title.trim());
+      params.set("assignee_id", assignForm.assignee_id);
+      if (assignForm.target_amount) params.set("target_amount", assignForm.target_amount);
+      if (assignForm.period) params.set("period", assignForm.period);
+      if (assignForm.allocation_percent !== "") params.set("allocation_percent", assignForm.allocation_percent);
+      if (assignForm.deadline) params.set("deadline", assignForm.deadline);
+      if (assignForm.product_link.trim()) params.set("product_link", assignForm.product_link.trim());
+      await api.post(`/goals?${params.toString()}`, new FormData(), { headers: { "Content-Type": "multipart/form-data" } });
+      toast.success("Goal assigned 🎯");
+      setDialog(null);
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setBusy(false); }
   };
 
   const confirmEdit = async () => {
@@ -130,10 +166,16 @@ export default function AdminGoals() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <div className="text-xs uppercase tracking-widest text-yellow-400">Goals</div>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Workers' wishlist.</h1>
-        <p className="mt-2 text-zinc-400">See what they're chasing. Check off a goal when they earn it and leave a note of appreciation.</p>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div className="text-xs uppercase tracking-widest text-yellow-400">Goals</div>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Workers' wishlist.</h1>
+          <p className="mt-2 text-zinc-400">See what they're chasing. Check off a goal when they earn it and leave a note of appreciation.</p>
+        </div>
+        <Button data-testid="assign-goal-btn" onClick={openAssign}
+          className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-full h-10 px-5">
+          <Plus className="w-4 h-4 mr-2" /> Assign goal to worker
+        </Button>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
@@ -284,7 +326,78 @@ export default function AdminGoals() {
 
       <Dialog open={!!dialog} onOpenChange={(o) => !o && setDialog(null)}>
         <DialogContent className="bg-[#121214] border-yellow-400/20 text-white rounded-2xl" aria-describedby={undefined}>
-          {dialog?.mode === "edit" ? (
+          {dialog?.mode === "assign" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-display text-2xl flex items-center gap-2">
+                  <Target className="w-5 h-5 text-yellow-400" /> Assign a new goal
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="text-sm text-zinc-400">Set a target for one of your workers — they'll get a 🔔 notification right away and the goal will show up on their dashboard.</div>
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><UserCircle2 className="w-3 h-3" /> Worker</label>
+                  <Select value={assignForm.assignee_id} onValueChange={(v) => setAssignForm({ ...assignForm, assignee_id: v })}>
+                    <SelectTrigger data-testid="assign-worker" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"><SelectValue placeholder="Pick a worker" /></SelectTrigger>
+                    <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+                      {workers.map(w => <SelectItem key={w.id} value={w.id} data-testid={`assign-worker-${w.id}`}>{w.name || w.email}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Goal title</label>
+                  <Input data-testid="assign-title" value={assignForm.title}
+                    onChange={(e) => setAssignForm({ ...assignForm, title: e.target.value })}
+                    placeholder="e.g., Save up for new boots"
+                    className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><BadgeDollarSign className="w-3 h-3" /> Target amount</label>
+                    <Input data-testid="assign-target" type="number" min="0" step="any" placeholder="e.g., 250"
+                      value={assignForm.target_amount} onChange={(e) => setAssignForm({ ...assignForm, target_amount: e.target.value })}
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500">Period</label>
+                    <Select value={assignForm.period} onValueChange={(v) => setAssignForm({ ...assignForm, period: v })}>
+                      <SelectTrigger data-testid="assign-period" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+                        {PERIODS.map(p => <SelectItem key={p.value} value={p.value} data-testid={`assign-period-${p.value}`}>{p.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><Percent className="w-3 h-3" /> Allocation %</label>
+                    <Input data-testid="assign-allocation" type="number" min="0" max="100" step="any" placeholder="e.g., 50"
+                      value={assignForm.allocation_percent} onChange={(e) => setAssignForm({ ...assignForm, allocation_percent: e.target.value })}
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><Calendar className="w-3 h-3" /> Deadline (optional)</label>
+                    <Input data-testid="assign-deadline" type="date" value={assignForm.deadline}
+                      onChange={(e) => setAssignForm({ ...assignForm, deadline: e.target.value })}
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Product link (optional)</label>
+                  <Input data-testid="assign-link" type="url" value={assignForm.product_link}
+                    onChange={(e) => setAssignForm({ ...assignForm, product_link: e.target.value })}
+                    placeholder="https://…"
+                    className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button data-testid="confirm-assign" onClick={confirmAssign} disabled={busy}
+                  className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Target className="w-4 h-4 mr-2" /> Assign goal & notify</>}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : dialog?.mode === "edit" ? (
             <>
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl flex items-center gap-2">
