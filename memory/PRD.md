@@ -27,6 +27,11 @@
 - Admin: dashboard overview, workers CRUD, tasks CRUD with inline price edit, payroll page
 - Worker: hero clock-in/out (live timer, gold-pulse CTA), task list with start/complete toggle, history page
 - Sonner toasts, Radix dialogs, role-guarded routes, mobile responsive
+- Goals, awards, announcements, notifications bell, weekly strip with streak flames
+- Live worker monitor with online dots, idle detection groundwork, per-worker daily/weekly hours
+- Text-to-speech for task descriptions (Web Speech API, browser native)
+- Profile avatars via Emergent Object Storage
+- **(Jun 2026) Admin Overview "Potential Earnings" card** — totals + per-worker weekly & monthly projections from `/api/admin/worker-status` (`potential_weekly`, `potential_monthly`)
 
 ## Prioritized backlog (next phases)
 **P1**
