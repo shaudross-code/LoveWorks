@@ -66,8 +66,36 @@ logger = logging.getLogger(__name__)
 
 
 # --- Helpers ---
+# Configured display/business timezone. All "day", "week", "month" boundaries
+# are computed in this TZ so workers see calendar windows that match their wall clock.
+APP_TZ_NAME = os.environ.get("WEEK_TZ", "UTC")
+try:
+    APP_TZ = ZoneInfo(APP_TZ_NAME) if ZoneInfo else timezone.utc
+except Exception:
+    APP_TZ = timezone.utc
+
+
 def now_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def to_local(dt: datetime) -> datetime:
+    """Coerce any datetime to APP_TZ (assumes naive=UTC)."""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(APP_TZ)
+
+
+def now_local() -> datetime:
+    return now_utc().astimezone(APP_TZ)
+
+
+def iso_utc(dt: datetime) -> str:
+    """Serialize as a UTC ISO string. Use this for Mongo `$gte`/`$lt` against
+    `completed_at` / `clock_in` fields which are stored in UTC ISO form."""
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat()
 
 
 def hash_password(password: str) -> str:
@@ -404,17 +432,20 @@ async def evaluate_task_count_awards(user_id: str):
 
 
 async def evaluate_clockin_streak(user_id: str):
-    """Compute distinct clock-in dates (UTC) and grant streak awards for 3, 7 consecutive days ending today."""
+    """Compute distinct clock-in dates (in APP_TZ) and grant streak awards for 3, 7 consecutive days ending today."""
     entries = await db.time_entries.find({"user_id": user_id}, {"_id": 0, "clock_in": 1}).to_list(2000)
     days = set()
     for e in entries:
         try:
-            days.add(datetime.fromisoformat(e["clock_in"]).date())
+            dt = datetime.fromisoformat(e["clock_in"])
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            days.add(dt.astimezone(APP_TZ).date())
         except Exception:
             continue
     if not days:
         return
-    today = now_utc().date()
+    today = now_local().date()
     streak = 0
     cur = today
     while cur in days:
@@ -728,27 +759,29 @@ async def create_goal(
 
 
 def _start_of_day(dt: datetime) -> datetime:
-    return dt.replace(hour=0, minute=0, second=0, microsecond=0)
+    """Local-midnight for the calendar day of `dt` (anchored in APP_TZ)."""
+    local = to_local(dt)
+    return local.replace(hour=0, minute=0, second=0, microsecond=0)
 
 
 def _start_of_week(dt: datetime) -> datetime:
     sod = _start_of_day(dt)
-    return sod - timedelta(days=sod.weekday())  # Monday 00:00
+    return sod - timedelta(days=sod.weekday())  # Monday 00:00 local
 
 
 def _start_of_month(dt: datetime) -> datetime:
-    return dt.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    return _start_of_day(dt).replace(day=1)
 
 
 def _start_of_year(dt: datetime) -> datetime:
-    return dt.replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    return _start_of_day(dt).replace(month=1, day=1)
 
 
 async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
     """Return {user_id: {'today': X, 'week': X, 'year': X}} sums of completed task prices."""
     if not user_ids:
         return {}
-    year_start = _start_of_year(ref).isoformat()
+    year_start = iso_utc(_start_of_year(ref))
     tasks = await db.tasks.find(
         {"assignee_id": {"$in": user_ids}, "status": "completed", "completed_at": {"$gte": year_start}},
         {"_id": 0, "assignee_id": 1, "price": 1, "completed_at": 1},
@@ -1355,16 +1388,18 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
     if not workers:
         return []
     worker_ids = [w["id"] for w in workers]
-    now = now_utc()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_start = today_start - timedelta(days=today_start.weekday())  # Monday 00:00 UTC
+    now = now_utc()                # used for live elapsed/clock-out math (UTC)
+    now_l = now.astimezone(APP_TZ) # used for day-of-week + window edges (local)
+    today_start = _start_of_day(now)    # local midnight today (tz-aware)
+    week_start = _start_of_week(now)    # local Monday 00:00 (tz-aware)
+    week_start_q = iso_utc(week_start)  # for Mongo string-range queries
 
     entries_week = await db.time_entries.find(
-        {"user_id": {"$in": worker_ids}, "clock_in": {"$gte": week_start.isoformat()}},
+        {"user_id": {"$in": worker_ids}, "clock_in": {"$gte": week_start_q}},
         {"_id": 0},
     ).to_list(10000)
     leftover_active = await db.time_entries.find(
-        {"user_id": {"$in": worker_ids}, "clock_out": None, "clock_in": {"$lt": week_start.isoformat()}},
+        {"user_id": {"$in": worker_ids}, "clock_out": None, "clock_in": {"$lt": week_start_q}},
         {"_id": 0},
     ).to_list(1000)
     active_map: dict = {}
@@ -1381,7 +1416,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
 
     # Completed this week, for per-weekday counts
     completed_week = await db.tasks.find(
-        {"assignee_id": {"$in": worker_ids}, "status": "completed", "completed_at": {"$gte": week_start.isoformat()}},
+        {"assignee_id": {"$in": worker_ids}, "status": "completed", "completed_at": {"$gte": week_start_q}},
         {"_id": 0, "assignee_id": 1, "completed_at": 1, "title": 1, "price": 1},
     ).to_list(10000)
     completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
@@ -1395,7 +1430,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         wid = t.get("assignee_id")
         if wid not in completions_by_day:
             continue
-        dow = done.weekday()
+        dow = done.astimezone(APP_TZ).weekday()
         slot = completions_by_day[wid][dow]
         slot["count"] += 1
         slot["earned"] += float(t.get("price") or 0)
@@ -1409,21 +1444,27 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             continue
         try:
             in_dt = datetime.fromisoformat(e["clock_in"])
+            if in_dt.tzinfo is None:
+                in_dt = in_dt.replace(tzinfo=timezone.utc)
         except Exception:
             continue
         if e.get("clock_out"):
             try:
                 out_dt = datetime.fromisoformat(e["clock_out"])
+                if out_dt.tzinfo is None:
+                    out_dt = out_dt.replace(tzinfo=timezone.utc)
             except Exception:
                 out_dt = now
         else:
             out_dt = now
-        seg_start = max(in_dt, week_start)
+        # Convert to local so day boundaries match wall-clock weekdays
+        seg_start = max(in_dt, week_start).astimezone(APP_TZ)
+        out_l = out_dt.astimezone(APP_TZ)
         cur = seg_start
-        # split across day boundaries so hours land on the right weekday
-        while cur < out_dt:
+        # split across local day boundaries so hours land on the right weekday
+        while cur < out_l:
             day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            chunk_end = min(out_dt, day_end)
+            chunk_end = min(out_l, day_end)
             secs = max(0, int((chunk_end - cur).total_seconds()))
             dow = cur.weekday()
             if 0 <= dow <= 6:
@@ -1432,7 +1473,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
 
     # Compute streak (consecutive days ending today w/ any completion)
     def _compute_streak(slots: list) -> int:
-        today_idx = now.weekday()  # 0=Mon..6=Sun
+        today_idx = now_l.weekday()  # 0=Mon..6=Sun (local)
         s = 0
         for k in range(today_idx + 1):
             if slots[today_idx - k]["count"] > 0:
@@ -1451,11 +1492,15 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
                 continue
             try:
                 in_dt = datetime.fromisoformat(e["clock_in"])
+                if in_dt.tzinfo is None:
+                    in_dt = in_dt.replace(tzinfo=timezone.utc)
             except Exception:
                 continue
             if e.get("clock_out"):
                 try:
                     out_dt = datetime.fromisoformat(e["clock_out"])
+                    if out_dt.tzinfo is None:
+                        out_dt = out_dt.replace(tzinfo=timezone.utc)
                 except Exception:
                     out_dt = now
             else:
@@ -1471,6 +1516,8 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         if le:
             try:
                 le_in = datetime.fromisoformat(le["clock_in"])
+                if le_in.tzinfo is None:
+                    le_in = le_in.replace(tzinfo=timezone.utc)
                 if le_in < week_start:
                     week_seconds += int((now - week_start).total_seconds())
                     today_seconds += int((now - today_start).total_seconds())
@@ -1563,18 +1610,19 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
 
 @api_router.get("/me/weekly-activity")
 async def my_weekly_activity(user: dict = Depends(get_current_user)):
-    """Returns the requesting user's own weekly completion strip + streak."""
+    """Returns the requesting user's own weekly completion strip + streak (in APP_TZ)."""
     now = now_utc()
-    today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    week_start = today_start - timedelta(days=today_start.weekday())
+    today_start = _start_of_day(now)
+    week_start = _start_of_week(now)
+    week_start_q = iso_utc(week_start)
     uid = user["id"]
 
     completed = await db.tasks.find(
-        {"assignee_id": uid, "status": "completed", "completed_at": {"$gte": week_start.isoformat()}},
+        {"assignee_id": uid, "status": "completed", "completed_at": {"$gte": week_start_q}},
         {"_id": 0, "completed_at": 1, "title": 1, "price": 1},
     ).to_list(2000)
     entries = await db.time_entries.find(
-        {"user_id": uid, "clock_in": {"$gte": week_start.isoformat()}},
+        {"user_id": uid, "clock_in": {"$gte": week_start_q}},
         {"_id": 0, "clock_in": 1, "clock_out": 1},
     ).to_list(2000)
     slots = [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)]
@@ -1585,7 +1633,7 @@ async def my_weekly_activity(user: dict = Depends(get_current_user)):
                 done = done.replace(tzinfo=timezone.utc)
         except Exception:
             continue
-        slot = slots[done.weekday()]
+        slot = slots[done.astimezone(APP_TZ).weekday()]
         slot["count"] += 1
         slot["earned"] += float(t.get("price") or 0)
         if len(slot["titles"]) < 5:
@@ -1593,25 +1641,31 @@ async def my_weekly_activity(user: dict = Depends(get_current_user)):
     for e in entries:
         try:
             in_dt = datetime.fromisoformat(e["clock_in"])
+            if in_dt.tzinfo is None:
+                in_dt = in_dt.replace(tzinfo=timezone.utc)
         except Exception:
             continue
         if e.get("clock_out"):
             try:
                 out_dt = datetime.fromisoformat(e["clock_out"])
+                if out_dt.tzinfo is None:
+                    out_dt = out_dt.replace(tzinfo=timezone.utc)
             except Exception:
                 out_dt = now
         else:
             out_dt = now
-        cur = max(in_dt, week_start)
-        while cur < out_dt:
+        # Convert to local TZ for day-boundary splitting
+        cur = max(in_dt, week_start).astimezone(APP_TZ)
+        out_l = out_dt.astimezone(APP_TZ)
+        while cur < out_l:
             day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            chunk_end = min(out_dt, day_end)
+            chunk_end = min(out_l, day_end)
             secs = max(0, int((chunk_end - cur).total_seconds()))
             dow = cur.weekday()
             if 0 <= dow <= 6:
                 slots[dow]["hours"] += secs / 3600.0
             cur = chunk_end
-    today_idx = now.weekday()
+    today_idx = now.astimezone(APP_TZ).weekday()
     streak = 0
     for k in range(today_idx + 1):
         if slots[today_idx - k]["count"] > 0:
@@ -1798,12 +1852,14 @@ def _task_is_due_today(task: dict, today_local: datetime) -> bool:
 
 
 async def reminder_loop():
-    """Every minute, find tasks due within REMINDER_LEAD_MINUTES and ping their assignee."""
+    """Every minute, find tasks due within REMINDER_LEAD_MINUTES and ping their assignee.
+    All due-time math is performed in APP_TZ so 'due_time' (HH:MM) means local wall clock."""
     await asyncio.sleep(8)  # let server warm up
     while True:
         try:
             now = now_utc()
-            today_iso = now.date().isoformat()
+            now_l = now.astimezone(APP_TZ)
+            today_iso = now_l.date().isoformat()
             cursor = db.tasks.find(
                 {"status": {"$ne": "completed"}, "due_time": {"$ne": None}},
                 {"_id": 0},
@@ -1812,15 +1868,15 @@ async def reminder_loop():
                 try:
                     if task.get("last_reminder_date") == today_iso:
                         continue
-                    if not _task_is_due_today(task, now):
+                    if not _task_is_due_today(task, now_l):
                         continue
                     due_time = task.get("due_time") or ""
                     try:
                         hh, mm = [int(x) for x in due_time.split(":")[:2]]
                     except Exception:
                         continue
-                    due_today = now.replace(hour=hh, minute=mm, second=0, microsecond=0)
-                    delta_min = (due_today - now).total_seconds() / 60.0
+                    due_today = now_l.replace(hour=hh, minute=mm, second=0, microsecond=0)
+                    delta_min = (due_today - now_l).total_seconds() / 60.0
                     if 0 < delta_min <= REMINDER_LEAD_MINUTES:
                         await db.tasks.update_one(
                             {"id": task["id"], "last_reminder_date": {"$ne": today_iso}},

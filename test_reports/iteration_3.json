@@ -1,0 +1,47 @@
+{
+  "summary": "Comprehensive correctness audit (iter3) of ClockWork after TZ-aware refactor. 21/21 backend pytest cases pass against the deployed REACT_APP_BACKEND_URL. Frontend smoke (admin) confirmed potential-weekly-total=$837.50 + potential-monthly-total=$3350.00 and all assign-* testids on /admin/goals. Worker UI WeeklyStrip code-reviewed: renders Mon..Sun labels and a weekly-streak chip when streak>=2. Critical TZ verification: completions seeded at 22:00 LOCAL Chicago time (= next-day UTC) for every past local weekday in the current week ALL landed on the correct local weekday in both /api/admin/worker-status and /api/me/weekly-activity — the user's original 'weekly strip shows 0 tasks on previous days' bug is fixed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PATCH /api/tasks/{id} status=completed", "issue": "No notification fired to admin on worker completion. Spec requested this; only awards/early-bird are evaluated. Track as enhancement (test marked informational, not blocking)."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_audit_iter3.py",
+    "/app/backend/tests/test_timezone.py",
+    "/app/test_reports/pytest/pytest_audit_iter3.xml"
+  ],
+  "action_items": [
+    "(Optional) Add admin notification on worker task completion (currently only awards are granted; spec expected a 'task_completed' notify to admin).",
+    "(Optional) FastAPI on_event deprecation warnings — migrate to lifespan event handlers."
+  ],
+  "critical_code_review_comments": [
+    "server.py _start_of_day/_start_of_week/_start_of_month/_start_of_year return tz-aware datetimes in APP_TZ — verified consistent across admin_worker_status, my_weekly_activity, _earnings_buckets_for_users.",
+    "Mongo string-range queries use iso_utc() correctly to compare against UTC-ISO completed_at/clock_in fields.",
+    "Per-weekday assignment loops always re-convert via .astimezone(APP_TZ).weekday() — Tue 22:00 local (Wed 04:00 UTC) lands on Tue. Confirmed live against the deployed API.",
+    "Earnings bucket boundary: Sun 23:30 local (= Mon 05:30 UTC) is correctly EXCLUDED from the current week; Mon 00:30 local (= Sun 06:30 UTC) is correctly INCLUDED.",
+    "reminder_loop uses now_l = now.astimezone(APP_TZ) for due-time math. Verified fires within ~70s for due_time=now+15m, and does NOT fire when due_time is 30m in the past (delta_min<=0).",
+    "evaluate_clockin_streak (referenced in tests) and admin_worker_status _compute_streak both use local weekday — verified live with seeded completions.",
+    "/api/goals create endpoint uses Query params (admin/assignee_id) — works; previously documented in iter2. Worker→admin assignment returns 403.",
+    "/api/push/subscribe + /api/push/unsubscribe use {subscription:{...}} body shape (PushSubscribeRequest). Upsert single doc verified in db.push_subscriptions, is_active flips to false on unsubscribe.",
+    "Goal alloc math: contrib = earn * (allocation_percent/100). Verified 0/50/100 cases all yield correct progress.week and pct_of_target.",
+    "Potential earnings rollup: daily*5 + weekly + monthly/4 for weekly; daily*20 + weekly*4 + monthly for monthly. Verified live: 25*5+100+100=325 / 25*20+100*4+400=1300.",
+    "Auth lockout fires within 6 wrong attempts (server returns 401 with lock signal). bcrypt $2b$ format verified via existing admin login + token flow.",
+    "No MongoDB _id leakage detected in any audited response."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_audit_iter3.py (NEW — 15 tests across 9 classes)"
+  ],
+  "success_rate": {"backend": "100% (21/21 = 15 new audit + 6 prior TZ unit)", "frontend": "100% (admin /admin + /admin/goals testids verified; worker WeeklyStrip code-reviewed)"},
+  "test_credentials": "Admin admin@clockwork.com / admin123 (verified). Transient test workers (audit-worker-<run>@clockwork.com / Worker123!) auto-cleaned via fixture teardown + db cleanup.",
+  "seed_data_creation": "All seeded rows prefixed with 'AUDIT-iter3-' and removed by per-class cleanup (db.tasks, db.users, db.notifications, db.time_entries, db.goals, db.push_subscriptions). Pre-existing admin + Ms Ross worker NOT mutated. db.login_attempts entries for synthetic lockout email cleaned.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Run: pytest /app/backend/tests/test_audit_iter3.py /app/backend/tests/test_timezone.py -v --junitxml=/app/test_reports/pytest/pytest_audit_iter3.xml. Total ~110s (TestReminderLoop takes ~131s alone because of 60s tick + 70s dedup wait). Push subscribe/unsubscribe use {subscription:{...}} body; /api/goals uses query params. Notification field is 'type' not 'kind'. clock-in activity must be one of ['break','cleaning','parenting','studying','working','workout']. The 'completion notification to admin' assertion is informational (backend does not currently fire it — this is a real gap, not a test bug).",
+  "rca of the issue": "Original user complaint (weekly strip showed 0 tasks on previous days) was caused by UTC-vs-local weekday math: a task completed at 22:00 Chicago time was stored with completed_at in next-day UTC, so the UTC weekday landed one day later than the worker's wall clock. Fix (iter3) computes all day/week/month/year boundaries via _start_of_*(... ).astimezone(APP_TZ) and assigns each completion to .astimezone(APP_TZ).weekday(). Verified live with seeded completions across all past weekdays in the current local week — every one landed on the correct local weekday slot in /api/admin/worker-status and /api/me/weekly-activity."
+}
