@@ -209,6 +209,17 @@ export default function AdminGoals() {
     completed: goals.filter(g => statusOf(g) === "completed").length,
   }), [goals]);
 
+  const totals = useMemo(() => {
+    const sum = (arr) => arr.reduce((s, g) => s + Number(g.target_amount || 0), 0);
+    const completed = goals.filter(g => statusOf(g) === "completed");
+    const outstanding = goals.filter(g => statusOf(g) !== "completed");
+    return {
+      all: sum(goals),
+      completed: sum(completed),
+      outstanding: sum(outstanding),
+    };
+  }, [goals]);
+
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
 
   return (
@@ -223,6 +234,40 @@ export default function AdminGoals() {
           className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-full h-10 px-5">
           <Plus className="w-4 h-4 mr-2" /> Assign goal to worker
         </Button>
+      </div>
+
+      {/* Totals row — combined goal value & how much has already been delivered */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div data-testid="goals-total-all"
+          className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-yellow-400/[0.07] via-[#121214] to-[#121214] border border-yellow-400/20">
+          <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-yellow-400" /> All goals combined
+          </div>
+          <div className="mt-2 font-display text-3xl font-bold text-yellow-400 tabular-nums">
+            ${totals.all.toFixed(2)}
+          </div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.all} goal{counts.all === 1 ? "" : "s"} on the wishlist</div>
+        </div>
+        <div data-testid="goals-total-delivered"
+          className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-400/[0.07] via-[#121214] to-[#121214] border border-emerald-400/25">
+          <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Delivered / received
+          </div>
+          <div className="mt-2 font-display text-3xl font-bold text-emerald-400 tabular-nums">
+            ${totals.completed.toFixed(2)}
+          </div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.completed} goal{counts.completed === 1 ? "" : "s"} celebrated</div>
+        </div>
+        <div data-testid="goals-total-outstanding"
+          className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-rose-400/[0.06] via-[#121214] to-[#121214] border border-rose-400/20">
+          <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
+            <Clock className="w-3.5 h-3.5 text-rose-300" /> Still to deliver
+          </div>
+          <div className="mt-2 font-display text-3xl font-bold text-rose-300 tabular-nums">
+            ${totals.outstanding.toFixed(2)}
+          </div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.all - counts.completed} open + overdue</div>
+        </div>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
