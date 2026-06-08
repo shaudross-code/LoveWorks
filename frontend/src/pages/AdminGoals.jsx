@@ -171,6 +171,20 @@ export default function AdminGoals() {
     finally { setUploadingImg(false); }
   };
 
+  const openDelete = (g) => setDialog({ goal: g, mode: "delete" });
+
+  const confirmDelete = async () => {
+    if (!dialog?.goal) return;
+    setBusy(true);
+    try {
+      await api.delete(`/goals/${dialog.goal.id}`);
+      toast.success("Goal deleted");
+      setDialog(null);
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setBusy(false); }
+  };
+
   const confirmComplete = async () => {
     if (!dialog?.goal) return;
     setBusy(true);
@@ -335,7 +349,11 @@ export default function AdminGoals() {
                 <Reactions goal={g} onChange={(u) => setGoals((gs) => gs.map((x) => x.id === u.id ? { ...x, reactions: u.reactions } : x))} />
               </div>
 
-              <div className="mt-4 flex items-center gap-2 justify-end">
+              <div className="mt-4 flex items-center gap-2 justify-end flex-wrap">
+                <Button data-testid={`delete-goal-${g.id}`} onClick={() => openDelete(g)} variant="ghost"
+                  className="text-zinc-400 hover:text-red-400 hover:bg-red-500/10 rounded-full h-9 px-3">
+                  <Trash2 className="w-4 h-4 mr-1.5" /> Delete
+                </Button>
                 <Button data-testid={`edit-goal-${g.id}`} onClick={() => openEdit(g)} variant="ghost"
                   className="text-zinc-300 hover:text-yellow-400 rounded-full h-9 px-4 border border-yellow-400/20">
                   <Pencil className="w-4 h-4 mr-2" /> Edit goal
@@ -497,6 +515,31 @@ export default function AdminGoals() {
                 <Button data-testid="confirm-edit" onClick={confirmEdit} disabled={busy}
                   className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
                   {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save settings"}
+                </Button>
+              </DialogFooter>
+            </>
+          ) : dialog?.mode === "delete" ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-display text-2xl flex items-center gap-2">
+                  <Trash2 className="w-5 h-5 text-red-400" /> Delete goal?
+                </DialogTitle>
+              </DialogHeader>
+              <div className="space-y-3">
+                <div className="text-sm text-zinc-300">
+                  This permanently removes <span className="font-semibold text-white">&ldquo;{dialog?.goal?.title}&rdquo;</span> and all its reactions. Completed task earnings are <span className="font-semibold">not</span> affected — payroll still counts them.
+                </div>
+                <div className="text-xs text-zinc-500">This cannot be undone.</div>
+              </div>
+              <DialogFooter className="flex gap-2 sm:gap-2">
+                <Button data-testid="cancel-delete" type="button" variant="ghost"
+                  onClick={() => setDialog(null)}
+                  className="text-zinc-300 hover:text-white rounded-xl h-11 px-4 border border-zinc-700">
+                  Cancel
+                </Button>
+                <Button data-testid="confirm-delete" onClick={confirmDelete} disabled={busy}
+                  className="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-xl h-11 flex-1">
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash2 className="w-4 h-4 mr-2" /> Delete goal</>}
                 </Button>
               </DialogFooter>
             </>
