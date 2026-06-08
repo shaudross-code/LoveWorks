@@ -52,7 +52,7 @@ export default function GoalsCard() {
   const fileRef = useRef(null);
 
   const load = async () => {
-    const { data } = await api.get("/goals");
+    const { data } = await api.get("/goals?kind=goal");
     setGoals(data);
     // Find newest unacknowledged completed goal and pop the modal
     const unack = data.find((g) => g.status === "completed" && g.completed_at && !g.acknowledged_at);
@@ -98,6 +98,7 @@ export default function GoalsCard() {
         if (form.target_amount) params.set("target_amount", form.target_amount);
         if (form.period) params.set("period", form.period);
         if (form.allocation_percent !== "") params.set("allocation_percent", form.allocation_percent);
+        params.set("kind", "goal");
         const fd = new FormData();
         if (file) fd.append("file", file);
         await api.post(`/goals?${params.toString()}`, fd, { headers: { "Content-Type": "multipart/form-data" } });

@@ -13,6 +13,8 @@ import AdminTasks from "@/pages/AdminTasks";
 import AdminPayroll from "@/pages/AdminPayroll";
 import Profile from "@/pages/Profile";
 import AdminGoals from "@/pages/AdminGoals";
+import AdminTrips from "@/pages/AdminTrips";
+import AdminEssentials from "@/pages/AdminEssentials";
 import Awards from "@/pages/Awards";
 import Announcements from "@/pages/Announcements";
 import WorkerDashboard from "@/pages/WorkerDashboard";
@@ -49,6 +51,12 @@ function App() {
             <Route path="/admin/goals" element={
               <ProtectedRoute role="admin"><AdminLayout><AdminGoals /></AdminLayout></ProtectedRoute>
             } />
+            <Route path="/admin/trips" element={
+              <ProtectedRoute role="admin"><AdminLayout><AdminTrips /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/essentials" element={
+              <ProtectedRoute role="admin"><AdminLayout><AdminEssentials /></AdminLayout></ProtectedRoute>
+            } />
             <Route path="/admin/announcements" element={
               <ProtectedRoute role="admin"><AdminLayout><Announcements /></AdminLayout></ProtectedRoute>
             } />
@@ -64,6 +72,9 @@ function App() {
             } />
             <Route path="/worker/announcements" element={
               <ProtectedRoute role="worker"><WorkerLayout><Announcements /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/essentials" element={
+              <ProtectedRoute role="worker"><WorkerLayout><AdminEssentials /></WorkerLayout></ProtectedRoute>
             } />
             <Route path="/worker/profile" element={
               <ProtectedRoute role="worker"><WorkerLayout><Profile /></WorkerLayout></ProtectedRoute>

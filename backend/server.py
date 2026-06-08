@@ -685,11 +685,15 @@ async def create_goal(
     period: Optional[str] = Query(default=None),
     allocation_percent: Optional[float] = Query(default=None),
     assignee_id: Optional[str] = Query(default=None),
+    kind: Optional[str] = Query(default="goal", description="'goal' or 'trip'"),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
     if not title or not title.strip():
         raise HTTPException(status_code=400, detail="Title is required")
+    kind = (kind or "goal").lower()
+    if kind not in {"goal", "trip"}:
+        raise HTTPException(status_code=400, detail="kind must be 'goal' or 'trip'")
     # Admin can assign a goal to a worker; workers always own their own goal
     owner_id = user["id"]
     assigned_by_admin = False
@@ -730,6 +734,7 @@ async def create_goal(
     goal = {
         "id": str(uuid.uuid4()),
         "owner_id": owner_id,
+        "kind": kind,
         "title": title.strip(),
         "product_link": (product_link or "").strip() or None,
         "image_path": image_path,
@@ -748,12 +753,14 @@ async def create_goal(
     goal.pop("_id", None)
     if assigned_by_admin and owner_id != user["id"]:
         target_str = f" · target ${float(target_amount):.0f}" if target_amount else ""
+        emoji = "✈️" if kind == "trip" else "🎯"
+        label = "trip" if kind == "trip" else "goal"
         await notify(
             owner_id, "goal_assigned",
-            f"🎯 New goal: {goal['title']}",
+            f"{emoji} New {label}: {goal['title']}",
             f"Set by your admin{target_str}",
             link="/worker",
-            meta={"goal_id": goal["id"]},
+            meta={"goal_id": goal["id"], "kind": kind},
         )
     return _attach_goal_image_url(goal)
 
@@ -845,12 +852,19 @@ def _attach_goal_progress(g: dict, buckets: dict) -> dict:
 async def list_goals(
     user: dict = Depends(get_current_user),
     owner_id: Optional[str] = None,
+    kind: Optional[str] = None,
 ):
     query: dict = {}
     if user["role"] == "worker":
         query["owner_id"] = user["id"]
     elif owner_id:
         query["owner_id"] = owner_id
+    if kind:
+        # Backwards compat: rows created before `kind` was added implicitly = "goal"
+        if kind == "goal":
+            query["$or"] = [{"kind": "goal"}, {"kind": {"$exists": False}}, {"kind": None}]
+        else:
+            query["kind"] = kind
     goals = await db.goals.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
     goals = [_attach_goal_image_url(g) for g in goals]
 
@@ -1046,6 +1060,231 @@ async def delete_goal(goal_id: str, user: dict = Depends(get_current_user)):
         await db.files.update_many({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
     await db.goals.delete_one({"id": goal_id})
     return {"ok": True}
+
+
+# --- Essentials (household / everyday items with prices) ---
+ESSENTIAL_CATEGORIES = {"household", "everyday", "groceries", "personal", "kids", "other"}
+
+
+def _attach_essential_image_url(doc: dict) -> dict:
+    if doc and doc.get("image_path"):
+        doc["image_url"] = f"/api/files/{doc['image_path']}"
+    elif doc:
+        doc["image_url"] = None
+    return doc
+
+
+@api_router.get("/essentials")
+async def list_essentials(
+    user: dict = Depends(get_current_user),
+    owner_id: Optional[str] = None,
+):
+    query: dict = {}
+    if user["role"] == "worker":
+        query["owner_id"] = user["id"]
+    elif owner_id:
+        query["owner_id"] = owner_id
+    rows = await db.essentials.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
+    rows = [_attach_essential_image_url(r) for r in rows]
+    if user["role"] == "admin":
+        owner_ids = list({r["owner_id"] for r in rows})
+        if owner_ids:
+            owners = await db.users.find({"id": {"$in": owner_ids}}, {"_id": 0, "password_hash": 0}).to_list(1000)
+            omap = {o["id"]: serialize_user(o) for o in owners}
+            for r in rows:
+                r["owner"] = omap.get(r["owner_id"])
+    return rows
+
+
+@api_router.post("/essentials")
+async def create_essential(
+    title: str = Query(...),
+    price: float = Query(...),
+    category: Optional[str] = Query(default="other"),
+    quantity: Optional[int] = Query(default=1),
+    note: Optional[str] = Query(default=None),
+    assignee_id: Optional[str] = Query(default=None),
+    file: Optional[UploadFile] = File(default=None),
+    user: dict = Depends(get_current_user),
+):
+    if not title or not title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    if price < 0:
+        raise HTTPException(status_code=400, detail="Price must be >= 0")
+    if quantity is None or quantity < 1:
+        quantity = 1
+    cat = (category or "other").lower()
+    if cat not in ESSENTIAL_CATEGORIES:
+        cat = "other"
+
+    owner_id = user["id"]
+    if assignee_id and user["role"] == "admin":
+        worker = await db.users.find_one({"id": assignee_id, "role": "worker"})
+        if not worker:
+            raise HTTPException(status_code=404, detail="Worker not found")
+        owner_id = assignee_id
+    elif assignee_id and user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Only admin can assign essentials to others")
+
+    image_path = None
+    if file is not None:
+        content_type = (file.content_type or "").lower()
+        if content_type not in ALLOWED_IMAGE_TYPES:
+            raise HTTPException(status_code=400, detail="Only JPEG/PNG/WEBP/GIF images allowed")
+        data = await file.read()
+        if data:
+            if len(data) > MAX_AVATAR_BYTES:
+                raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
+            ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+            ext = ext_map.get(content_type, "jpg")
+            path = f"{APP_NAME}/essentials/{owner_id}/{uuid.uuid4()}.{ext}"
+            try:
+                result = put_object(path, data, content_type)
+            except Exception as e:
+                raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+            image_path = result.get("path", path)
+            await db.files.insert_one({
+                "id": str(uuid.uuid4()),
+                "user_id": user["id"],
+                "storage_path": image_path,
+                "content_type": content_type,
+                "size": result.get("size", len(data)),
+                "is_deleted": False,
+                "created_at": now_utc().isoformat(),
+            })
+
+    doc = {
+        "id": str(uuid.uuid4()),
+        "owner_id": owner_id,
+        "title": title.strip(),
+        "price": float(price),
+        "quantity": int(quantity),
+        "category": cat,
+        "note": (note or "").strip() or None,
+        "image_path": image_path,
+        "purchased": False,
+        "created_by": user["id"],
+        "created_at": now_utc().isoformat(),
+    }
+    await db.essentials.insert_one(doc)
+    doc.pop("_id", None)
+    return _attach_essential_image_url(doc)
+
+
+class EssentialUpdate(BaseModel):
+    title: Optional[str] = None
+    price: Optional[float] = None
+    quantity: Optional[int] = None
+    category: Optional[str] = None
+    note: Optional[str] = None
+    purchased: Optional[bool] = None
+
+
+@api_router.patch("/essentials/{essential_id}")
+async def update_essential(essential_id: str, req: EssentialUpdate, user: dict = Depends(get_current_user)):
+    doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Essential not found")
+    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not yours")
+    update: dict = {}
+    if req.title is not None: update["title"] = req.title.strip()
+    if req.price is not None:
+        if req.price < 0: raise HTTPException(status_code=400, detail="Price must be >= 0")
+        update["price"] = float(req.price)
+    if req.quantity is not None:
+        if req.quantity < 1: raise HTTPException(status_code=400, detail="Quantity must be >= 1")
+        update["quantity"] = int(req.quantity)
+    if req.category is not None:
+        cat = req.category.lower()
+        if cat not in ESSENTIAL_CATEGORIES: raise HTTPException(status_code=400, detail="Invalid category")
+        update["category"] = cat
+    if req.note is not None: update["note"] = req.note.strip() or None
+    if req.purchased is not None: update["purchased"] = bool(req.purchased)
+    if not update:
+        raise HTTPException(status_code=400, detail="Nothing to update")
+    await db.essentials.update_one({"id": essential_id}, {"$set": update})
+    updated = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
+    return _attach_essential_image_url(updated)
+
+
+@api_router.post("/essentials/{essential_id}/image")
+async def upload_essential_image(essential_id: str, file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Essential not found")
+    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not yours")
+    content_type = (file.content_type or "").lower()
+    if content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail="Only JPEG/PNG/WEBP/GIF allowed")
+    data = await file.read()
+    if not data:
+        raise HTTPException(status_code=400, detail="Empty file")
+    if len(data) > MAX_AVATAR_BYTES:
+        raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
+    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+    ext = ext_map.get(content_type, "jpg")
+    path = f"{APP_NAME}/essentials/{doc['owner_id']}/{uuid.uuid4()}.{ext}"
+    try:
+        result = put_object(path, data, content_type)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
+    image_path = result.get("path", path)
+    await db.files.insert_one({
+        "id": str(uuid.uuid4()), "user_id": user["id"], "storage_path": image_path,
+        "content_type": content_type, "size": result.get("size", len(data)),
+        "is_deleted": False, "created_at": now_utc().isoformat(),
+    })
+    if doc.get("image_path"):
+        await db.files.update_one({"storage_path": doc["image_path"]}, {"$set": {"is_deleted": True}})
+    await db.essentials.update_one({"id": essential_id}, {"$set": {"image_path": image_path}})
+    updated = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
+    return _attach_essential_image_url(updated)
+
+
+@api_router.delete("/essentials/{essential_id}")
+async def delete_essential(essential_id: str, user: dict = Depends(get_current_user)):
+    doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Essential not found")
+    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not yours")
+    if doc.get("image_path"):
+        await db.files.update_many({"storage_path": doc["image_path"]}, {"$set": {"is_deleted": True}})
+    await db.essentials.delete_one({"id": essential_id})
+    return {"ok": True}
+
+
+@api_router.get("/essentials/totals")
+async def essentials_totals(user: dict = Depends(get_current_user), owner_id: Optional[str] = None):
+    """Sum & breakdown of essential prices for the current user (or a worker if admin)."""
+    query: dict = {}
+    if user["role"] == "worker":
+        query["owner_id"] = user["id"]
+    elif owner_id:
+        query["owner_id"] = owner_id
+    rows = await db.essentials.find(query, {"_id": 0}).to_list(5000)
+    by_cat: dict = {}
+    total = 0.0
+    purchased_total = 0.0
+    pending_total = 0.0
+    for r in rows:
+        line = float(r.get("price") or 0) * int(r.get("quantity") or 1)
+        total += line
+        if r.get("purchased"):
+            purchased_total += line
+        else:
+            pending_total += line
+        c = r.get("category") or "other"
+        by_cat[c] = by_cat.get(c, 0.0) + line
+    return {
+        "count": len(rows),
+        "total": round(total, 2),
+        "purchased_total": round(purchased_total, 2),
+        "pending_total": round(pending_total, 2),
+        "by_category": {k: round(v, 2) for k, v in by_cat.items()},
+    }
 
 
 
@@ -2057,6 +2296,7 @@ async def startup():
     await db.announcements.create_index("created_at")
     await db.push_subscriptions.create_index("endpoint", unique=True)
     await db.push_subscriptions.create_index([("user_id", 1), ("is_active", 1)])
+    await db.essentials.create_index("owner_id")
     # init object storage
     try:
         init_storage()

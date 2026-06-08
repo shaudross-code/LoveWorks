@@ -51,7 +51,7 @@ function statusBadge(s) {
   return map[s] || map.open;
 }
 
-export default function AdminGoals() {
+export default function AdminTrips() {
   const [goals, setGoals] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -65,7 +65,7 @@ export default function AdminGoals() {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const [g, w] = await Promise.all([api.get("/goals?kind=goal"), api.get("/workers")]);
+    const [g, w] = await Promise.all([api.get("/goals?kind=trip"), api.get("/workers")]);
     setGoals(g.data);
     setWorkers(w.data);
   };
@@ -109,14 +109,14 @@ export default function AdminGoals() {
       const params = new URLSearchParams();
       params.set("title", assignForm.title.trim());
       params.set("assignee_id", assignForm.assignee_id);
-      params.set("kind", "goal");
+      params.set("kind", "trip");
       if (assignForm.target_amount) params.set("target_amount", assignForm.target_amount);
       if (assignForm.period) params.set("period", assignForm.period);
       if (assignForm.allocation_percent !== "") params.set("allocation_percent", assignForm.allocation_percent);
       if (assignForm.deadline) params.set("deadline", assignForm.deadline);
       if (assignForm.product_link.trim()) params.set("product_link", assignForm.product_link.trim());
       await api.post(`/goals?${params.toString()}`, new FormData(), { headers: { "Content-Type": "multipart/form-data" } });
-      toast.success("Goal assigned 🎯");
+      toast.success("Trip assigned ✈️");
       setDialog(null);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -132,7 +132,7 @@ export default function AdminGoals() {
         period: editForm.period,
         allocation_percent: editForm.allocation_percent ? parseFloat(editForm.allocation_percent) : 0,
       });
-      toast.success("Goal settings saved");
+      toast.success("Trip settings saved");
       setDialog(null);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -179,7 +179,7 @@ export default function AdminGoals() {
     setBusy(true);
     try {
       await api.delete(`/goals/${dialog.goal.id}`);
-      toast.success("Goal deleted");
+      toast.success("Trip deleted");
       setDialog(null);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -191,7 +191,7 @@ export default function AdminGoals() {
     setBusy(true);
     try {
       await api.post(`/goals/${dialog.goal.id}/complete`, { appreciation });
-      toast.success("Goal celebrated 🎉");
+      toast.success("Trip booked 🎉");
       setDialog(null);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -199,7 +199,7 @@ export default function AdminGoals() {
   };
 
   const reopen = async (g) => {
-    try { await api.post(`/goals/${g.id}/reopen`); toast.success("Goal reopened"); load(); }
+    try { await api.post(`/goals/${g.id}/reopen`); toast.success("Trip reopened"); load(); }
     catch (e) { toast.error(formatApiError(e)); }
   };
 
@@ -227,54 +227,54 @@ export default function AdminGoals() {
     <div className="space-y-8">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <div className="text-xs uppercase tracking-widest text-yellow-400">Goals</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Workers' wishlist.</h1>
-          <p className="mt-2 text-zinc-400">See what they're chasing. Check off a goal when they earn it and leave a note of appreciation.</p>
+          <div className="text-xs uppercase tracking-widest text-yellow-400">Trips</div>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Travel plans.</h1>
+          <p className="mt-2 text-zinc-400">Where your crew dreams of going. Mark a trip booked when they earn it and leave a note of celebration.</p>
         </div>
-        <Button data-testid="assign-goal-btn" onClick={openAssign}
+        <Button data-testid="assign-trip-btn" onClick={openAssign}
           className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-full h-10 px-5">
-          <Plus className="w-4 h-4 mr-2" /> Assign goal to worker
+          <Plus className="w-4 h-4 mr-2" /> Assign trip to worker
         </Button>
       </div>
 
       {/* Totals row — combined goal value & how much has already been delivered */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div data-testid="goals-total-all"
+        <div data-testid="trips-total-all"
           className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-yellow-400/[0.07] via-[#121214] to-[#121214] border border-yellow-400/20">
           <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
-            <Target className="w-3.5 h-3.5 text-yellow-400" /> All goals combined
+            <Target className="w-3.5 h-3.5 text-yellow-400" /> All trips combined
           </div>
           <div className="mt-2 font-display text-3xl font-bold text-yellow-400 tabular-nums">
             ${totals.all.toFixed(2)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{counts.all} goal{counts.all === 1 ? "" : "s"} on the wishlist</div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.all} trip{counts.all === 1 ? "" : "s"} on the itinerary</div>
         </div>
-        <div data-testid="goals-total-delivered"
+        <div data-testid="trips-total-delivered"
           className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-emerald-400/[0.07] via-[#121214] to-[#121214] border border-emerald-400/25">
           <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Delivered / received
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Booked / completed
           </div>
           <div className="mt-2 font-display text-3xl font-bold text-emerald-400 tabular-nums">
             ${totals.completed.toFixed(2)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{counts.completed} goal{counts.completed === 1 ? "" : "s"} celebrated</div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.completed} trip{counts.completed === 1 ? "" : "s"} celebrated</div>
         </div>
-        <div data-testid="goals-total-outstanding"
+        <div data-testid="trips-total-outstanding"
           className="relative overflow-hidden rounded-2xl p-5 bg-gradient-to-br from-rose-400/[0.06] via-[#121214] to-[#121214] border border-rose-400/20">
           <div className="text-xs uppercase tracking-widest text-zinc-500 flex items-center gap-1.5">
-            <Clock className="w-3.5 h-3.5 text-rose-300" /> Still to deliver
+            <Clock className="w-3.5 h-3.5 text-rose-300" /> Still to book
           </div>
           <div className="mt-2 font-display text-3xl font-bold text-rose-300 tabular-nums">
             ${totals.outstanding.toFixed(2)}
           </div>
-          <div className="text-xs text-zinc-500 mt-1">{counts.all - counts.completed} open + overdue</div>
+          <div className="text-xs text-zinc-500 mt-1">{counts.all - counts.completed} planning + overdue</div>
         </div>
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
         <TabsList className="bg-[#121214] border border-yellow-400/15 rounded-xl p-1">
           {STATUS_TABS.map((s) => (
-            <TabsTrigger key={s} value={s} data-testid={`goals-tab-${s}`}
+            <TabsTrigger key={s} value={s} data-testid={`trips-tab-${s}`}
               className="rounded-lg data-[state=active]:bg-yellow-400 data-[state=active]:text-black capitalize">
               {s} <span className="ml-1.5 text-xs opacity-60">{counts[s]}</span>
             </TabsTrigger>
@@ -286,8 +286,8 @@ export default function AdminGoals() {
         {filtered.length === 0 && (
           <div className="col-span-full bg-[#121214] border border-yellow-400/15 rounded-2xl p-10 text-center">
             <Target className="w-8 h-8 text-yellow-400 mx-auto" />
-            <div className="mt-3 font-display text-xl">No goals here</div>
-            <div className="text-sm text-zinc-500">Your workers can add goals from their dashboard.</div>
+            <div className="mt-3 font-display text-xl">No trips planned yet</div>
+            <div className="text-sm text-zinc-500">Use <span className="text-yellow-400 font-semibold">Assign trip to worker</span> to set someone's next adventure.</div>
           </div>
         )}
         {filtered.map((g) => {
@@ -427,7 +427,7 @@ export default function AdminGoals() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl flex items-center gap-2">
-                  <Target className="w-5 h-5 text-yellow-400" /> Assign a new goal
+                  <Target className="w-5 h-5 text-yellow-400" /> Assign a new trip
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
@@ -442,10 +442,10 @@ export default function AdminGoals() {
                   </Select>
                 </div>
                 <div>
-                  <label className="text-xs uppercase tracking-widest text-zinc-500">Goal title</label>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Trip title</label>
                   <Input data-testid="assign-title" value={assignForm.title}
                     onChange={(e) => setAssignForm({ ...assignForm, title: e.target.value })}
-                    placeholder="e.g., Save up for new boots"
+                    placeholder="e.g., Cabo for 4 nights"
                     className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -505,11 +505,11 @@ export default function AdminGoals() {
                 <div className="text-sm text-zinc-400">Update the photo, target, period, and what % of every task earned counts toward this goal.</div>
                 {/* Image */}
                 <div>
-                  <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><ImageIcon className="w-3 h-3" /> Goal photo</label>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><ImageIcon className="w-3 h-3" /> Trip photo</label>
                   <div className="mt-2 flex items-center gap-4">
                     <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-zinc-900 border border-yellow-400/20 shrink-0 grid place-items-center">
                       {dialog?.goal?.image_url ? (
-                        <img src={dialog.goal.image_url} alt={`Goal photo for ${dialog.goal.title || "goal"}`} className="w-full h-full object-cover" data-testid="edit-image-preview" />
+                        <img src={dialog.goal.image_url} alt={`Trip photo for ${dialog.goal.title || "goal"}`} className="w-full h-full object-cover" data-testid="edit-image-preview" />
                       ) : (
                         <ImageIcon className="w-7 h-7 text-zinc-700" />
                       )}
@@ -568,7 +568,7 @@ export default function AdminGoals() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl flex items-center gap-2">
-                  <Trash2 className="w-5 h-5 text-red-400" /> Delete goal?
+                  <Trash2 className="w-5 h-5 text-red-400" /> Delete trip?
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-3">
@@ -585,7 +585,7 @@ export default function AdminGoals() {
                 </Button>
                 <Button data-testid="confirm-delete" onClick={confirmDelete} disabled={busy}
                   className="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-xl h-11 flex-1">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash2 className="w-4 h-4 mr-2" /> Delete goal</>}
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash2 className="w-4 h-4 mr-2" /> Delete trip</>}
                 </Button>
               </DialogFooter>
             </>
