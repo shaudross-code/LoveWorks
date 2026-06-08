@@ -1085,7 +1085,7 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
 
 
 # --- Tasks ---
-VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting"}
+VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting", "self_care"}
 VALID_FREQUENCIES = {"once", "daily", "weekly", "monthly"}
 VALID_PAYOUTS = {"per_task", "daily", "weekly", "monthly"}
 
