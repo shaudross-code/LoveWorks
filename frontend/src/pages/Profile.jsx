@@ -133,7 +133,7 @@ export default function Profile() {
         <div className="mt-8 pt-6 border-t border-yellow-400/10">
           <div className="text-xs uppercase tracking-widest text-zinc-500">Notifications</div>
           <div className="mt-2 text-sm text-zinc-400 max-w-xl">
-            Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when ClockWork is closed.
+            Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when LoveWorks is closed.
           </div>
           <div className="mt-3">
             <PushSettings />

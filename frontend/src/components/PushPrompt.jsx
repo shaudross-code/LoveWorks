@@ -62,7 +62,7 @@ export default function PushPrompt() {
       <div className="flex-1 min-w-0">
         <div className="font-display font-semibold text-white">Never miss a task deadline.</div>
         <div className="text-sm text-zinc-400 mt-0.5">
-          Turn on push notifications and we&apos;ll ping you 30 minutes before every task is due — even when ClockWork is closed.
+          Turn on push notifications and we&apos;ll ping you 30 minutes before every task is due — even when LoveWorks is closed.
         </div>
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <button

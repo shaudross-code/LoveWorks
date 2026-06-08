@@ -58,7 +58,7 @@ VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:admin@clockwork.com")
 REMINDER_LEAD_MINUTES = 30  # notify worker 30 min before due_time
 REMINDER_LOOP_SECONDS = 60  # scheduler tick
 
-app = FastAPI(title="ClockWork API")
+app = FastAPI(title="LoveWorks API")
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -1349,9 +1349,14 @@ async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(
     activity = (req.activity or "working").lower()
     if activity not in VALID_ACTIVITIES:
         raise HTTPException(status_code=400, detail=f"Invalid activity. Use one of: {sorted(VALID_ACTIVITIES)}")
-    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
-    if active:
-        raise HTTPException(status_code=400, detail="You are already clocked in")
+    # Allow multiple simultaneous clocks across DIFFERENT activities, but block
+    # double-starting the SAME activity (would result in nonsense duplicate timers).
+    same = await db.time_entries.find_one(
+        {"user_id": user["id"], "clock_out": None, "activity": activity},
+        {"_id": 0},
+    )
+    if same:
+        raise HTTPException(status_code=400, detail=f"You already have an active {activity} clock")
     entry = {
         "id": str(uuid.uuid4()),
         "user_id": user["id"],
@@ -1368,24 +1373,46 @@ async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(
 
 
 @api_router.post("/time/clock-out")
-async def clock_out(user: dict = Depends(get_current_user)):
-    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
-    if not active:
-        raise HTTPException(status_code=400, detail="You are not clocked in")
-    clock_in_dt = datetime.fromisoformat(active["clock_in"])
+async def clock_out(
+    user: dict = Depends(get_current_user),
+    activity: Optional[str] = Query(default=None, description="If set, close only this activity's clock. Default: close all active clocks."),
+    entry_id: Optional[str] = Query(default=None, description="If set, close only this specific entry."),
+):
+    query: dict = {"user_id": user["id"], "clock_out": None}
+    if entry_id:
+        query["id"] = entry_id
+    elif activity:
+        query["activity"] = activity.lower()
+    actives = await db.time_entries.find(query, {"_id": 0}).to_list(50)
+    if not actives:
+        raise HTTPException(status_code=400, detail="No active clock matches")
     out_dt = now_utc()
-    duration = int((out_dt - clock_in_dt).total_seconds())
-    await db.time_entries.update_one(
-        {"id": active["id"]},
-        {"$set": {"clock_out": out_dt.isoformat(), "duration_seconds": duration}},
-    )
-    return {**active, "clock_out": out_dt.isoformat(), "duration_seconds": duration}
+    closed = []
+    for a in actives:
+        try:
+            clock_in_dt = datetime.fromisoformat(a["clock_in"])
+        except Exception:
+            continue
+        duration = int((out_dt - clock_in_dt).total_seconds())
+        await db.time_entries.update_one(
+            {"id": a["id"]},
+            {"$set": {"clock_out": out_dt.isoformat(), "duration_seconds": duration}},
+        )
+        closed.append({**a, "clock_out": out_dt.isoformat(), "duration_seconds": duration})
+    # Return single entry shape if exactly one was closed (backward compatible),
+    # else return the list.
+    if len(closed) == 1:
+        return closed[0]
+    return {"closed": closed, "count": len(closed)}
 
 
 @api_router.get("/time/active")
-async def active_entry(user: dict = Depends(get_current_user)):
-    active = await db.time_entries.find_one({"user_id": user["id"], "clock_out": None}, {"_id": 0})
-    return active or {}
+async def active_entries(user: dict = Depends(get_current_user)):
+    """List of currently-active time entries for the calling user. (Returns [] if none.)"""
+    actives = await db.time_entries.find(
+        {"user_id": user["id"], "clock_out": None}, {"_id": 0}
+    ).sort("clock_in", 1).to_list(50)
+    return actives
 
 
 @api_router.get("/time/entries")
@@ -1471,12 +1498,15 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         {"user_id": {"$in": worker_ids}, "clock_out": None, "clock_in": {"$lt": week_start_q}},
         {"_id": 0},
     ).to_list(1000)
-    active_map: dict = {}
+    # Group all active entries per worker (allow multiple concurrent activities)
+    active_map: dict = {}  # wid -> list of active entries (earliest first)
     for e in entries_week:
         if e.get("clock_out") is None:
-            active_map[e["user_id"]] = e
+            active_map.setdefault(e["user_id"], []).append(e)
     for e in leftover_active:
-        active_map.setdefault(e["user_id"], e)
+        active_map.setdefault(e["user_id"], []).append(e)
+    for wid in active_map:
+        active_map[wid].sort(key=lambda x: x.get("clock_in") or "")
 
     open_tasks = await db.tasks.find(
         {"assignee_id": {"$in": worker_ids}, "status": {"$ne": "completed"}},
@@ -1581,17 +1611,22 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             if seg_end > t_seg_start:
                 today_seconds += int((seg_end - t_seg_start).total_seconds())
         # Leftover active that started before this week
-        le = active_map.get(wid)
-        if le:
-            try:
-                le_in = datetime.fromisoformat(le["clock_in"])
-                if le_in.tzinfo is None:
-                    le_in = le_in.replace(tzinfo=timezone.utc)
+        le_list = active_map.get(wid, [])
+        earliest_active = None
+        if le_list:
+            for le in le_list:
+                try:
+                    le_in = datetime.fromisoformat(le["clock_in"])
+                    if le_in.tzinfo is None:
+                        le_in = le_in.replace(tzinfo=timezone.utc)
+                except Exception:
+                    continue
+                if earliest_active is None or le_in < earliest_active:
+                    earliest_active = le_in
                 if le_in < week_start:
                     week_seconds += int((now - week_start).total_seconds())
                     today_seconds += int((now - today_start).total_seconds())
-            except Exception:
-                pass
+                    break  # already credited full week/today window once
 
         # Required hours + potential earnings
         daily_required = 0.0
@@ -1645,16 +1680,21 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
                 online = (now - datetime.fromisoformat(last_seen)).total_seconds() < PRESENCE_WINDOW_SECONDS
             except Exception:
                 pass
-        active = active_map.get(wid)
+        active_list = active_map.get(wid, [])
+        primary = active_list[0] if active_list else None  # earliest = "primary" timer
         today_hours = today_seconds / 3600.0
         week_hours = week_seconds / 3600.0
         results.append({
             "worker": serialize_user(w),
             "online": online,
             "last_seen_at": last_seen,
-            "currently_clocked_in": bool(active),
-            "active_activity": active.get("activity") if active else None,
-            "active_clock_in_at": active.get("clock_in") if active else None,
+            "currently_clocked_in": bool(active_list),
+            "active_activity": primary.get("activity") if primary else None,
+            "active_clock_in_at": primary.get("clock_in") if primary else None,
+            "active_activities": [
+                {"id": a.get("id"), "activity": a.get("activity"), "clock_in": a.get("clock_in")}
+                for a in active_list
+            ],
             "today_worked_seconds": today_seconds,
             "week_worked_seconds": week_seconds,
             "today_worked_hours": round(today_hours, 2),
@@ -1976,7 +2016,7 @@ _reminder_task_ref = {"task": None}
 # --- Health ---
 @api_router.get("/")
 async def root():
-    return {"message": "ClockWork API", "ok": True}
+    return {"message": "LoveWorks API", "ok": True}
 
 
 # --- App setup ---

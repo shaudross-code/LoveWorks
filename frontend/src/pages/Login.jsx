@@ -41,35 +41,35 @@ export default function Login() {
       {/* Left: brand */}
       <div className="hidden lg:flex flex-1 flex-col justify-between p-12 border-r border-yellow-400/10 relative">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-yellow-400 text-black grid place-items-center font-display font-extrabold text-xl">C</div>
+          <div className="w-11 h-11 rounded-2xl bg-yellow-400 text-black grid place-items-center font-display font-extrabold text-xl">L</div>
           <div>
-            <div className="font-display text-2xl font-bold leading-none">ClockWork</div>
-            <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Time · Tasks · Pay</div>
+            <div className="font-display text-2xl font-bold leading-none">LoveWorks</div>
+            <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Love · Tasks · Gifts</div>
           </div>
         </div>
         <div>
           <h1 className="font-display text-5xl xl:text-6xl font-bold tracking-tight leading-[1.05]">
-            Run your crew. <br />
-            <span className="text-yellow-400">Reward the hustle.</span>
+            Show your Love. <br />
+            <span className="text-yellow-400">Get Loved with Gifts.</span>
           </h1>
           <p className="mt-6 max-w-md text-zinc-400 text-base leading-relaxed">
-            Clock workers in and out, assign tasks with fixed payouts, and watch
-            payroll add itself up — all from one charmingly black & gold console.
+            Track everyday acts of love — work, study, breaks, parenting — set goals,
+            and let appreciation flow back as gifts. Charmingly black & gold.
           </p>
           <div className="mt-10 flex items-center gap-3 text-zinc-500 text-sm">
             <ShieldCheck className="w-4 h-4 text-yellow-400" />
             Secured with JWT · Admin invitations only
           </div>
         </div>
-        <div className="text-xs text-zinc-600">© ClockWork — built for foremen with style.</div>
+        <div className="text-xs text-zinc-600">© LoveWorks — built with love &amp; gold.</div>
       </div>
 
       {/* Right: form */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
         <form onSubmit={onSubmit} className="w-full max-w-md bg-[#121214] border border-yellow-400/15 rounded-2xl p-8 shadow-2xl shadow-yellow-400/5 fade-up">
           <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">C</div>
-            <div className="font-display font-bold text-lg">ClockWork</div>
+            <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">L</div>
+            <div className="font-display font-bold text-lg">LoveWorks</div>
           </div>
           <h2 className="font-display text-3xl font-bold tracking-tight">Welcome back</h2>
           <p className="mt-1 text-sm text-zinc-500">Sign in to manage your workday.</p>

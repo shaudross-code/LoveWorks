@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import {
-  Play, Square, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
+  Play, Square, Plus, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
   CalendarClock, Calendar, AlertTriangle, Hourglass, TrendingUp, ArrowRight,
   Repeat, Wallet, Clock,
 } from "lucide-react";
@@ -51,7 +51,7 @@ function fmtTime12(hhmm) {
 }
 
 export default function WorkerDashboard() {
-  const [active, setActive] = useState(null); // includes activity
+  const [actives, setActives] = useState([]); // array of active time_entries
   const [tasks, setTasks] = useState([]);
   const [entries, setEntries] = useState([]);
   const [now, setNow] = useState(Date.now());
@@ -63,7 +63,9 @@ export default function WorkerDashboard() {
     const [a, t, e, wk] = await Promise.all([
       api.get("/time/active"), api.get("/tasks"), api.get("/time/entries"), api.get("/me/weekly-activity"),
     ]);
-    setActive(a.data && a.data.id ? a.data : null);
+    // Backward-compatible: server returns a list now; tolerate old single-object shape too
+    const list = Array.isArray(a.data) ? a.data : (a.data && a.data.id ? [a.data] : []);
+    setActives(list);
     setTasks(t.data);
     setEntries(e.data);
     setWeekly(wk.data);
@@ -71,8 +73,10 @@ export default function WorkerDashboard() {
   useEffect(() => { load(); }, []);
   useEffect(() => { const id = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(id); }, []);
 
-  const liveSeconds = active ? Math.floor((now - new Date(active.clock_in).getTime()) / 1000) : 0;
-  const currentActivity = active ? activityOf(active.activity) : null;
+  const primary = actives[0] || null;
+  const liveSeconds = primary ? Math.floor((now - new Date(primary.clock_in).getTime()) / 1000) : 0;
+  const primaryActivity = primary ? activityOf(primary.activity) : null;
+  const activeKeys = new Set(actives.map((a) => a.activity));
 
   const todayHours = useMemo(() => {
     const start = startOfDay().getTime();
@@ -82,12 +86,13 @@ export default function WorkerDashboard() {
       const inT = new Date(e.clock_in).getTime();
       if (inT >= start) total += e.duration_seconds || 0;
     });
-    if (active) {
-      const inT = new Date(active.clock_in).getTime();
-      if (inT >= start) total += liveSeconds;
-    }
+    // Add live seconds from each currently-active clock (each runs independently)
+    actives.forEach((a) => {
+      const inT = new Date(a.clock_in).getTime();
+      if (inT >= start) total += Math.floor((now - inT) / 1000);
+    });
     return total / 3600;
-  }, [entries, active, liveSeconds]);
+  }, [entries, actives, now]);
 
   const earnings = useMemo(
     () => tasks.filter(t => t.status === "completed").reduce((s, t) => s + Number(t.price), 0),
@@ -126,9 +131,14 @@ export default function WorkerDashboard() {
     } catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
   };
-  const clockOut = async () => {
+  const clockOut = async (entryId = null) => {
     setBusy(true);
-    try { await api.post("/time/clock-out"); toast.success("Clocked out"); load(); }
+    try {
+      const url = entryId ? `/time/clock-out?entry_id=${encodeURIComponent(entryId)}` : "/time/clock-out";
+      await api.post(url);
+      toast.success(entryId ? "Clock stopped" : "Clocked out");
+      load();
+    }
     catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
   };
@@ -152,18 +162,31 @@ export default function WorkerDashboard() {
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative grid lg:grid-cols-[1fr_auto] gap-8 items-center">
           <div className="min-w-0">
-            <div className="text-xs uppercase tracking-widest text-yellow-400 flex items-center gap-2">
-              {active ? <>Currently <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${currentActivity.pill}`}>
-                <currentActivity.icon className="w-3 h-3" /> {currentActivity.label}
-              </span></> : "Ready to start"}
+            <div className="text-xs uppercase tracking-widest text-yellow-400 flex items-center gap-2 flex-wrap">
+              {actives.length > 0 ? (
+                <>
+                  Currently
+                  {actives.map((a) => {
+                    const act = activityOf(a.activity);
+                    return (
+                      <span key={a.id} data-testid={`active-pill-${a.activity}`}
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] ${act.pill}`}>
+                        <act.icon className="w-3 h-3" /> {act.label}
+                      </span>
+                    );
+                  })}
+                </>
+              ) : "Ready to start"}
             </div>
             <h1 className="font-display text-3xl sm:text-5xl font-bold tracking-tight mt-2">
-              {active ? "You're on the clock." : "Punch in to begin."}
+              {actives.length > 1 ? `You're juggling ${actives.length} clocks.`
+                : actives.length === 1 ? "You're on the clock."
+                : "Punch in to begin."}
             </h1>
 
             {/* Tiles grid 3x2 — earned & weekly potential now visible */}
             <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-2xl">
-              <Tile testid="shift-timer"      label="Shift timer"    value={active ? formatDuration(liveSeconds) : "00:00:00"} />
+              <Tile testid="shift-timer"      label={actives.length > 1 ? "Earliest timer" : "Shift timer"}    value={primary ? formatDuration(liveSeconds) : "00:00:00"} />
               <Tile testid="today-hours"      label="Today"          value={`${todayHours.toFixed(2)}h`} />
               <Tile testid="open-task-count"  label="Open tasks"     value={groups.open.length} />
               <Tile testid="earnings-total"   label="Earned"         value={`$${earnings.toFixed(2)}`} accent="text-yellow-400" />
@@ -174,19 +197,26 @@ export default function WorkerDashboard() {
           </div>
 
           <div className="flex justify-center lg:justify-end">
-            {active ? (
+            {actives.length > 0 ? (
               <div className="flex flex-col items-center gap-3">
-                <div className={`relative h-44 w-44 rounded-full ${currentActivity.bg} grid place-items-center shadow-xl ${currentActivity.text} ring-4 ${currentActivity.ring}`}>
+                {/* Primary big ring shows the earliest active timer */}
+                <div className={`relative h-44 w-44 rounded-full ${primaryActivity.bg} grid place-items-center shadow-xl ${primaryActivity.text} ring-4 ${primaryActivity.ring}`}>
                   <div className="text-center">
-                    <currentActivity.icon className="w-7 h-7 mx-auto" />
-                    <div className="font-display font-bold mt-1 text-sm uppercase tracking-widest">{currentActivity.label}</div>
+                    <primaryActivity.icon className="w-7 h-7 mx-auto" />
+                    <div className="font-display font-bold mt-1 text-sm uppercase tracking-widest">{primaryActivity.label}</div>
                     <div className="font-display font-bold tabular-nums text-lg mt-1">{formatDuration(liveSeconds)}</div>
                   </div>
                 </div>
-                <Button data-testid="clock-out-btn" disabled={busy} onClick={clockOut}
-                  className="rounded-full h-11 px-6 bg-red-500 hover:bg-red-400 text-white font-semibold">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Square className="w-4 h-4 mr-2" /> Clock out</>}
-                </Button>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <Button data-testid="add-clock-btn" disabled={busy} onClick={() => setPickerOpen((v) => !v)}
+                    className="rounded-full h-10 px-4 bg-yellow-400 hover:bg-yellow-300 text-black font-semibold">
+                    <Plus className="w-4 h-4 mr-1.5" /> Start another
+                  </Button>
+                  <Button data-testid="clock-out-btn" disabled={busy} onClick={() => clockOut()}
+                    className="rounded-full h-10 px-4 bg-red-500 hover:bg-red-400 text-white font-semibold">
+                    {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Square className="w-4 h-4 mr-1.5" /> Clock out all</>}
+                  </Button>
+                </div>
               </div>
             ) : (
               <Button data-testid="clock-in-btn" disabled={busy} onClick={() => setPickerOpen((v) => !v)}
@@ -199,25 +229,63 @@ export default function WorkerDashboard() {
           </div>
         </div>
 
-        {/* Activity picker (slides in when Clock In is pressed) */}
-        {!active && pickerOpen && (
-          <div data-testid="activity-picker" className="relative mt-8 pt-8 border-t border-yellow-400/10">
-            <div className="text-xs uppercase tracking-widest text-zinc-500 mb-3">What are you doing?</div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {ACTIVITIES.map((a) => (
-                <button
-                  key={a.key}
-                  data-testid={`activity-${a.key}`}
-                  disabled={busy}
-                  onClick={() => clockIn(a.key)}
-                  className={`group flex flex-col items-center gap-2 p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 hover:border-yellow-400/40 hover:-translate-y-0.5 transition`}
-                >
-                  <div className={`w-12 h-12 rounded-full ${a.bg} ${a.text} grid place-items-center group-hover:scale-110 transition-transform`}>
-                    <a.icon className="w-5 h-5" />
+        {/* Active-clocks strip — visible when you have ≥1 running clock */}
+        {actives.length > 0 && (
+          <div data-testid="active-clocks" className="relative mt-8 pt-8 border-t border-yellow-400/10">
+            <div className="text-xs uppercase tracking-widest text-zinc-500 mb-3">Running clocks</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {actives.map((a) => {
+                const act = activityOf(a.activity);
+                const secs = Math.floor((now - new Date(a.clock_in).getTime()) / 1000);
+                return (
+                  <div key={a.id} data-testid={`active-clock-${a.activity}`}
+                    className="flex items-center gap-3 p-3 rounded-xl bg-zinc-900/70 border border-zinc-800">
+                    <div className={`w-10 h-10 rounded-full ${act.bg} ${act.text} grid place-items-center shrink-0`}>
+                      <act.icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{act.label}</div>
+                      <div className="text-xs text-zinc-500 tabular-nums">{formatDuration(secs)}</div>
+                    </div>
+                    <button data-testid={`stop-clock-${a.activity}`} disabled={busy} onClick={() => clockOut(a.id)}
+                      className="text-xs px-2.5 h-8 rounded-full bg-red-500/15 text-red-400 hover:bg-red-500/25 transition">
+                      Stop
+                    </button>
                   </div>
-                  <div className="font-medium text-sm">{a.label}</div>
-                </button>
-              ))}
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Activity picker — works for first-clock-in AND adding parallel clocks */}
+        {pickerOpen && (
+          <div data-testid="activity-picker" className="relative mt-8 pt-8 border-t border-yellow-400/10">
+            <div className="text-xs uppercase tracking-widest text-zinc-500 mb-3">
+              {actives.length > 0 ? "Add another clock — you can run several at once" : "What are you doing?"}
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {ACTIVITIES.map((a) => {
+                const isRunning = activeKeys.has(a.key);
+                return (
+                  <button
+                    key={a.key}
+                    data-testid={`activity-${a.key}`}
+                    disabled={busy || isRunning}
+                    onClick={() => clockIn(a.key)}
+                    title={isRunning ? "Already running" : ""}
+                    className={`group flex flex-col items-center gap-2 p-4 rounded-2xl bg-zinc-900/70 border border-zinc-800 transition ${
+                      isRunning ? "opacity-40 cursor-not-allowed" : "hover:border-yellow-400/40 hover:-translate-y-0.5"
+                    }`}
+                  >
+                    <div className={`w-12 h-12 rounded-full ${a.bg} ${a.text} grid place-items-center group-hover:scale-110 transition-transform`}>
+                      <a.icon className="w-5 h-5" />
+                    </div>
+                    <div className="font-medium text-sm">{a.label}</div>
+                    {isRunning && <div className="text-[10px] text-yellow-400 uppercase tracking-widest">running</div>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}

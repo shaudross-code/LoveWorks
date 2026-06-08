@@ -23,7 +23,7 @@ export default function WorkerLayout({ children }) {
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">C</div>
             <div>
-              <div className="font-display font-bold leading-none">ClockWork</div>
+              <div className="font-display font-bold leading-none">LoveWorks</div>
               <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Workspace</div>
             </div>
           </div>

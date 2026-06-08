@@ -1,4 +1,4 @@
-/* ClockWork Service Worker — receives Web Push for task reminders & admin events */
+/* LoveWorks Service Worker — receives Web Push for task reminders & admin events */
 
 self.addEventListener('install', () => {
   self.skipWaiting();
@@ -9,7 +9,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'ClockWork', body: '', link: '/' };
+  let data = { title: 'LoveWorks', body: '', link: '/' };
   try {
     if (event.data) {
       data = { ...data, ...event.data.json() };
@@ -28,7 +28,7 @@ self.addEventListener('push', (event) => {
     vibrate: [120, 60, 120],
   };
 
-  event.waitUntil(self.registration.showNotification(data.title || 'ClockWork', options));
+  event.waitUntil(self.registration.showNotification(data.title || 'LoveWorks', options));
 });
 
 self.addEventListener('notificationclick', (event) => {

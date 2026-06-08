@@ -25,7 +25,7 @@ export default function AdminLayout({ children }) {
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold text-lg">C</div>
             <div className="flex-1 min-w-0">
-              <div className="font-display font-bold text-lg leading-none">ClockWork</div>
+              <div className="font-display font-bold text-lg leading-none">LoveWorks</div>
               <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Admin Console</div>
             </div>
             <NotificationBell />
@@ -74,7 +74,7 @@ export default function AdminLayout({ children }) {
       <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/70 backdrop-blur-xl border-b border-yellow-400/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-yellow-400 text-black grid place-items-center font-display font-bold">C</div>
-          <div className="font-display font-bold">ClockWork</div>
+          <div className="font-display font-bold">LoveWorks</div>
         </div>
         <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-sm flex items-center gap-1">
           <LogOut className="w-4 h-4" /> Logout
