@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -23,9 +24,12 @@ const catOf = (key) => CATEGORIES.find((c) => c.value === key) || CATEGORIES[CAT
 const TABS = ["all", ...CATEGORIES.map((c) => c.value)];
 
 export default function AdminEssentials() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [items, setItems] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [filter, setFilter] = useState("all");
+  const [ownerFilter, setOwnerFilter] = useState("all");
   const [dialog, setDialog] = useState(null); // {mode:'create'|'edit'|'delete', item?}
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
@@ -44,24 +48,29 @@ export default function AdminEssentials() {
   };
   useEffect(() => { load(); }, []);
 
-  const visible = useMemo(() => filter === "all" ? items : items.filter((i) => (i.category || "other") === filter), [items, filter]);
+  const scopedItems = useMemo(() => {
+    if (!isAdmin || ownerFilter === "all") return items;
+    return items.filter((i) => i.owner_id === ownerFilter);
+  }, [items, isAdmin, ownerFilter]);
+
+  const visible = useMemo(() => filter === "all" ? scopedItems : scopedItems.filter((i) => (i.category || "other") === filter), [scopedItems, filter]);
 
   const counts = useMemo(() => {
-    const c = { all: items.length };
-    CATEGORIES.forEach((cat) => { c[cat.value] = items.filter((i) => (i.category || "other") === cat.value).length; });
+    const c = { all: scopedItems.length };
+    CATEGORIES.forEach((cat) => { c[cat.value] = scopedItems.filter((i) => (i.category || "other") === cat.value).length; });
     return c;
-  }, [items]);
+  }, [scopedItems]);
 
   const totals = useMemo(() => {
     const line = (i) => Number(i.price || 0) * Number(i.quantity || 1);
     let total = 0, purchased = 0, pending = 0;
-    items.forEach((i) => {
+    scopedItems.forEach((i) => {
       const v = line(i);
       total += v;
       if (i.purchased) purchased += v; else pending += v;
     });
     return { total, purchased, pending };
-  }, [items]);
+  }, [scopedItems]);
 
   const openCreate = () => {
     setForm({ assignee_id: workers[0]?.id || "", title: "", price: "", quantity: "1", category: "household", note: "" });
@@ -160,6 +169,31 @@ export default function AdminEssentials() {
           <Plus className="w-4 h-4 mr-2" /> Add essential
         </Button>
       </div>
+
+      {isAdmin && workers.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs uppercase tracking-widest text-zinc-500">View by</span>
+          <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+            <SelectTrigger data-testid="essentials-owner-filter" className="h-9 w-56 bg-zinc-900 border-zinc-800 text-white rounded-full text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+              <SelectItem value="all" data-testid="essentials-owner-all">Every worker</SelectItem>
+              {workers.map((w) => (
+                <SelectItem key={w.id} value={w.id} data-testid={`essentials-owner-${w.id}`}>
+                  {w.name || w.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {ownerFilter !== "all" && (
+            <button onClick={() => setOwnerFilter("all")}
+              className="text-xs text-zinc-400 hover:text-yellow-400 px-2 h-9">
+              Clear
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Totals strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

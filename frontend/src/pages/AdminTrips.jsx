@@ -66,6 +66,7 @@ export default function AdminTrips() {
     allocation_percent: "100", deadline: "", product_link: "",
   });
   const [busy, setBusy] = useState(false);
+  const [ownerFilter, setOwnerFilter] = useState("all");
 
   const load = async () => {
     const g = await api.get("/goals?kind=trip");
@@ -79,10 +80,15 @@ export default function AdminTrips() {
   };
   useEffect(() => { load(); }, []);
 
+  const scopedGoals = useMemo(() => {
+    if (!isAdmin || ownerFilter === "all") return goals;
+    return goals.filter((g) => g.owner_id === ownerFilter);
+  }, [goals, isAdmin, ownerFilter]);
+
   const filtered = useMemo(() => {
-    if (filter === "all") return goals;
-    return goals.filter((g) => statusOf(g) === filter);
-  }, [goals, filter]);
+    if (filter === "all") return scopedGoals;
+    return scopedGoals.filter((g) => statusOf(g) === filter);
+  }, [scopedGoals, filter]);
 
   const openComplete = (g) => {
     setDialog({ goal: g, mode: "complete" });
@@ -212,22 +218,22 @@ export default function AdminTrips() {
   };
 
   const counts = useMemo(() => ({
-    all: goals.length,
-    open: goals.filter(g => statusOf(g) === "open").length,
-    overdue: goals.filter(g => statusOf(g) === "overdue").length,
-    completed: goals.filter(g => statusOf(g) === "completed").length,
-  }), [goals]);
+    all: scopedGoals.length,
+    open: scopedGoals.filter(g => statusOf(g) === "open").length,
+    overdue: scopedGoals.filter(g => statusOf(g) === "overdue").length,
+    completed: scopedGoals.filter(g => statusOf(g) === "completed").length,
+  }), [scopedGoals]);
 
   const totals = useMemo(() => {
     const sum = (arr) => arr.reduce((s, g) => s + Number(g.target_amount || 0), 0);
-    const completed = goals.filter(g => statusOf(g) === "completed");
-    const outstanding = goals.filter(g => statusOf(g) !== "completed");
+    const completed = scopedGoals.filter(g => statusOf(g) === "completed");
+    const outstanding = scopedGoals.filter(g => statusOf(g) !== "completed");
     return {
-      all: sum(goals),
+      all: sum(scopedGoals),
       completed: sum(completed),
       outstanding: sum(outstanding),
     };
-  }, [goals]);
+  }, [scopedGoals]);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
 
@@ -251,6 +257,31 @@ export default function AdminTrips() {
           {isAdmin ? "Assign trip to worker" : "Add a trip"}
         </Button>
       </div>
+
+      {isAdmin && workers.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-xs uppercase tracking-widest text-zinc-500">View by</span>
+          <Select value={ownerFilter} onValueChange={setOwnerFilter}>
+            <SelectTrigger data-testid="trips-owner-filter" className="h-9 w-56 bg-zinc-900 border-zinc-800 text-white rounded-full text-sm">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+              <SelectItem value="all" data-testid="trips-owner-all">Every worker</SelectItem>
+              {workers.map((w) => (
+                <SelectItem key={w.id} value={w.id} data-testid={`trips-owner-${w.id}`}>
+                  {w.name || w.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {ownerFilter !== "all" && (
+            <button onClick={() => setOwnerFilter("all")}
+              className="text-xs text-zinc-400 hover:text-yellow-400 px-2 h-9">
+              Clear
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Totals row — combined goal value & how much has already been delivered */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
