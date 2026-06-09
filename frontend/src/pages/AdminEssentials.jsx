@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
+import TeammatesField from "@/components/TeammatesField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -42,9 +43,9 @@ export default function AdminEssentials() {
     const it = await api.get("/essentials");
     setItems(it.data);
     try {
-      const w = await api.get("/workers");
+      const w = await api.get(isAdmin ? "/workers" : "/peers");
       setWorkers(w.data);
-    } catch { /* workers list is admin-only — fine for worker view */ }
+    } catch { /* peers/workers list unavailable */ }
   };
   useEffect(() => { load(); }, []);
 
@@ -364,6 +365,21 @@ export default function AdminEssentials() {
                       </div>
                     </div>
                   </div>
+                )}
+
+                {dialog?.mode === "edit" && dialog?.item && (
+                  <TeammatesField
+                    docId={dialog.item.id}
+                    collection="essentials"
+                    ownerId={dialog.item.owner_id}
+                    collaboratorIds={dialog.item.collaborator_ids || []}
+                    workers={workers}
+                    label="Essential teammates"
+                    onChanged={(ids) => {
+                      setDialog((d) => d?.item ? { ...d, item: { ...d.item, collaborator_ids: ids } } : d);
+                      load();
+                    }}
+                  />
                 )}
 
                 {dialog?.mode === "create" && workers.length > 0 && (

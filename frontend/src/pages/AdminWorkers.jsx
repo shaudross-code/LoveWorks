@@ -226,6 +226,38 @@ export default function AdminWorkers() {
               <div className="mt-4">
                 <WeeklyStrip days={s.completions_by_day || []} streak={s.streak_days || 0} />
               </div>
+
+              {/* Streak + inconsistency chips */}
+              <div className="mt-3 flex flex-wrap gap-2" data-testid={`worker-streak-block-${s.worker.id}`}>
+                {(s.streak_days || 0) >= 2 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-orange-400/15 text-orange-300 border border-orange-400/30">
+                    🔥 {s.streak_days}-day streak
+                  </span>
+                )}
+                {s.inconsistencies?.streak_broken && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-amber-400/15 text-amber-300 border border-amber-400/30"
+                    title="Yesterday had no activity after earlier momentum">
+                    ⚠️ streak broken
+                  </span>
+                )}
+                {(s.inconsistencies?.missed_days || []).length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-rose-400/15 text-rose-300 border border-rose-400/30"
+                    title={`No activity logged on ${(s.inconsistencies.missed_days).join(", ")}`}>
+                    💤 {s.inconsistencies.missed_days.length} missed day{s.inconsistencies.missed_days.length === 1 ? "" : "s"}
+                  </span>
+                )}
+                {(s.inconsistencies?.low_days || []).length > 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-zinc-700/40 text-zinc-300 border border-zinc-600"
+                    title={`Below-target hours on ${(s.inconsistencies.low_days).join(", ")}`}>
+                    📉 {s.inconsistencies.low_days.length} light day{s.inconsistencies.low_days.length === 1 ? "" : "s"}
+                  </span>
+                )}
+                {(s.streak_days || 0) === 0 && (s.inconsistencies?.total_issues || 0) === 0 && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-emerald-400/15 text-emerald-300 border border-emerald-400/30">
+                    ✨ clean week
+                  </span>
+                )}
+              </div>
             </div>
           );
         })}

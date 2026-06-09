@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
 import Avatar from "@/components/Avatar";
+import TeammatesField from "@/components/TeammatesField";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -322,6 +323,12 @@ export default function AdminGoals() {
                   <div className="mt-2 flex items-center gap-2 text-xs text-zinc-500">
                     <Avatar url={g.owner?.avatar_url} name={g.owner?.name} size={20} />
                     <span className="truncate">{g.owner?.name || g.owner?.email}</span>
+                    {(g.collaborator_ids || []).length > 0 && (
+                      <span className="inline-flex items-center gap-1 px-2 h-5 rounded-full bg-pink-400/15 text-pink-300 border border-pink-400/30 text-[10px] uppercase tracking-widest"
+                            title={`Shared with ${(g.collaborator_ids || []).length} teammate(s)`}>
+                        🤝 +{(g.collaborator_ids || []).length}
+                      </span>
+                    )}
                   </div>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-sky-400/15 text-sky-300">
@@ -532,6 +539,20 @@ export default function AdminGoals() {
                   </div>
                   <div className="text-[10px] text-zinc-500 mt-2">JPEG, PNG, WEBP, or GIF — up to 3 MB.</div>
                 </div>
+                {dialog?.goal && (
+                  <TeammatesField
+                    docId={dialog.goal.id}
+                    collection="goals"
+                    ownerId={dialog.goal.owner_id}
+                    collaboratorIds={dialog.goal.collaborator_ids || []}
+                    workers={workers}
+                    label="Goal teammates"
+                    onChanged={(ids) => {
+                      setDialog((d) => d?.goal ? { ...d, goal: { ...d.goal, collaborator_ids: ids } } : d);
+                      load();
+                    }}
+                  />
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><BadgeDollarSign className="w-3 h-3" /> Target amount</label>

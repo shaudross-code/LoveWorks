@@ -3,7 +3,21 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Loader2, ShieldCheck, Heart, Gift, Plane, Flower2, Wine, Gem, Banknote, KeyRound, ShoppingBag, Shirt } from "lucide-react";
+
+// Romantic gift backdrop — each icon floats independently around the brand panel
+const BACKDROP_ICONS = [
+  { Icon: Heart,      top: "8%",  left: "6%",   delay: "0s",   size: 44, tint: "text-pink-400/30",    spin: 12 },
+  { Icon: Gift,       top: "20%", left: "78%",  delay: "0.6s", size: 38, tint: "text-rose-400/30",    spin: -8 },
+  { Icon: Plane,      top: "62%", left: "9%",   delay: "1.2s", size: 40, tint: "text-fuchsia-400/25", spin: 18 },
+  { Icon: Flower2,    top: "78%", left: "70%",  delay: "0.3s", size: 46, tint: "text-pink-300/30",    spin: -14 },
+  { Icon: Wine,       top: "44%", left: "82%",  delay: "1.5s", size: 36, tint: "text-rose-300/25",    spin: 6 },
+  { Icon: Gem,        top: "30%", left: "30%",  delay: "0.9s", size: 30, tint: "text-yellow-400/25",  spin: 22 },
+  { Icon: Banknote,   top: "84%", left: "30%",  delay: "0.4s", size: 38, tint: "text-emerald-300/25", spin: -10 },
+  { Icon: KeyRound,   top: "12%", left: "48%",  delay: "1.8s", size: 32, tint: "text-yellow-300/30",  spin: 16 },
+  { Icon: ShoppingBag,top: "56%", left: "55%",  delay: "1.1s", size: 34, tint: "text-pink-400/25",    spin: -18 },
+  { Icon: Shirt,      top: "70%", left: "40%",  delay: "0.2s", size: 32, tint: "text-fuchsia-300/25", spin: 10 },
+];
 
 export default function Login() {
   const { user, login } = useAuth();
@@ -34,30 +48,48 @@ export default function Login() {
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white relative overflow-hidden flex">
-      {/* Decorative gold gradient */}
-      <div className="absolute -top-40 -left-40 w-[520px] h-[520px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Decorative gradients */}
+      <div className="absolute -top-40 -left-40 w-[520px] h-[520px] bg-pink-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-0 w-[460px] h-[460px] bg-yellow-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 w-[360px] h-[360px] bg-rose-500/[0.06] rounded-full blur-3xl pointer-events-none" />
+
+      {/* Floating love-gift backdrop */}
+      <div aria-hidden="true" className="absolute inset-0 pointer-events-none overflow-hidden hidden md:block">
+        {BACKDROP_ICONS.map(({ Icon, top, left, delay, size, tint, spin }, i) => (
+          <Icon
+            key={i}
+            className={`absolute ${tint} love-float`}
+            style={{
+              top, left, width: size, height: size,
+              animationDelay: delay,
+              transform: `rotate(${spin}deg)`,
+            }}
+          />
+        ))}
+      </div>
 
       {/* Left: brand */}
-      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 border-r border-yellow-400/10 relative">
+      <div className="hidden lg:flex flex-1 flex-col justify-between p-12 border-r border-pink-400/10 relative">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-2xl bg-yellow-400 text-black grid place-items-center font-display font-extrabold text-xl">L</div>
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-lg shadow-pink-500/30">
+            <Heart className="w-6 h-6 fill-white" />
+          </div>
           <div>
             <div className="font-display text-2xl font-bold leading-none">LoveWorks</div>
             <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Love · Tasks · Gifts</div>
           </div>
         </div>
-        <div>
+        <div className="relative">
           <h1 className="font-display text-5xl xl:text-6xl font-bold tracking-tight leading-[1.05]">
-            Show your Love. <br />
+            <span className="text-pink-400 drop-shadow-[0_0_22px_rgba(244,114,182,0.35)]">Show your Love.</span> <br />
             <span className="text-yellow-400">Get Loved with Gifts.</span>
           </h1>
           <p className="mt-6 max-w-md text-zinc-400 text-base leading-relaxed">
             Track everyday acts of love — work, study, breaks, parenting — set goals,
-            and let appreciation flow back as gifts. Charmingly black & gold.
+            and let appreciation flow back as gifts. Charmingly pink &amp; gold.
           </p>
           <div className="mt-10 flex items-center gap-3 text-zinc-500 text-sm">
-            <ShieldCheck className="w-4 h-4 text-yellow-400" />
+            <ShieldCheck className="w-4 h-4 text-pink-400" />
             Secured with JWT · Admin invitations only
           </div>
         </div>
@@ -65,10 +97,12 @@ export default function Login() {
       </div>
 
       {/* Right: form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-12">
-        <form onSubmit={onSubmit} className="w-full max-w-md bg-[#121214] border border-yellow-400/15 rounded-2xl p-8 shadow-2xl shadow-yellow-400/5 fade-up">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-12 relative">
+        <form onSubmit={onSubmit} className="w-full max-w-md bg-[#121214] border border-pink-400/15 rounded-2xl p-8 shadow-2xl shadow-pink-500/10 fade-up relative z-10">
           <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">L</div>
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 grid place-items-center shadow-md shadow-pink-500/30">
+              <Heart className="w-5 h-5 text-white fill-white" />
+            </div>
             <div className="font-display font-bold text-lg">LoveWorks</div>
           </div>
           <h2 className="font-display text-3xl font-bold tracking-tight">Welcome back</h2>

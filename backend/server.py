@@ -650,6 +650,21 @@ def _attach_goal_image_url(g: dict) -> dict:
     return g
 
 
+def _can_edit_doc(user: dict, doc: dict) -> bool:
+    """True if the user is admin, the owner, or a collaborator on the doc."""
+    if user["role"] == "admin":
+        return True
+    if doc.get("owner_id") == user["id"]:
+        return True
+    collabs = doc.get("collaborator_ids") or []
+    return user["id"] in collabs
+
+
+def _can_delete_doc(user: dict, doc: dict) -> bool:
+    """Only admin or owner can delete."""
+    return user["role"] == "admin" or doc.get("owner_id") == user["id"]
+
+
 VALID_GOAL_PERIODS = {"daily", "weekly", "monthly", "yearly"}
 
 
@@ -856,13 +871,18 @@ async def list_goals(
 ):
     query: dict = {}
     if user["role"] == "worker":
-        query["owner_id"] = user["id"]
+        # Workers see their own goals AND anything they're a collaborator on
+        query["$or"] = [{"owner_id": user["id"]}, {"collaborator_ids": user["id"]}]
     elif owner_id:
         query["owner_id"] = owner_id
     if kind:
         # Backwards compat: rows created before `kind` was added implicitly = "goal"
         if kind == "goal":
-            query["$or"] = [{"kind": "goal"}, {"kind": {"$exists": False}}, {"kind": None}]
+            kind_clause = [{"kind": "goal"}, {"kind": {"$exists": False}}, {"kind": None}]
+            if "$or" in query:
+                query = {"$and": [{"$or": query["$or"]}, {"$or": kind_clause}]}
+            else:
+                query["$or"] = kind_clause
         else:
             query["kind"] = kind
     goals = await db.goals.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
@@ -885,7 +905,7 @@ async def update_goal(goal_id: str, req: GoalUpdate, user: dict = Depends(get_cu
     goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
-    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+    if not _can_edit_doc(user, goal):
         raise HTTPException(status_code=403, detail="Not your goal")
     update: dict = {}
     if req.title is not None:
@@ -912,7 +932,7 @@ async def upload_goal_image(goal_id: str, file: UploadFile = File(...), user: di
     goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
-    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+    if not _can_edit_doc(user, goal):
         raise HTTPException(status_code=403, detail="Not your goal")
     content_type = (file.content_type or "").lower()
     if content_type not in ALLOWED_IMAGE_TYPES:
@@ -952,7 +972,7 @@ async def delete_goal_image(goal_id: str, user: dict = Depends(get_current_user)
     goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
-    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
+    if not _can_edit_doc(user, goal):
         raise HTTPException(status_code=403, detail="Not your goal")
     if goal.get("image_path"):
         await db.files.update_one({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
@@ -1054,12 +1074,75 @@ async def delete_goal(goal_id: str, user: dict = Depends(get_current_user)):
     goal = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     if not goal:
         raise HTTPException(status_code=404, detail="Goal not found")
-    if user["role"] == "worker" and goal["owner_id"] != user["id"]:
-        raise HTTPException(status_code=403, detail="Not your goal")
+    if not _can_delete_doc(user, goal):
+        raise HTTPException(status_code=403, detail="Only the owner can delete")
     if goal.get("image_path"):
         await db.files.update_many({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
     await db.goals.delete_one({"id": goal_id})
     return {"ok": True}
+
+
+# --- Collaborators on goals / trips / essentials ---
+class CollaboratorRequest(BaseModel):
+    user_id: str
+
+
+async def _collab_add(collection, doc_id: str, doc_label: str, user_id: str, user: dict):
+    doc = await collection.find_one({"id": doc_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail=f"{doc_label} not found")
+    if not _can_edit_doc(user, doc):
+        raise HTTPException(status_code=403, detail="Only owner/admin/collaborator can add teammates")
+    target = await db.users.find_one({"id": user_id}, {"_id": 0, "role": 1, "name": 1, "email": 1})
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    if target.get("role") != "worker":
+        raise HTTPException(status_code=400, detail="Collaborators must be workers")
+    if user_id == doc.get("owner_id"):
+        raise HTTPException(status_code=400, detail="Already the owner")
+    collabs = list(doc.get("collaborator_ids") or [])
+    if user_id in collabs:
+        return {"ok": True, "already": True}
+    collabs.append(user_id)
+    await collection.update_one({"id": doc_id}, {"$set": {"collaborator_ids": collabs}})
+    await notify(user_id, "collab_added",
+        f"🤝 You're now on {doc_label.lower()}: {doc.get('title','')}",
+        f"Added by {user.get('name') or user.get('email')}",
+        link="/worker", meta={f"{doc_label.lower()}_id": doc_id})
+    return {"ok": True, "collaborator_ids": collabs}
+
+
+async def _collab_remove(collection, doc_id: str, doc_label: str, user_id: str, user: dict):
+    doc = await collection.find_one({"id": doc_id}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail=f"{doc_label} not found")
+    # Owner/admin can remove anyone; a collaborator can remove only themselves.
+    is_self_remove = user["id"] == user_id and user["id"] in (doc.get("collaborator_ids") or [])
+    if not (_can_delete_doc(user, doc) or is_self_remove):
+        raise HTTPException(status_code=403, detail="Not allowed")
+    collabs = [c for c in (doc.get("collaborator_ids") or []) if c != user_id]
+    await collection.update_one({"id": doc_id}, {"$set": {"collaborator_ids": collabs}})
+    return {"ok": True, "collaborator_ids": collabs}
+
+
+@api_router.post("/goals/{goal_id}/collaborators")
+async def add_goal_collab(goal_id: str, req: CollaboratorRequest, user: dict = Depends(get_current_user)):
+    return await _collab_add(db.goals, goal_id, "Goal", req.user_id, user)
+
+
+@api_router.delete("/goals/{goal_id}/collaborators/{user_id}")
+async def remove_goal_collab(goal_id: str, user_id: str, user: dict = Depends(get_current_user)):
+    return await _collab_remove(db.goals, goal_id, "Goal", user_id, user)
+
+
+@api_router.post("/essentials/{essential_id}/collaborators")
+async def add_essential_collab(essential_id: str, req: CollaboratorRequest, user: dict = Depends(get_current_user)):
+    return await _collab_add(db.essentials, essential_id, "Essential", req.user_id, user)
+
+
+@api_router.delete("/essentials/{essential_id}/collaborators/{user_id}")
+async def remove_essential_collab(essential_id: str, user_id: str, user: dict = Depends(get_current_user)):
+    return await _collab_remove(db.essentials, essential_id, "Essential", user_id, user)
 
 
 # --- Essentials (household / everyday items with prices) ---
@@ -1081,7 +1164,7 @@ async def list_essentials(
 ):
     query: dict = {}
     if user["role"] == "worker":
-        query["owner_id"] = user["id"]
+        query["$or"] = [{"owner_id": user["id"]}, {"collaborator_ids": user["id"]}]
     elif owner_id:
         query["owner_id"] = owner_id
     rows = await db.essentials.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
@@ -1185,7 +1268,7 @@ async def update_essential(essential_id: str, req: EssentialUpdate, user: dict =
     doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Essential not found")
-    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
+    if not _can_edit_doc(user, doc):
         raise HTTPException(status_code=403, detail="Not yours")
     update: dict = {}
     if req.title is not None: update["title"] = req.title.strip()
@@ -1213,7 +1296,7 @@ async def upload_essential_image(essential_id: str, file: UploadFile = File(...)
     doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Essential not found")
-    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
+    if not _can_edit_doc(user, doc):
         raise HTTPException(status_code=403, detail="Not yours")
     content_type = (file.content_type or "").lower()
     if content_type not in ALLOWED_IMAGE_TYPES:
@@ -1248,8 +1331,8 @@ async def delete_essential(essential_id: str, user: dict = Depends(get_current_u
     doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Essential not found")
-    if user["role"] == "worker" and doc["owner_id"] != user["id"]:
-        raise HTTPException(status_code=403, detail="Not yours")
+    if not _can_delete_doc(user, doc):
+        raise HTTPException(status_code=403, detail="Only the owner can delete")
     if doc.get("image_path"):
         await db.files.update_many({"storage_path": doc["image_path"]}, {"$set": {"is_deleted": True}})
     await db.essentials.delete_one({"id": essential_id})
@@ -1311,6 +1394,20 @@ async def create_worker(req: CreateWorkerRequest, admin: dict = Depends(require_
 async def list_workers(admin: dict = Depends(require_admin)):
     workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
     return [serialize_user(w) for w in workers]
+
+
+@api_router.get("/peers")
+async def list_peers(user: dict = Depends(get_current_user)):
+    """Lightweight list of fellow workers (for teammate pickers + peer-access requests).
+    Admin gets all workers too. Each row: id, name, email, avatar_url."""
+    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    rows = []
+    for w in workers:
+        if w["id"] == user["id"]:
+            continue  # exclude self
+        s = serialize_user(w)
+        rows.append({"id": s["id"], "name": s["name"], "email": s["email"], "avatar_url": s.get("avatar_url")})
+    return rows
 
 
 @api_router.delete("/workers/{worker_id}")
@@ -1820,6 +1917,36 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
                 break
         return s
 
+    def _compute_inconsistencies(slots: list, daily_required_h: float, now_local_dt: datetime) -> dict:
+        """Look at this week's days *up to yesterday* (today is still in-progress).
+        Flags:
+          - missed_days: past days with 0 completions AND no clocked hours
+          - low_days: past days where clocked hours < 50% of daily_required_h (and >0)
+          - dark_days: a list of weekday names for the dashboard chip
+        """
+        today_idx = now_local_dt.weekday()
+        days_label = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        missed: list = []
+        low: list = []
+        for i in range(today_idx):  # exclude today
+            slot = slots[i]
+            if slot["count"] == 0 and slot["hours"] < 0.05:
+                missed.append(days_label[i])
+            elif daily_required_h > 0 and slot["hours"] > 0 and slot["hours"] < daily_required_h * 0.5:
+                low.append(days_label[i])
+        # Did streak just break? (yesterday empty but earlier in week active)
+        streak_broken = False
+        if today_idx >= 1:
+            yest_empty = slots[today_idx - 1]["count"] == 0
+            had_earlier_activity = any(slots[i]["count"] > 0 for i in range(today_idx - 1))
+            streak_broken = yest_empty and had_earlier_activity
+        return {
+            "missed_days": missed,
+            "low_days": low,
+            "streak_broken": streak_broken,
+            "total_issues": len(missed) + len(low) + (1 if streak_broken else 0),
+        }
+
     results = []
     for w in workers:
         wid = w["id"]
@@ -1946,6 +2073,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             "potential_weekly": round(potential_weekly, 2),
             "potential_monthly": round(potential_monthly, 2),
             "streak_days": _compute_streak(completions_by_day.get(wid, [])),
+            "inconsistencies": _compute_inconsistencies(completions_by_day.get(wid, []), daily_required, now_l),
             "completions_by_day": [
                 {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2), "titles": s["titles"]}
                 for d, s in zip(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], completions_by_day.get(wid, []))
@@ -2124,6 +2252,241 @@ async def delete_announcement(aid: str, admin: dict = Depends(require_admin)):
     return {"ok": True}
 
 
+# --- Peer overview access (worker-to-worker visibility with consent) ---
+class PeerAccessRequest(BaseModel):
+    target_id: str
+    note: Optional[str] = None
+
+
+class PeerAccessRespond(BaseModel):
+    accept: bool
+
+
+async def _peer_can_view(viewer_id: str, target_id: str) -> bool:
+    if viewer_id == target_id:
+        return True
+    g = await db.peer_access.find_one(
+        {"requester_id": viewer_id, "target_id": target_id, "status": "granted"},
+        {"_id": 0, "id": 1},
+    )
+    return bool(g)
+
+
+@api_router.post("/peer-access/request")
+async def peer_access_request(req: PeerAccessRequest, user: dict = Depends(get_current_user)):
+    if user["role"] != "worker":
+        raise HTTPException(status_code=403, detail="Only workers can request peer access")
+    if req.target_id == user["id"]:
+        raise HTTPException(status_code=400, detail="That's you 😅")
+    target = await db.users.find_one({"id": req.target_id, "role": "worker"})
+    if not target:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    # If already granted, just return
+    existing = await db.peer_access.find_one(
+        {"requester_id": user["id"], "target_id": req.target_id},
+        {"_id": 0},
+    )
+    if existing and existing.get("status") == "granted":
+        return {"id": existing["id"], "status": "granted", "already": True}
+    doc = {
+        "id": str(uuid.uuid4()),
+        "requester_id": user["id"],
+        "target_id": req.target_id,
+        "status": "pending",
+        "note": (req.note or "").strip() or None,
+        "created_at": now_utc().isoformat(),
+        "decided_at": None,
+        "forced_by": None,
+    }
+    if existing:
+        await db.peer_access.update_one({"id": existing["id"]}, {"$set": {**doc, "id": existing["id"]}})
+        doc["id"] = existing["id"]
+    else:
+        await db.peer_access.insert_one(doc)
+        doc.pop("_id", None)
+    # Notify the target
+    await notify(
+        req.target_id, "peer_access_request",
+        f"👀 {user.get('name') or user.get('email')} wants to see your overview",
+        "Tap to accept or decline.",
+        link="/worker",
+        meta={"request_id": doc["id"], "requester_id": user["id"]},
+    )
+    return doc
+
+
+@api_router.post("/peer-access/{request_id}/respond")
+async def peer_access_respond(request_id: str, req: PeerAccessRespond, user: dict = Depends(get_current_user)):
+    row = await db.peer_access.find_one({"id": request_id}, {"_id": 0})
+    if not row:
+        raise HTTPException(status_code=404, detail="Request not found")
+    if row["target_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not your request to decide")
+    new_status = "granted" if req.accept else "denied"
+    await db.peer_access.update_one(
+        {"id": request_id},
+        {"$set": {"status": new_status, "decided_at": now_utc().isoformat()}},
+    )
+    # Notify the requester back
+    label = "approved" if req.accept else "declined"
+    await notify(
+        row["requester_id"], "peer_access_response",
+        f"🤝 {user.get('name') or user.get('email')} {label} your overview request",
+        "" if req.accept else "You can ask again later.",
+        link="/worker",
+        meta={"request_id": request_id, "accepted": req.accept},
+    )
+    return {"id": request_id, "status": new_status}
+
+
+@api_router.get("/peer-access/incoming")
+async def peer_access_incoming(user: dict = Depends(get_current_user)):
+    rows = await db.peer_access.find(
+        {"target_id": user["id"], "status": "pending"}, {"_id": 0}
+    ).sort("created_at", -1).to_list(200)
+    if rows:
+        rid = list({r["requester_id"] for r in rows})
+        users = await db.users.find({"id": {"$in": rid}}, {"_id": 0, "password_hash": 0}).to_list(200)
+        umap = {u["id"]: serialize_user(u) for u in users}
+        for r in rows:
+            r["requester"] = umap.get(r["requester_id"])
+    return rows
+
+
+@api_router.get("/peer-access/granted")
+async def peer_access_granted(user: dict = Depends(get_current_user)):
+    """List of peers I can view, plus peers who can view me."""
+    can_see = await db.peer_access.find(
+        {"requester_id": user["id"], "status": "granted"}, {"_id": 0}
+    ).to_list(200)
+    seen_by = await db.peer_access.find(
+        {"target_id": user["id"], "status": "granted"}, {"_id": 0}
+    ).to_list(200)
+    ids = list({*[r["target_id"] for r in can_see], *[r["requester_id"] for r in seen_by]})
+    users = {}
+    if ids:
+        urows = await db.users.find({"id": {"$in": ids}}, {"_id": 0, "password_hash": 0}).to_list(200)
+        users = {u["id"]: serialize_user(u) for u in urows}
+    return {
+        "i_can_see": [{**r, "target": users.get(r["target_id"])} for r in can_see],
+        "can_see_me": [{**r, "requester": users.get(r["requester_id"])} for r in seen_by],
+    }
+
+
+@api_router.delete("/peer-access/{request_id}")
+async def peer_access_revoke(request_id: str, user: dict = Depends(get_current_user)):
+    """Either party can revoke at any time."""
+    row = await db.peer_access.find_one({"id": request_id}, {"_id": 0})
+    if not row:
+        raise HTTPException(status_code=404, detail="Not found")
+    if user["role"] != "admin" and row["requester_id"] != user["id"] and row["target_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="Not yours to revoke")
+    await db.peer_access.delete_one({"id": request_id})
+    return {"ok": True}
+
+
+@api_router.post("/admin/peer-access/force")
+async def admin_force_peer_access(
+    requester_id: str = Query(...),
+    target_id: str = Query(...),
+    admin: dict = Depends(require_admin),
+):
+    """Admin override — silently grants viewer access to a peer."""
+    if requester_id == target_id:
+        raise HTTPException(status_code=400, detail="Pick two different workers")
+    for uid, role_label in [(requester_id, "requester"), (target_id, "target")]:
+        u = await db.users.find_one({"id": uid, "role": "worker"})
+        if not u:
+            raise HTTPException(status_code=404, detail=f"{role_label} not a worker")
+    existing = await db.peer_access.find_one({"requester_id": requester_id, "target_id": target_id}, {"_id": 0})
+    payload = {
+        "status": "granted",
+        "decided_at": now_utc().isoformat(),
+        "forced_by": admin["id"],
+    }
+    if existing:
+        await db.peer_access.update_one({"id": existing["id"]}, {"$set": payload})
+        rid = existing["id"]
+    else:
+        rid = str(uuid.uuid4())
+        await db.peer_access.insert_one({
+            "id": rid, "requester_id": requester_id, "target_id": target_id,
+            "note": "admin-forced", "created_at": now_utc().isoformat(), **payload,
+        })
+    # Inform both
+    await notify(requester_id, "peer_access_response",
+        "👁 Admin granted you peer-view access", "", link="/worker",
+        meta={"request_id": rid, "accepted": True, "forced": True})
+    await notify(target_id, "peer_access_response",
+        "👁 Admin shared your overview with a teammate", "",
+        link="/worker", meta={"request_id": rid, "forced": True})
+    return {"id": rid, "status": "granted"}
+
+
+@api_router.get("/peer-overview/{target_id}")
+async def peer_overview(target_id: str, user: dict = Depends(get_current_user)):
+    """Returns a peer's overview if access granted (admin always allowed)."""
+    if user["role"] != "admin" and not await _peer_can_view(user["id"], target_id):
+        raise HTTPException(status_code=403, detail="No access — request peer view first")
+    target = await db.users.find_one({"id": target_id, "role": "worker"}, {"_id": 0, "password_hash": 0})
+    if not target:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    # Compute weekly strip + streak the same way as my_weekly_activity but for target
+    now = now_utc()
+    week_start = _start_of_week(now)
+    week_start_q = iso_utc(week_start)
+    completed = await db.tasks.find(
+        {"assignee_id": target_id, "status": "completed", "completed_at": {"$gte": week_start_q}},
+        {"_id": 0, "completed_at": 1, "title": 1, "price": 1},
+    ).to_list(2000)
+    entries = await db.time_entries.find(
+        {"user_id": target_id, "clock_in": {"$gte": week_start_q}}, {"_id": 0},
+    ).to_list(2000)
+    slots = [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)]
+    for t in completed:
+        try:
+            done = datetime.fromisoformat(t["completed_at"])
+            if done.tzinfo is None:
+                done = done.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        slot = slots[done.astimezone(APP_TZ).weekday()]
+        slot["count"] += 1
+        slot["earned"] += float(t.get("price") or 0)
+    for e in entries:
+        try:
+            in_dt = datetime.fromisoformat(e["clock_in"])
+            if in_dt.tzinfo is None:
+                in_dt = in_dt.replace(tzinfo=timezone.utc)
+        except Exception:
+            continue
+        out_dt = datetime.fromisoformat(e["clock_out"]) if e.get("clock_out") else now
+        if out_dt.tzinfo is None:
+            out_dt = out_dt.replace(tzinfo=timezone.utc)
+        cur = max(in_dt, week_start).astimezone(APP_TZ)
+        out_l = out_dt.astimezone(APP_TZ)
+        while cur < out_l:
+            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            chunk_end = min(out_l, day_end)
+            slots[cur.weekday()]["hours"] += max(0, (chunk_end - cur).total_seconds()) / 3600.0
+            cur = chunk_end
+    today_idx = now.astimezone(APP_TZ).weekday()
+    streak = 0
+    for k in range(today_idx + 1):
+        if slots[today_idx - k]["count"] > 0:
+            streak += 1
+        else:
+            break
+    return {
+        "worker": serialize_user(target),
+        "streak_days": streak,
+        "completions_by_day": [
+            {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2)}
+            for d, s in zip(["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], slots)
+        ],
+    }
+
+
 # --- Push subscriptions (Web Push / Service Worker) ---
 class PushSubscribeRequest(BaseModel):
     subscription: dict  # browser PushSubscription.toJSON() — endpoint, keys{p256dh,auth}
@@ -2297,6 +2660,8 @@ async def startup():
     await db.push_subscriptions.create_index("endpoint", unique=True)
     await db.push_subscriptions.create_index([("user_id", 1), ("is_active", 1)])
     await db.essentials.create_index("owner_id")
+    await db.peer_access.create_index([("requester_id", 1), ("target_id", 1)], unique=True)
+    await db.peer_access.create_index([("target_id", 1), ("status", 1)])
     # init object storage
     try:
         init_storage()
