@@ -76,6 +76,9 @@ function App() {
             <Route path="/worker/essentials" element={
               <ProtectedRoute role="worker"><WorkerLayout><AdminEssentials /></WorkerLayout></ProtectedRoute>
             } />
+            <Route path="/worker/trips" element={
+              <ProtectedRoute role="worker"><WorkerLayout><AdminTrips /></WorkerLayout></ProtectedRoute>
+            } />
             <Route path="/worker/profile" element={
               <ProtectedRoute role="worker"><WorkerLayout><Profile /></WorkerLayout></ProtectedRoute>
             } />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import api, { formatApiError } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +53,8 @@ function statusBadge(s) {
 }
 
 export default function AdminTrips() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const [goals, setGoals] = useState([]);
   const [workers, setWorkers] = useState([]);
   const [filter, setFilter] = useState("all");
@@ -65,9 +68,14 @@ export default function AdminTrips() {
   const [busy, setBusy] = useState(false);
 
   const load = async () => {
-    const [g, w] = await Promise.all([api.get("/goals?kind=trip"), api.get("/workers")]);
+    const g = await api.get("/goals?kind=trip");
     setGoals(g.data);
-    setWorkers(w.data);
+    if (isAdmin) {
+      try {
+        const w = await api.get("/workers");
+        setWorkers(w.data);
+      } catch { /* workers list is admin-only */ }
+    }
   };
   useEffect(() => { load(); }, []);
 
@@ -102,13 +110,13 @@ export default function AdminTrips() {
   };
 
   const confirmAssign = async () => {
-    if (!assignForm.assignee_id) { toast.error("Pick a worker"); return; }
+    if (isAdmin && !assignForm.assignee_id) { toast.error("Pick a worker"); return; }
     if (!assignForm.title.trim()) { toast.error("Add a title"); return; }
     setBusy(true);
     try {
       const params = new URLSearchParams();
       params.set("title", assignForm.title.trim());
-      params.set("assignee_id", assignForm.assignee_id);
+      if (isAdmin) params.set("assignee_id", assignForm.assignee_id);
       params.set("kind", "trip");
       if (assignForm.target_amount) params.set("target_amount", assignForm.target_amount);
       if (assignForm.period) params.set("period", assignForm.period);
@@ -116,7 +124,7 @@ export default function AdminTrips() {
       if (assignForm.deadline) params.set("deadline", assignForm.deadline);
       if (assignForm.product_link.trim()) params.set("product_link", assignForm.product_link.trim());
       await api.post(`/goals?${params.toString()}`, new FormData(), { headers: { "Content-Type": "multipart/form-data" } });
-      toast.success("Trip assigned ✈️");
+      toast.success(isAdmin ? "Trip assigned ✈️" : "Trip added ✈️");
       setDialog(null);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
@@ -228,12 +236,19 @@ export default function AdminTrips() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Trips</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Travel plans.</h1>
-          <p className="mt-2 text-zinc-400">Where your crew dreams of going. Mark a trip booked when they earn it and leave a note of celebration.</p>
+          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">
+            {isAdmin ? "Travel plans." : "Your travel plans."}
+          </h1>
+          <p className="mt-2 text-zinc-400">
+            {isAdmin
+              ? "Where your crew dreams of going. Mark a trip booked when they earn it and leave a note of celebration."
+              : "Add a trip you're saving for. Set a target, allocate a slice of every task, and we'll track your progress."}
+          </p>
         </div>
         <Button data-testid="assign-trip-btn" onClick={openAssign}
           className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-full h-10 px-5">
-          <Plus className="w-4 h-4 mr-2" /> Assign trip to worker
+          <Plus className="w-4 h-4 mr-2" />
+          {isAdmin ? "Assign trip to worker" : "Add a trip"}
         </Button>
       </div>
 
@@ -287,7 +302,11 @@ export default function AdminTrips() {
           <div className="col-span-full bg-[#121214] border border-yellow-400/15 rounded-2xl p-10 text-center">
             <Target className="w-8 h-8 text-yellow-400 mx-auto" />
             <div className="mt-3 font-display text-xl">No trips planned yet</div>
-            <div className="text-sm text-zinc-500">Use <span className="text-yellow-400 font-semibold">Assign trip to worker</span> to set someone's next adventure.</div>
+            <div className="text-sm text-zinc-500">
+              {isAdmin
+                ? <>Use <span className="text-yellow-400 font-semibold">Assign trip to worker</span> to set someone&apos;s next adventure.</>
+                : <>Tap <span className="text-yellow-400 font-semibold">Add a trip</span> to set your next adventure.</>}
+            </div>
           </div>
         )}
         {filtered.map((g) => {
@@ -427,20 +446,26 @@ export default function AdminTrips() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl flex items-center gap-2">
-                  <Target className="w-5 h-5 text-yellow-400" /> Assign a new trip
+                  <Target className="w-5 h-5 text-yellow-400" /> {isAdmin ? "Assign a new trip" : "Add a trip"}
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="text-sm text-zinc-400">Set a target for one of your workers — they'll get a 🔔 notification right away and the goal will show up on their dashboard.</div>
-                <div>
-                  <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><UserCircle2 className="w-3 h-3" /> Worker</label>
-                  <Select value={assignForm.assignee_id} onValueChange={(v) => setAssignForm({ ...assignForm, assignee_id: v })}>
-                    <SelectTrigger data-testid="assign-worker" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"><SelectValue placeholder="Pick a worker" /></SelectTrigger>
-                    <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
-                      {workers.map(w => <SelectItem key={w.id} value={w.id} data-testid={`assign-worker-${w.id}`}>{w.name || w.email}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+                <div className="text-sm text-zinc-400">
+                  {isAdmin
+                    ? "Set a target for one of your workers — they'll get a 🔔 notification right away and the trip will show up on their dashboard."
+                    : "Pick a target amount and the % of each task that should count toward this trip. We'll celebrate when you hit it."}
                 </div>
+                {isAdmin && (
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><UserCircle2 className="w-3 h-3" /> Worker</label>
+                    <Select value={assignForm.assignee_id} onValueChange={(v) => setAssignForm({ ...assignForm, assignee_id: v })}>
+                      <SelectTrigger data-testid="assign-worker" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"><SelectValue placeholder="Pick a worker" /></SelectTrigger>
+                      <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+                        {workers.map(w => <SelectItem key={w.id} value={w.id} data-testid={`assign-worker-${w.id}`}>{w.name || w.email}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <div>
                   <label className="text-xs uppercase tracking-widest text-zinc-500">Trip title</label>
                   <Input data-testid="assign-title" value={assignForm.title}
@@ -490,7 +515,7 @@ export default function AdminTrips() {
               <DialogFooter>
                 <Button data-testid="confirm-assign" onClick={confirmAssign} disabled={busy}
                   className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Target className="w-4 h-4 mr-2" /> Assign goal & notify</>}
+                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Target className="w-4 h-4 mr-2" /> {isAdmin ? "Assign trip & notify" : "Save trip"}</>}
                 </Button>
               </DialogFooter>
             </>
