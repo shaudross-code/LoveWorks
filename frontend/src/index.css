@@ -92,6 +92,9 @@ body {
   will-change: transform, opacity;
 }
 
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
 /* Selection */
 ::selection {
   background: #FACC15;

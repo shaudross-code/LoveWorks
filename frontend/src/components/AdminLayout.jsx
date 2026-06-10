@@ -73,34 +73,41 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/70 backdrop-blur-xl border-b border-yellow-400/10 px-4 py-3 flex items-center justify-between">
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/10 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 fill-white" /></div>
-          <div className="font-display font-bold">LoveWorks</div>
+          <div className="font-display font-bold text-sm">LoveWorks</div>
         </div>
-        <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-sm flex items-center gap-1">
-          <LogOut className="w-4 h-4" /> Logout
-        </button>
-        <div className="ml-2"><NotificationBell /></div>
+        <div className="flex items-center gap-2">
+          <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-xs flex items-center gap-1 px-2 h-8 rounded-full hover:bg-white/5">
+            <LogOut className="w-3.5 h-3.5" /> Logout
+          </button>
+          <NotificationBell />
+        </div>
       </div>
-      <div className="md:hidden h-14" />
+
+      {/* Mobile sticky nav pills — right under the top bar */}
+      <div className="md:hidden fixed top-14 inset-x-0 z-30 bg-black/85 backdrop-blur-xl border-b border-yellow-400/5 px-4 py-2">
+        <div className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
+          {items.map(({ to, label, icon: Icon, testid }) => (
+            <NavLink key={to} to={to} end={to === "/admin"} data-testid={`m-${testid}`}
+              className={({ isActive }) =>
+                `shrink-0 inline-flex items-center gap-1.5 px-3 h-8 rounded-full text-xs border whitespace-nowrap ${
+                  isActive ? "bg-pink-400 text-white border-pink-400" : "border-yellow-400/20 text-zinc-300"
+                }`
+              }
+            >
+              <Icon className="w-3.5 h-3.5" /> {label}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+
+      {/* Spacer that pushes content below fixed top-bar (h-14) + sticky pills (h-12) */}
+      <div className="md:hidden h-[104px]" />
 
       <main className="flex-1 min-w-0">
         <div className="mx-auto max-w-6xl px-4 sm:px-8 md:px-10 py-6 sm:py-8 md:py-12">
-          {/* Mobile nav pills */}
-          <div className="md:hidden -mx-1 mb-6 flex gap-2 overflow-x-auto">
-            {items.map(({ to, label, icon: Icon, testid }) => (
-              <NavLink key={to} to={to} end={to === "/admin"} data-testid={`m-${testid}`}
-                className={({ isActive }) =>
-                  `shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm border ${
-                    isActive ? "bg-pink-400 text-white border-pink-400" : "border-yellow-400/20 text-zinc-300"
-                  }`
-                }
-              >
-                <Icon className="w-4 h-4" /> {label}
-              </NavLink>
-            ))}
-          </div>
           {children}
         </div>
       </main>
