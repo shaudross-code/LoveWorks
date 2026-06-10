@@ -248,7 +248,7 @@ export default function AdminTrips() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Trips</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">
             {isAdmin ? "Travel plans." : "Your travel plans."}
           </h1>
           <p className="mt-2 text-zinc-400">

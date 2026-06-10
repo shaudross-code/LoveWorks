@@ -56,7 +56,7 @@ export default function Announcements() {
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Announcements</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">What's new.</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">What's new.</h1>
           <p className="mt-2 text-zinc-400">{isAdmin ? "Post an update — every worker gets a notification." : "Updates, new features, and heads-ups from your admin."}</p>
         </div>
         {isAdmin && (

@@ -21,7 +21,7 @@ export default function WorkerHistory() {
     <div className="space-y-8">
       <div>
         <div className="text-xs uppercase tracking-widest text-yellow-400">History</div>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Time entries.</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Time entries.</h1>
         <p className="mt-2 text-zinc-400">Every shift, accounted for. Total time logged: <span className="text-white font-semibold">{dur(total)}</span>.</p>
       </div>
 

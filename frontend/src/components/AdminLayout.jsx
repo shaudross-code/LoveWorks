@@ -86,7 +86,7 @@ export default function AdminLayout({ children }) {
       <div className="md:hidden h-14" />
 
       <main className="flex-1 min-w-0">
-        <div className="mx-auto max-w-6xl px-5 sm:px-8 md:px-10 py-8 md:py-12">
+        <div className="mx-auto max-w-6xl px-4 sm:px-8 md:px-10 py-6 sm:py-8 md:py-12">
           {/* Mobile nav pills */}
           <div className="md:hidden -mx-1 mb-6 flex gap-2 overflow-x-auto">
             {items.map(({ to, label, icon: Icon, testid }) => (

@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     <div className="space-y-8">
       <div className="fade-up">
         <div className="text-xs uppercase tracking-widest text-yellow-400">Overview</div>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Today at a glance.</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Today at a glance.</h1>
         <p className="mt-2 text-zinc-400 max-w-xl">The numbers your foreman brain craves — workers on the clock, tasks in motion, money earned.</p>
       </div>
 

@@ -72,7 +72,7 @@ export default function WorkerLayout({ children }) {
           ))}
         </div>
       </header>
-      <main className="mx-auto max-w-5xl px-5 sm:px-8 py-8 md:py-12">{children}</main>
+      <main className="mx-auto max-w-5xl px-4 sm:px-8 py-6 sm:py-8 md:py-12">{children}</main>
     </div>
   );
 }

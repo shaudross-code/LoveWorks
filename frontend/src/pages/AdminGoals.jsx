@@ -236,7 +236,7 @@ export default function AdminGoals() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Goals</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Workers' wishlist.</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Workers' wishlist.</h1>
           <p className="mt-2 text-zinc-400">See what they're chasing. Check off a goal when they earn it and leave a note of appreciation.</p>
         </div>
         <Button data-testid="assign-goal-btn" onClick={openAssign}

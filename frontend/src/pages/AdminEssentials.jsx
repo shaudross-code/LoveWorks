@@ -168,7 +168,7 @@ export default function AdminEssentials() {
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Essentials</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">The everyday list.</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">The everyday list.</h1>
           <p className="mt-2 text-zinc-400">Household, groceries, kids' stuff — what the family needs, with a running total so nothing's a surprise.</p>
         </div>
         <Button data-testid="add-essential-btn" onClick={openCreate}

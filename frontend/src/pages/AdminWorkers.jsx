@@ -85,7 +85,7 @@ export default function AdminWorkers() {
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Crew · Live</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Your workers.</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Your workers.</h1>
           <p className="mt-2 text-zinc-400 flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-green-400/15 text-green-400">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> {onlineCount} online

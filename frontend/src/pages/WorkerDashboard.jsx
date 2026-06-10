@@ -158,7 +158,7 @@ export default function WorkerDashboard() {
     <div className="space-y-10">
       <PushPrompt />
       {/* Hero — clock in / activity */}
-      <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-6 sm:p-10">
+      <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-5 sm:p-10">
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative grid lg:grid-cols-[1fr_auto] gap-8 items-center">
           <div className="min-w-0">
@@ -200,7 +200,7 @@ export default function WorkerDashboard() {
             {actives.length > 0 ? (
               <div className="flex flex-col items-center gap-3">
                 {/* Primary big ring shows the earliest active timer */}
-                <div className={`relative h-44 w-44 rounded-full ${primaryActivity.bg} grid place-items-center shadow-xl ${primaryActivity.text} ring-4 ${primaryActivity.ring}`}>
+                <div className={`relative h-36 w-36 sm:h-44 sm:w-44 rounded-full ${primaryActivity.bg} grid place-items-center shadow-xl ${primaryActivity.text} ring-4 ${primaryActivity.ring}`}>
                   <div className="text-center">
                     <primaryActivity.icon className="w-7 h-7 mx-auto" />
                     <div className="font-display font-bold mt-1 text-sm uppercase tracking-widest">{primaryActivity.label}</div>
@@ -220,7 +220,7 @@ export default function WorkerDashboard() {
               </div>
             ) : (
               <Button data-testid="clock-in-btn" disabled={busy} onClick={() => setPickerOpen((v) => !v)}
-                className="h-44 w-44 rounded-full bg-yellow-400 hover:bg-yellow-300 text-black font-display font-bold text-xl shadow-xl shadow-yellow-400/30 gold-pulse transition-transform hover:scale-105">
+                className="h-36 w-36 sm:h-44 sm:w-44 rounded-full bg-yellow-400 hover:bg-yellow-300 text-black font-display font-bold text-lg sm:text-xl shadow-xl shadow-yellow-400/30 gold-pulse transition-transform hover:scale-105">
                 <div className="flex flex-col items-center">
                   <Play className="w-9 h-9 mb-1" /> Clock in
                 </div>

@@ -173,7 +173,7 @@ export default function AdminTasks() {
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Workboard</div>
-          <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Assign & price tasks.</h1>
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Assign & price tasks.</h1>
           <p className="mt-2 text-zinc-400">Set price, deadline, hours, frequency, and payout schedule for every task.</p>
         </div>
         <Button data-testid="open-create-task" disabled={workers.length === 0} onClick={openCreate}

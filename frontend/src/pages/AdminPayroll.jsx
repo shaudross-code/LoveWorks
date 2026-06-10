@@ -20,7 +20,7 @@ export default function AdminPayroll() {
     <div className="space-y-8">
       <div>
         <div className="text-xs uppercase tracking-widest text-yellow-400">Payroll</div>
-        <h1 className="font-display text-4xl sm:text-5xl font-bold tracking-tight mt-2">Who earned what.</h1>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Who earned what.</h1>
         <p className="mt-2 text-zinc-400">Completed tasks add up here. Hours are tracked for context — pay is per task.</p>
       </div>
 
