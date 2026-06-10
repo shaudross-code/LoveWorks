@@ -665,7 +665,7 @@ def _can_delete_doc(user: dict, doc: dict) -> bool:
     return user["role"] == "admin" or doc.get("owner_id") == user["id"]
 
 
-VALID_GOAL_PERIODS = {"daily", "weekly", "monthly", "yearly"}
+VALID_GOAL_PERIODS = {"once", "daily", "weekly", "monthly", "yearly"}
 
 
 def _validate_goal_period(v: Optional[str]) -> Optional[str]:
@@ -842,6 +842,7 @@ def _attach_goal_progress(g: dict, buckets: dict) -> dict:
     contrib_year  = round(earn["year"]  * alloc, 2)
     period = g.get("period") or "weekly"
     contrib_period = {
+        "once": contrib_year,    # one-time goals accumulate across the year window
         "daily": contrib_today,
         "weekly": contrib_week,
         "monthly": contrib_month,
@@ -1187,6 +1188,8 @@ async def create_essential(
     quantity: Optional[int] = Query(default=1),
     note: Optional[str] = Query(default=None),
     assignee_id: Optional[str] = Query(default=None),
+    recurring: Optional[bool] = Query(default=False),
+    due_date: Optional[str] = Query(default=None),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
@@ -1246,6 +1249,9 @@ async def create_essential(
         "note": (note or "").strip() or None,
         "image_path": image_path,
         "purchased": False,
+        "recurring": bool(recurring),
+        "due_date": _parse_deadline(due_date) if due_date else None,
+        "completed_at": None,
         "created_by": user["id"],
         "created_at": now_utc().isoformat(),
     }
@@ -1261,6 +1267,8 @@ class EssentialUpdate(BaseModel):
     category: Optional[str] = None
     note: Optional[str] = None
     purchased: Optional[bool] = None
+    recurring: Optional[bool] = None
+    due_date: Optional[str] = None  # ISO YYYY-MM-DD; "" or null clears
 
 
 @api_router.patch("/essentials/{essential_id}")
@@ -1283,7 +1291,13 @@ async def update_essential(essential_id: str, req: EssentialUpdate, user: dict =
         if cat not in ESSENTIAL_CATEGORIES: raise HTTPException(status_code=400, detail="Invalid category")
         update["category"] = cat
     if req.note is not None: update["note"] = req.note.strip() or None
-    if req.purchased is not None: update["purchased"] = bool(req.purchased)
+    if req.purchased is not None:
+        update["purchased"] = bool(req.purchased)
+        update["completed_at"] = now_utc().isoformat() if req.purchased else None
+    if req.recurring is not None:
+        update["recurring"] = bool(req.recurring)
+    if req.due_date is not None:
+        update["due_date"] = _parse_deadline(req.due_date) if req.due_date else None
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
     await db.essentials.update_one({"id": essential_id}, {"$set": update})

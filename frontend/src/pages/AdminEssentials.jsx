@@ -34,7 +34,7 @@ export default function AdminEssentials() {
   const [dialog, setDialog] = useState(null); // {mode:'create'|'edit'|'delete', item?}
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({
-    assignee_id: "", title: "", price: "", quantity: "1", category: "household", note: "",
+    assignee_id: "", title: "", price: "", quantity: "1", category: "household", note: "", recurring: false, due_date: "",
   });
   const [uploadingImg, setUploadingImg] = useState(false);
   const fileRef = useRef(null);
@@ -74,7 +74,7 @@ export default function AdminEssentials() {
   }, [scopedItems]);
 
   const openCreate = () => {
-    setForm({ assignee_id: workers[0]?.id || "", title: "", price: "", quantity: "1", category: "household", note: "" });
+    setForm({ assignee_id: workers[0]?.id || "", title: "", price: "", quantity: "1", category: "household", note: "", recurring: false, due_date: "" });
     setDialog({ mode: "create" });
   };
   const openEdit = (it) => {
@@ -82,6 +82,8 @@ export default function AdminEssentials() {
       assignee_id: it.owner_id, title: it.title || "",
       price: String(it.price ?? ""), quantity: String(it.quantity || 1),
       category: it.category || "other", note: it.note || "",
+      recurring: !!it.recurring,
+      due_date: it.due_date ? String(it.due_date).slice(0, 10) : "",
     });
     setDialog({ mode: "edit", item: it });
   };
@@ -99,6 +101,8 @@ export default function AdminEssentials() {
       params.set("category", form.category);
       if (form.note.trim()) params.set("note", form.note.trim());
       if (form.assignee_id) params.set("assignee_id", form.assignee_id);
+      params.set("recurring", String(!!form.recurring));
+      if (form.due_date) params.set("due_date", form.due_date);
       await api.post(`/essentials?${params.toString()}`, new FormData(), { headers: { "Content-Type": "multipart/form-data" } });
       toast.success("Essential added 🛒");
       setDialog(null); load();
@@ -116,6 +120,8 @@ export default function AdminEssentials() {
         quantity: form.quantity ? parseInt(form.quantity, 10) : undefined,
         category: form.category,
         note: form.note,
+        recurring: !!form.recurring,
+        due_date: form.due_date || null,
       });
       toast.success("Essential updated");
       setDialog(null); load();
@@ -276,6 +282,25 @@ export default function AdminEssentials() {
                     {it.title}
                   </div>
                   {it.note && <div className="text-xs text-zinc-500 mt-0.5">{it.note}</div>}
+                  <div className="mt-1.5 flex flex-wrap gap-1.5 text-[10px] uppercase tracking-widest">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border ${
+                      it.recurring
+                        ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/30"
+                        : "bg-pink-400/10 text-pink-300 border-pink-400/30"
+                    }`}>
+                      {it.recurring ? "🔁 recurring" : "✨ one-time"}
+                    </span>
+                    {it.due_date && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-400/10 text-amber-300 border border-amber-400/30">
+                        📅 due {new Date(it.due_date).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                      </span>
+                    )}
+                    {it.completed_at && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-400/30">
+                        ✓ {new Date(it.completed_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                      </span>
+                    )}
+                  </div>
                   <div className="mt-auto pt-3 flex items-end justify-between gap-3 flex-wrap">
                     <div className="flex items-baseline gap-2 tabular-nums">
                       <span className={`font-display font-bold text-2xl ${it.purchased ? "text-zinc-400" : "text-yellow-400"}`}>
@@ -434,6 +459,27 @@ export default function AdminEssentials() {
                     onChange={(e) => setForm({ ...form, note: e.target.value })}
                     placeholder="e.g., the lavender scent"
                     className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500">Type</label>
+                    <button data-testid="essential-recurring-toggle" type="button"
+                      onClick={() => setForm({ ...form, recurring: !form.recurring })}
+                      className={`mt-2 w-full h-11 rounded-xl text-sm font-semibold transition border ${
+                        form.recurring
+                          ? "bg-emerald-400/15 text-emerald-300 border-emerald-400/40"
+                          : "bg-pink-400/10 text-pink-300 border-pink-400/40"
+                      }`}>
+                      {form.recurring ? "🔁 Recurring" : "✨ One-time"}
+                    </button>
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500">Due date (optional)</label>
+                    <Input data-testid="essential-due-date" type="date" value={form.due_date}
+                      onChange={(e) => setForm({ ...form, due_date: e.target.value })}
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
                 </div>
               </div>
               <DialogFooter>

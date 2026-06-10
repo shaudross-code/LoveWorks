@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
-import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane } from "lucide-react";
+import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane, Heart } from "lucide-react";
 
 const items = [
   { to: "/worker",                label: "Workday",      icon: Clock,        testid: "nav-workday" },
@@ -23,7 +23,7 @@ export default function WorkerLayout({ children }) {
       <header className="sticky top-0 z-40 bg-black/70 backdrop-blur-xl border-b border-yellow-400/15">
         <div className="mx-auto max-w-5xl px-5 sm:px-8 py-3 flex items-center gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold">C</div>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-5 h-5 fill-white" /></div>
             <div>
               <div className="font-display font-bold leading-none">LoveWorks</div>
               <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Workspace</div>
@@ -34,7 +34,7 @@ export default function WorkerLayout({ children }) {
               <NavLink key={to} to={to} end={to === "/worker"} data-testid={testid}
                 className={({ isActive }) =>
                   `inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition ${
-                    isActive ? "bg-yellow-400/10 text-yellow-400" : "text-zinc-400 hover:text-white hover:bg-white/5"
+                    isActive ? "bg-pink-400/10 text-pink-300" : "text-zinc-400 hover:text-white hover:bg-white/5"
                   }`
                 }
               >

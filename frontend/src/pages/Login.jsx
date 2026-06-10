@@ -105,8 +105,8 @@ export default function Login() {
             </div>
             <div className="font-display font-bold text-lg">LoveWorks</div>
           </div>
-          <h2 className="font-display text-3xl font-bold tracking-tight">Welcome back</h2>
-          <p className="mt-1 text-sm text-zinc-500">Sign in to manage your workday.</p>
+          <h2 className="font-display text-3xl font-bold tracking-tight text-pink-400 drop-shadow-[0_0_18px_rgba(244,114,182,0.35)]">Welcome back</h2>
+          <p className="mt-1 text-sm text-zinc-500">Sign in to start showing Love.</p>
 
           <div className="mt-7 space-y-4">
             <div>

@@ -24,12 +24,13 @@ const QUICK_QUOTES = [
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const STATUS_TABS = ["all", "open", "overdue", "completed"];
 const PERIODS = [
+  { value: "once",    label: "One-time" },
   { value: "daily",   label: "Daily" },
   { value: "weekly",  label: "Weekly" },
   { value: "monthly", label: "Monthly" },
   { value: "yearly",  label: "Yearly" },
 ];
-const PERIOD_LABEL = { daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly" };
+const PERIOD_LABEL = { once: "One-time", daily: "Daily", weekly: "Weekly", monthly: "Monthly", yearly: "Yearly" };
 
 function fmtDate(iso) {
   if (!iso) return null;

@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart } from "lucide-react";
 
 const items = [
   { to: "/admin",                label: "Overview",       icon: LayoutDashboard, testid: "nav-overview" },
@@ -25,7 +25,7 @@ export default function AdminLayout({ children }) {
       <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-yellow-400/15 bg-[#0c0c0e] sticky top-0 h-screen">
         <div className="px-6 pt-8 pb-6 border-b border-yellow-400/10">
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-yellow-400 text-black grid place-items-center font-display font-bold text-lg">C</div>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-5 h-5 fill-white" /></div>
             <div className="flex-1 min-w-0">
               <div className="font-display font-bold text-lg leading-none">LoveWorks</div>
               <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Admin Console</div>
@@ -43,7 +43,7 @@ export default function AdminLayout({ children }) {
               className={({ isActive }) =>
                 `group flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
                   isActive
-                    ? "bg-yellow-400/10 text-yellow-400 ring-1 ring-yellow-400/30"
+                    ? "bg-pink-400/10 text-pink-300 ring-1 ring-pink-400/40"
                     : "text-zinc-400 hover:text-white hover:bg-white/5"
                 }`
               }
@@ -75,7 +75,7 @@ export default function AdminLayout({ children }) {
       {/* Mobile top bar */}
       <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/70 backdrop-blur-xl border-b border-yellow-400/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-yellow-400 text-black grid place-items-center font-display font-bold">C</div>
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 fill-white" /></div>
           <div className="font-display font-bold">LoveWorks</div>
         </div>
         <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-sm flex items-center gap-1">
@@ -93,7 +93,7 @@ export default function AdminLayout({ children }) {
               <NavLink key={to} to={to} end={to === "/admin"} data-testid={`m-${testid}`}
                 className={({ isActive }) =>
                   `shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-full text-sm border ${
-                    isActive ? "bg-yellow-400 text-black border-yellow-400" : "border-yellow-400/20 text-zinc-300"
+                    isActive ? "bg-pink-400 text-white border-pink-400" : "border-yellow-400/20 text-zinc-300"
                   }`
                 }
               >
