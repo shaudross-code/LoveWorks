@@ -61,7 +61,7 @@ export default function AdminTrips() {
   const [filter, setFilter] = useState("all");
   const [dialog, setDialog] = useState(null); // {goal, mode: 'complete' | 'edit'} | {mode: 'assign'}
   const [appreciation, setAppreciation] = useState("");
-  const [editForm, setEditForm] = useState({ target_amount: "", period: "weekly", allocation_percent: "100" });
+  const [editForm, setEditForm] = useState({ title: "", product_link: "", deadline: "", target_amount: "", period: "weekly", allocation_percent: "100" });
   const [assignForm, setAssignForm] = useState({
     assignee_id: "", title: "", target_amount: "", period: "weekly",
     allocation_percent: "100", deadline: "", product_link: "",
@@ -98,6 +98,9 @@ export default function AdminTrips() {
 
   const openEdit = (g) => {
     setEditForm({
+      title: g.title || "",
+      product_link: g.product_link || "",
+      deadline: g.deadline ? String(g.deadline).slice(0, 10) : "",
       target_amount: g.target_amount != null ? String(g.target_amount) : "",
       period: g.period || "weekly",
       allocation_percent: g.allocation_percent != null ? String(g.allocation_percent) : "100",
@@ -141,6 +144,9 @@ export default function AdminTrips() {
     setBusy(true);
     try {
       await api.patch(`/goals/${dialog.goal.id}`, {
+        title: editForm.title.trim() || undefined,
+        product_link: editForm.product_link.trim() === "" ? "" : editForm.product_link.trim(),
+        deadline: editForm.deadline ? editForm.deadline : null,
         target_amount: editForm.target_amount ? parseFloat(editForm.target_amount) : null,
         period: editForm.period,
         allocation_percent: editForm.allocation_percent ? parseFloat(editForm.allocation_percent) : 0,
@@ -559,11 +565,11 @@ export default function AdminTrips() {
             <>
               <DialogHeader>
                 <DialogTitle className="font-display text-2xl flex items-center gap-2">
-                  <Pencil className="w-5 h-5 text-yellow-400" /> Edit goal settings
+                  <Pencil className="w-5 h-5 text-yellow-400" /> Edit trip
                 </DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
-                <div className="text-sm text-zinc-400">Update the photo, target, period, and what % of every task earned counts toward this goal.</div>
+                <div className="text-sm text-zinc-400">Update anything — title, photo, deadline, booking link, target, period, allocation %, and teammates.</div>
                 {/* Image */}
                 <div>
                   <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><ImageIcon className="w-3 h-3" /> Trip photo</label>
@@ -607,6 +613,28 @@ export default function AdminTrips() {
                     }}
                   />
                 )}
+                <div>
+                  <label className="text-xs uppercase tracking-widest text-zinc-500">Title</label>
+                  <Input data-testid="edit-title" value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    placeholder="e.g., Cabo for 4 nights"
+                    className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><Calendar className="w-3 h-3" /> Deadline</label>
+                    <Input data-testid="edit-deadline" type="date" value={editForm.deadline}
+                      onChange={(e) => setEditForm({ ...editForm, deadline: e.target.value })}
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
+                  <div>
+                    <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><ExternalLink className="w-3 h-3" /> Booking link</label>
+                    <Input data-testid="edit-link" type="url" value={editForm.product_link}
+                      onChange={(e) => setEditForm({ ...editForm, product_link: e.target.value })}
+                      placeholder="https://…"
+                      className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+                  </div>
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="text-xs uppercase tracking-widest text-zinc-500 inline-flex items-center gap-1"><BadgeDollarSign className="w-3 h-3" /> Target amount</label>
