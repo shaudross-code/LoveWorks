@@ -852,6 +852,12 @@ def _attach_goal_progress(g: dict, buckets: dict) -> dict:
     pct = 0.0
     if target and float(target) > 0:
         pct = round(min(100.0, (contrib_period / float(target)) * 100.0), 1)
+    # Once a goal/trip is celebrated as completed, lock the visible progress to 100% and
+    # cap the displayed period amount at the target so the bar always reads "done".
+    if (g.get("status") or "").lower() == "completed":
+        pct = 100.0
+        if target and float(target) > 0:
+            contrib_period = float(target)
     g = dict(g)
     g["progress"] = {
         "today": contrib_today,
