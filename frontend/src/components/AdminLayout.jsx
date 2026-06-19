@@ -22,7 +22,7 @@ export default function AdminLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white flex">
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-yellow-400/15 bg-[#0c0c0e] sticky top-0 h-screen">
+      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-yellow-400/15 bg-[#0c0c0e] sticky top-0 h-screen z-50">
         <div className="px-6 pt-8 pb-6 border-b border-yellow-400/10">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-5 h-5 fill-white" /></div>

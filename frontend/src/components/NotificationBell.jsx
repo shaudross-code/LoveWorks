@@ -107,7 +107,7 @@ export default function NotificationBell({ align = "right" } = {}) {
       </button>
       {open && (
         <div data-testid="notification-panel"
-          className={`absolute ${align === "left" ? "left-0" : "right-0"} mt-2 w-[min(360px,calc(100vw-2rem))] max-h-[480px] overflow-hidden rounded-2xl bg-[#0f0f12] border border-yellow-400/20 shadow-2xl z-50`}>
+          className={`absolute ${align === "left" ? "left-0" : "right-0"} mt-2 w-[min(360px,calc(100vw-2rem))] max-h-[480px] overflow-hidden rounded-2xl bg-[#0f0f12] border border-yellow-400/20 shadow-2xl z-[60]`}>
           <div className="px-4 py-3 border-b border-yellow-400/10 flex items-center justify-between">
             <div className="font-display font-semibold">Notifications</div>
             {unread > 0 && (
