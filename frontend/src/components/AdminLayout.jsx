@@ -30,7 +30,7 @@ export default function AdminLayout({ children }) {
               <div className="font-display font-bold text-lg leading-none">LoveWorks</div>
               <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Admin Console</div>
             </div>
-            <NotificationBell />
+            <NotificationBell align="left" />
           </div>
         </div>
         <nav className="flex-1 px-3 py-5 space-y-1">

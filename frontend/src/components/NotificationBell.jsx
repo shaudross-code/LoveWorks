@@ -41,7 +41,7 @@ function timeAgo(iso) {
   return `${Math.floor(s / 86400)}d`;
 }
 
-export default function NotificationBell() {
+export default function NotificationBell({ align = "right" } = {}) {
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   const [open, setOpen] = useState(false);
@@ -107,7 +107,7 @@ export default function NotificationBell() {
       </button>
       {open && (
         <div data-testid="notification-panel"
-          className="absolute right-0 mt-2 w-[360px] max-h-[480px] overflow-hidden rounded-2xl bg-[#0f0f12] border border-yellow-400/20 shadow-2xl z-50">
+          className={`absolute ${align === "left" ? "left-0" : "right-0"} mt-2 w-[min(360px,calc(100vw-2rem))] max-h-[480px] overflow-hidden rounded-2xl bg-[#0f0f12] border border-yellow-400/20 shadow-2xl z-50`}>
           <div className="px-4 py-3 border-b border-yellow-400/10 flex items-center justify-between">
             <div className="font-display font-semibold">Notifications</div>
             {unread > 0 && (
