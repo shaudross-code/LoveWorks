@@ -62,10 +62,18 @@
 - **(Jun 2026) One-time option** on tasks (already), goals/trips (new `period="once"`), essentials (`recurring: bool` + `due_date` + auto `completed_at`)
 - **(Jun 2026) Mobile responsive polish** — h3xl→lg:5xl H1 scaling, 144px clock-in circle on mobile, hero p-5 on mobile / p-10 desktop, container padding tightened, two-row mobile top nav (LoveWorks header + sticky scrollable pill row) on both admin and worker layouts
 - **(Jun 2026) Notification panel positioning** — new `align="left|right"` prop (default right), sidebar bell uses `left`. Panel width `min(360px, calc(100vw-2rem))`. Sidebar `z-50`, panel `z-[60]` to sit above main content headings.
+- **(Jun 2026) App Store / Play Store readiness**
+  - **PWA complete**: `public/manifest.json` (standalone, portrait, maskable icons), offline-capable service worker (`sw.js` — precache + network-first navigation + SWR statics, skips `/api` and non-GET), SW registered at startup in `index.js`, apple-touch-icon + iOS meta tags in `index.html`. Installable from Safari/Chrome today.
+  - **Custom branding icon**: generated pink heart with gold outline + raining gold hearts/money/gifts (`frontend/assets/icon-only.png` 1024 source; public icons 192/512/maskable/180/badge/favicon derived).
+  - **Capacitor 7** (Node 20-compatible; v8 needs Node 22): `capacitor.config.json` (appId `com.loveworks.app`), native projects at `frontend/ios/` + `frontend/android/`, all native icons/splashes generated via `@capacitor/assets`, `cap sync` done.
+  - **`/app/STORE_SUBMISSION_GUIDE.md`** — full step-by-step for Apple App Store (Xcode/archive/App Store Connect) and Google Play (signed .aab/Play Console), plus privacy-policy and demo-credentials requirements.
+  - ⚠️ Before store builds: point `frontend/.env` REACT_APP_BACKEND_URL to production, `yarn build && npx cap sync`.
+  - Regression-tested: iteration_4.json — 18/18 backend, frontend smoke 100%, SW does not interfere with API calls.
 
 ## Prioritized backlog (next phases)
 **P0**
-- Run comprehensive testing_agent pass (Trips, Essentials, Collaboration, Rebrand, Mobile fixes were only smoke-tested)
+- (store prereq) "Delete my account" button in Profile — Apple requires account deletion for App Store approval
+- (store prereq) Public `/privacy` privacy-policy page — required by both stores
 
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (2,700+ lines, technical debt)
