@@ -1,0 +1,123 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html, body, #root {
+  background-color: #09090B;
+  color: #FFFFFF;
+}
+
+body {
+  margin: 0;
+  font-family: "Manrope", "Helvetica Neue", system-ui, sans-serif;
+  font-weight: 500;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-display {
+  font-family: "Outfit", "Helvetica Neue", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.font-body {
+  font-family: "Manrope", system-ui, sans-serif;
+}
+
+@layer base {
+  :root {
+    --background: 240 6% 6%;
+    --foreground: 0 0% 100%;
+    --card: 240 5% 8%;
+    --card-foreground: 0 0% 100%;
+    --popover: 240 5% 8%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 48 96% 53%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 240 5% 15%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 65%;
+    --accent: 240 5% 15%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 48 50% 50% / 0.18;
+    --input: 240 5% 18%;
+    --ring: 48 96% 53%;
+    --radius: 0.875rem;
+  }
+}
+
+@layer base {
+  * {
+    border-color: rgba(250, 204, 21, 0.18);
+  }
+  body {
+    background-color: #09090B;
+    color: #FFFFFF;
+  }
+}
+
+/* Gold pulsing ring used for the clock-in CTA */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.55), 0 0 60px 0 rgba(250, 204, 21, 0.25);
+  }
+  50% {
+    box-shadow: 0 0 0 24px rgba(250, 204, 21, 0), 0 0 80px 8px rgba(250, 204, 21, 0.35);
+  }
+}
+.gold-pulse {
+  animation: goldPulse 2.4s ease-out infinite;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-up { animation: fadeUp 0.5s ease-out both; }
+
+@keyframes loveFloat {
+  0%   { transform: translateY(0)    rotate(var(--lw-rot, 0deg)); opacity: 0.65; }
+  50%  { transform: translateY(-14px) rotate(calc(var(--lw-rot, 0deg) + 4deg)); opacity: 1; }
+  100% { transform: translateY(0)    rotate(var(--lw-rot, 0deg)); opacity: 0.65; }
+}
+.love-float {
+  animation: loveFloat 6.5s ease-in-out infinite both;
+  will-change: transform, opacity;
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+
+/* Selection */
+::selection {
+  background: #FACC15;
+  color: #000;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0b0b0d; }
+::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #FACC15; }
+
+/* Sonner toast custom dark gold */
+[data-sonner-toaster] {
+  --normal-bg: #121214;
+  --normal-text: #FFF;
+  --normal-border: rgba(250, 204, 21, 0.25);
+  --success-bg: #121214;
+  --success-text: #FACC15;
+  --error-bg: #121214;
+  --error-text: #F87171;
+}
+
+@layer base {
+  [data-debug-wrapper="true"] { display: contents !important; }
+}
