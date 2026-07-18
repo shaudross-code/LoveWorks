@@ -51,16 +51,17 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 - Mobile polish (two-row fixed nav, 144px mobile clock CTA, H1 scaling) + notification panel align/z-index fixes
 - **App Store / Play Store readiness**: full PWA (manifest, offline SW caching, iOS meta, generated pink-heart icon set), Capacitor 7 native projects (`frontend/ios`, `frontend/android`, appId `com.loveworks.app`), `/app/STORE_SUBMISSION_GUIDE.md`. ⚠️ Before store builds: set production `REACT_APP_BACKEND_URL`, `yarn build && npx cap sync`. Regression-tested (iteration_4: 18/18 backend, frontend smoke 100%).
 - **APP_SPEC.md** written (full recreation blueprint).
+- **Store prerequisites + alerts + iLoveWorks rebrand (Jun 2026, tested iteration_5: 11/11 backend, frontend 100%)**:
+  - Public `/privacy` page (no auth, 9 sections, linked from login + Profile) — store privacy-URL requirement done
+  - `DELETE /api/me` account deletion (password-confirmed, 403 for admin, full cascade incl. collaborator pulls + file soft-delete) + Profile "Danger zone" dialog — Apple requirement done
+  - Idle alert: reminder_loop notifies admins (`worker_idle`) + nudges the worker (`clock_out_reminder`) when clocked in but inactive ≥10 min (dedup per last_seen marker); `/admin/worker-status` returns `is_idle`/`idle_minutes`; 💤 idle chip on admin worker cards
+  - Clock-out alert: admins get `worker_clock_out` notification with per-activity durations on every worker clock-out
+  - Rebrand → **iLoveWorks** with gold gradient wordmark (`.brand-gold` CSS class) across login/layouts/privacy; index.html/manifest/sw.js/capacitor.config/native strings.xml + Info.plist updated; new app icon generated (gold "iLoveWorks" lettering + pink heart + raining gold hearts/money/gifts); all PWA + native icons/splashes regenerated, web rebuilt, `cap sync` done; SW cache bumped to `iloveworks-v2`
 
 ## Prioritized backlog
-**P0 (store prerequisites)**
-- "Delete my account" button in Profile (Apple requirement)
-- Public `/privacy` privacy-policy page (both stores)
-
 **P1**
-- Refactor `server.py` into `/app/backend/routes` + `/app/backend/models`
+- Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
 - Admin uploads avatar for worker during account creation
-- Idle alert: admin toast when a worker is clocked in but inactive >10 min
 - "Crew" page for workers to browse peers and send/manage peer_access requests
 
 **P2**
