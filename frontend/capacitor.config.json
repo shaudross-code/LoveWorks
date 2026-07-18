@@ -1,0 +1,23 @@
+{
+  "appId": "com.loveworks.app",
+  "appName": "LoveWorks",
+  "webDir": "build",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always",
+    "backgroundColor": "#09090B"
+  },
+  "android": {
+    "backgroundColor": "#09090B"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#781b3a",
+      "showSpinner": false
+    }
+  }
+}
