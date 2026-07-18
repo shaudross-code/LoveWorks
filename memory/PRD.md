@@ -1,105 +1,86 @@
-# ClockWork — PRD
+# LoveWorks (formerly ClockWork) — PRD
+
+> **For precise app recreation, see `/app/memory/APP_SPEC.md`** — the complete blueprint: every endpoint with params, all data models, business-logic formulas (progress/streaks/potential earnings/reminders), page-by-page UI spec with exact copy, theme tokens, PWA/Capacitor setup, and known quirks.
 
 ## Problem statement (original)
 > I need an app that allows users to clock in and clock out, also assign different tasks for them to do during their workday and an editable price for each task — but I must be the overseer of the users that login and be able to assign them tasks from an admin point of view.
 
-## Architecture
-- **Backend**: FastAPI + Motor (MongoDB) at 0.0.0.0:8001, all routes under `/api`
-- **Frontend**: React 19 + React Router 7 + Tailwind + shadcn/ui, served on :3000
-- **Auth**: JWT (HS256), httpOnly cookies (`access_token`, `refresh_token`) + Bearer header fallback
-- **DB collections**: `users` (admin + workers), `tasks`, `time_entries`, `login_attempts`, `password_reset_tokens`
-- **Theme**: Black & gold playfully-professional (Outfit + Manrope)
+Evolved into **LoveWorks**: a pink & gold love-themed household/labor management app — concurrent activity clocks, priced tasks, Goals/Trips/Essentials with photos, peer collaboration, gamification (awards/streaks), and web push notifications. Motto: *"Show your Love. Get Loved with Gifts."*
+
+## Architecture (summary — details in APP_SPEC.md)
+- **Backend**: FastAPI + Motor (MongoDB) at 0.0.0.0:8001, all routes under `/api` (`server.py` ~2,722 lines — refactor pending)
+- **Frontend**: React 19 + React Router 7 + Tailwind + shadcn/ui on :3000; Service Worker `public/sw.js` (push + offline caching)
+- **Auth**: JWT HS256, httpOnly cookies + Bearer fallback + `?auth=` for `<img>`; brute-force lockout 5/15min; admin seeded & password re-synced from env on startup
+- **DB collections**: users, tasks, time_entries, goals (goals+trips via `kind`), essentials, notifications, awards, announcements, peer_access, push_subscriptions, files, login_attempts
+- **Integrations**: Emergent Object Storage (all images), Web Push VAPID (pywebpush), Web Speech API (TTS, browser-native)
+- **Timezone**: all day/week/month windows in `APP_TZ` (env `WEEK_TZ`, e.g. America/Chicago), never raw UTC
+- **Theme**: dark `#09090B` + gold CTAs + pink brand accents; Outfit (display) + Manrope (body)
 
 ## User personas
-- **Admin (Overseer)** — seeded from `.env`. Single account by default. Manages workers, tasks, payroll.
-- **Worker** — created by admin. Clocks in/out, completes tasks, sees own history & earnings.
+- **Admin (Overseer)** — seeded from `.env`. Manages workers, tasks, payroll; assigns goals/trips/essentials; celebrates completions with appreciation notes; live-monitors the crew.
+- **Worker** — created by admin. Runs concurrent activity clocks, completes priced tasks, saves toward goals/trips, tracks essentials, earns awards/streaks, collaborates with peers.
 
 ## Core requirements (static)
-1. Admin can create/delete workers (email + password + name).
-2. Admin can create tasks with editable price + assignee; can edit/delete.
-3. Workers can clock in / clock out (single active entry rule).
-4. Workers can mark assigned tasks `in_progress` or `completed`.
-5. Admin payroll dashboard sums completed-task prices per worker + total hours.
-6. Role-based routes (Admin vs Worker).
+1. Admin creates/deletes workers (email + password + name).
+2. Admin creates tasks with editable price, assignee, deadlines (date / time-of-day / day-of-week), estimated & daily hours, frequency (once/daily/weekly/monthly), payout schedule.
+3. Workers clock in/out — **multiple concurrent activities** (Working, Studying, Break, Cleaning, Workout, Parenting, Self Care); only duplicate same-activity clocks blocked.
+4. Workers mark tasks in_progress/completed; completion = earnings.
+5. Payroll dashboard: per-worker completed-task earnings + hours; potential weekly/monthly projections.
+6. Goals & Trips (shared collection, `kind`): target amount, period, allocation % of task earnings, photo, deadline, product link, collaborators, admin celebrate/reopen, reactions, congrats popup.
+7. Essentials: household list with price×quantity, category, photo, recurring/one-time, due date, purchased toggle, totals.
+8. Peer-overview permission flow (request → Accept/Decline in bell → view peer's weekly strip; admin force-grant).
+9. Notifications: in-app bell + Web Push for task assigned/updated/due-soon/completed, goal assigned/completed/reactions, collabs, announcements, awards, peer requests. 30-min due reminders via background loop.
+10. Role-based routing, mobile-responsive two-row nav, installable PWA.
 
-## What's implemented (Feb 2026)
-- JWT login/me/logout/refresh with bcrypt + brute-force lockout (5/15min)
-- Admin: dashboard overview, workers CRUD, tasks CRUD with inline price edit, payroll page
-- Worker: hero clock-in/out (live timer, gold-pulse CTA), task list with start/complete toggle, history page
-- Sonner toasts, Radix dialogs, role-guarded routes, mobile responsive
-- Goals, awards, announcements, notifications bell, weekly strip with streak flames
-- Live worker monitor with online dots, idle detection groundwork, per-worker daily/weekly hours
-- Text-to-speech for task descriptions (Web Speech API, browser native)
-- Profile avatars via Emergent Object Storage
-- **(Jun 2026) Admin Overview "Potential Earnings" card** — totals + per-worker weekly & monthly projections from `/api/admin/worker-status` (`potential_weekly`, `potential_monthly`)
-- **(Jun 2026) Worker notifications closed all gaps** — bell + Web Push (Service Worker + VAPID):
-  - Task created/assigned → worker ping (existing)
-  - Task edited (price, due_time, due_at, due_day_of_week, title) → worker ping ("task_updated")
-  - Task reassigned → both new + previous assignees pinged
-  - Goal assigned by admin (NEW: `POST /api/goals?assignee_id=…` admin path) → worker ping ("goal_assigned")
-  - Task completed → admin gets a "task_completed" ping with worker name + earnings
-  - Background reminder loop (60s tick) fires `task_due_soon` 30 min before due_time (TZ-aware)
-  - `PushPrompt` banner on worker dashboard + Profile toggle; `/api/push/{public-key,subscribe,unsubscribe,test}` endpoints
-- **(Jun 2026) Timezone audit & fix (CRITICAL)** — all window math (weekly strip, goal periods, streaks, reminders) now runs in `APP_TZ` (env `WEEK_TZ`, default America/Chicago) instead of UTC. Tests at `/app/backend/tests/test_timezone.py`.
-- **(Jun 2026) Full rebrand → LoveWorks**
-  - Pink-rose heart emblem replaces "C/L" letters in login + admin + worker layouts
-  - Login motto: "Show your Love. Get Loved with Gifts." (pink glow)
-  - "Welcome back" / "Sign in to start showing Love." in pink
-  - Romantic gift icons floating across login (heart, gift, plane, flower, wine, gem, money, key, bag, shirt) with `loveFloat` keyframe
-  - Sidebar active-state and mobile nav pills switched from gold to pink
-- **(Jun 2026) Concurrent activity clocks** — workers can run multiple activities at once (Working + Parenting + Studying, etc.). Backend blocks only duplicate same-activity clocks. New "**Self Care**" activity added. `/time/clock-out` accepts `?activity=` / `?entry_id=` or defaults to close-all.
-- **(Jun 2026) Goals — full edit + delete + photo + celebrate**
-  - Full edit (title, photo, deadline, product link, target, period, allocation %, teammates)
-  - Delete with confirmation
-  - Goal image upload/replace/remove endpoints
-  - Progress bar auto-locks to 100% + period_amount = target when `status=completed`
-- **(Jun 2026) Trips tab** — clone of Goals filtered by `kind="trip"`; admin-assign + worker-add; same edit surface
-- **(Jun 2026) Essentials tab** — new collection with name, price, quantity, category (household/everyday/groceries/personal/kids/other), photo, note, purchased ✓, recurring / one-time toggle, due_date, completed_at. Totals: grand / pending / stocked. Admin & worker both have `/admin/essentials` and `/worker/essentials`.
-- **(Jun 2026) Admin totals strips** on Goals & Trips & Essentials + **View-by-worker** filter
-- **(Jun 2026) Collaborators** on goals/trips/essentials — `collaborator_ids` field, add/remove via `/{collection}/{id}/collaborators`; new `/api/peers` endpoint for workers; pink 🤝 chip on shared cards; `TeammatesField` component in every edit dialog
-- **(Jun 2026) Admin sees streaks + inconsistencies** — chips on each worker card: 🔥 N-day streak, ⚠️ streak broken, 💤 N missed days, 📉 N light days, ✨ clean week
-- **(Jun 2026) Peer-overview permission flow** — worker A requests to see worker B's overview → B gets a bell notification with **Accept / Decline** inline; admin can force-grant via `/api/admin/peer-access/force`
-- **(Jun 2026) One-time option** on tasks (already), goals/trips (new `period="once"`), essentials (`recurring: bool` + `due_date` + auto `completed_at`)
-- **(Jun 2026) Mobile responsive polish** — h3xl→lg:5xl H1 scaling, 144px clock-in circle on mobile, hero p-5 on mobile / p-10 desktop, container padding tightened, two-row mobile top nav (LoveWorks header + sticky scrollable pill row) on both admin and worker layouts
-- **(Jun 2026) Notification panel positioning** — new `align="left|right"` prop (default right), sidebar bell uses `left`. Panel width `min(360px, calc(100vw-2rem))`. Sidebar `z-50`, panel `z-[60]` to sit above main content headings.
-- **(Jun 2026) App Store / Play Store readiness**
-  - **PWA complete**: `public/manifest.json` (standalone, portrait, maskable icons), offline-capable service worker (`sw.js` — precache + network-first navigation + SWR statics, skips `/api` and non-GET), SW registered at startup in `index.js`, apple-touch-icon + iOS meta tags in `index.html`. Installable from Safari/Chrome today.
-  - **Custom branding icon**: generated pink heart with gold outline + raining gold hearts/money/gifts (`frontend/assets/icon-only.png` 1024 source; public icons 192/512/maskable/180/badge/favicon derived).
-  - **Capacitor 7** (Node 20-compatible; v8 needs Node 22): `capacitor.config.json` (appId `com.loveworks.app`), native projects at `frontend/ios/` + `frontend/android/`, all native icons/splashes generated via `@capacitor/assets`, `cap sync` done.
-  - **`/app/STORE_SUBMISSION_GUIDE.md`** — full step-by-step for Apple App Store (Xcode/archive/App Store Connect) and Google Play (signed .aab/Play Console), plus privacy-policy and demo-credentials requirements.
-  - ⚠️ Before store builds: point `frontend/.env` REACT_APP_BACKEND_URL to production, `yarn build && npx cap sync`.
-  - Regression-tested: iteration_4.json — 18/18 backend, frontend smoke 100%, SW does not interfere with API calls.
+## What's implemented
+**Feb 2026 (ClockWork base)**: JWT auth + lockout; admin overview/workers/tasks/payroll; worker clock hero + task list + history; goals, awards, announcements, notification bell, weekly strips + streaks; live worker monitor (online dots, per-day hours); TTS SpeakButton; avatars via object storage.
 
-## Prioritized backlog (next phases)
-**P0**
-- (store prereq) "Delete my account" button in Profile — Apple requires account deletion for App Store approval
-- (store prereq) Public `/privacy` privacy-policy page — required by both stores
+**Jun 2026**:
+- Admin Overview "Potential Earnings" (weekly/monthly per-worker projections)
+- Notification gap closure: task edited/reassigned/completed pings, admin goal-assign path, `task_due_soon` reminder loop (60s tick, 30-min lead, TZ-aware, race-safe dedup), Web Push (SW + VAPID, PushPrompt banner + Profile toggle, `/push/*` endpoints)
+- Timezone audit: all window math in APP_TZ (`backend/tests/test_timezone.py`)
+- **Full rebrand → LoveWorks**: pink heart emblem, romantic login backdrop (10 floating gift icons), pink motto/headlines, pink active-nav pills
+- **Concurrent activity clocks** + new Self Care activity; clock-out by entry/activity/all
+- Goals full edit/delete/photo/celebrate; completed goals lock progress display at 100%/target
+- **Trips tab** (admin + worker, goals kind=trip, view-by-worker filter)
+- **Essentials tab** (own collection: category/qty/photo/note/purchased/recurring/due_date; totals strips; shared admin+worker component)
+- **Collaborators** (`collaborator_ids` + TeammatesField + `/peers`; 🤝 chips)
+- Admin sees worker streak/inconsistency chips (🔥/⚠️/💤/📉/✨)
+- **Peer-overview permission flow** (request/respond/granted/revoke/admin-force + `/peer-overview/{id}`)
+- One-time option across tasks/goals/trips (`period="once"`) & essentials (`recurring` bool)
+- Mobile polish (two-row fixed nav, 144px mobile clock CTA, H1 scaling) + notification panel align/z-index fixes
+- **App Store / Play Store readiness**: full PWA (manifest, offline SW caching, iOS meta, generated pink-heart icon set), Capacitor 7 native projects (`frontend/ios`, `frontend/android`, appId `com.loveworks.app`), `/app/STORE_SUBMISSION_GUIDE.md`. ⚠️ Before store builds: set production `REACT_APP_BACKEND_URL`, `yarn build && npx cap sync`. Regression-tested (iteration_4: 18/18 backend, frontend smoke 100%).
+- **APP_SPEC.md** written (full recreation blueprint).
+
+## Prioritized backlog
+**P0 (store prerequisites)**
+- "Delete my account" button in Profile (Apple requirement)
+- Public `/privacy` privacy-policy page (both stores)
 
 **P1**
-- Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (2,700+ lines, technical debt)
+- Refactor `server.py` into `/app/backend/routes` + `/app/backend/models`
 - Admin uploads avatar for worker during account creation
 - Idle alert: admin toast when a worker is clocked in but inactive >10 min
-- "Crew" page for workers to browse peers and send/manage `peer_access` requests
+- "Crew" page for workers to browse peers and send/manage peer_access requests
 
 **P2**
-- Change-password section on Profile page
-- Worker avatars next to their tasks in admin Tasks page
+- Change-password section on Profile
+- Worker avatars next to tasks in admin Tasks page
 - Auto-generate today's instance of recurring tasks at midnight
-- WeeklyStrip day tile click → scroll Tasks page to that day's completed tasks
-- Hourly-rate option, multi-admin support, dashboard charts, bulk task assignment
+- WeeklyStrip day-tile click → scroll Tasks to that day's completions
+- Hourly-rate option, multi-admin, dashboard charts, bulk task assignment
 
 **P3**
-- Weekly leaderboard on Admin Overview (gold-medal #1 by earnings + streak)
-- CSV export of payroll
-- Trips & Essentials top-line numbers on Admin Overview
-- Photo proof of completion, Stripe payout integration, worker invitation email (Resend)
+- Weekly leaderboard on Admin Overview; CSV payroll export; Trips/Essentials top-line numbers on Overview; photo proof of completion; Stripe payouts; worker invitation email (Resend)
 
 ## Test credentials
 - Admin: `admin@clockwork.com` / `admin123` (seeded automatically)
 - Worker: `lovetest@loveworks.com` / `Love123!`
 
 ## Critical notes for future agents
-- User deploys to production from preview — never link preview/production URLs; remind user to redeploy to see changes live.
-- Trips share the `goals` collection with `kind="trip"`. Essentials are their own collection.
-- Workers can run multiple concurrent time entries (Working + Parenting + Self Care…); only duplicate same-activity clocks are blocked.
-- Test reports: `/app/test_reports/iteration_1..3.json` (last full testing_agent run was BEFORE Trips/Essentials/Collaboration/Rebrand).
+- User deploys to production separately — never link preview/production URLs; remind them to redeploy to see changes live.
+- Trips share the `goals` collection (`kind="trip"`); legacy rows may lack `kind`. Essentials are their own collection.
+- POST /goals and POST /essentials use **query params + multipart file**, not JSON bodies.
+- Workers can hold multiple concurrent time entries; `/time/active` returns a list.
+- Capacitor projects in `frontend/ios|android`: regenerate assets via `npx @capacitor/assets generate`, re-sync via `npx cap sync`; never hand-edit.
+- Test reports: `/app/test_reports/iteration_1..4.json` (iteration_4 = full regression incl. Trips/Essentials/Collaboration/PWA — all pass).
