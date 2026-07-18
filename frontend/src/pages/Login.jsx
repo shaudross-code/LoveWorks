@@ -75,7 +75,7 @@ export default function Login() {
             <Heart className="w-6 h-6 fill-white" />
           </div>
           <div>
-            <div className="font-display text-2xl font-bold leading-none">LoveWorks</div>
+            <div className="font-display text-2xl font-bold leading-none brand-gold">iLoveWorks</div>
             <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Love · Tasks · Gifts</div>
           </div>
         </div>
@@ -93,7 +93,7 @@ export default function Login() {
             Secured with JWT · Admin invitations only
           </div>
         </div>
-        <div className="text-xs text-zinc-600">© LoveWorks — built with love &amp; gold.</div>
+        <div className="text-xs text-zinc-600">© iLoveWorks — built with love &amp; gold. · <a href="/privacy" className="hover:text-yellow-400 underline underline-offset-2">Privacy</a></div>
       </div>
 
       {/* Right: form */}
@@ -103,7 +103,7 @@ export default function Login() {
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 grid place-items-center shadow-md shadow-pink-500/30">
               <Heart className="w-5 h-5 text-white fill-white" />
             </div>
-            <div className="font-display font-bold text-lg">LoveWorks</div>
+            <div className="font-display font-bold text-lg brand-gold">iLoveWorks</div>
           </div>
           <h2 className="font-display text-3xl font-bold tracking-tight text-pink-400 drop-shadow-[0_0_18px_rgba(244,114,182,0.35)]">Welcome back</h2>
           <p className="mt-1 text-sm text-zinc-500">Sign in to start showing Love.</p>
@@ -158,6 +158,8 @@ export default function Login() {
 
             <div className="text-xs text-zinc-500 text-center pt-2">
               Need an account? Ask your admin to invite you.
+              <span className="mx-1.5">·</span>
+              <a href="/privacy" data-testid="login-privacy-link" className="hover:text-yellow-400 underline underline-offset-2">Privacy</a>
             </div>
           </div>
         </form>

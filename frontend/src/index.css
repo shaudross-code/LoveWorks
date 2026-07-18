@@ -95,6 +95,16 @@ body {
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
 
+/* Gold branded wordmark for the app name */
+.brand-gold {
+  background: linear-gradient(115deg, #fde68a 0%, #facc15 30%, #b45309 50%, #facc15 70%, #fde68a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: -0.015em;
+  filter: drop-shadow(0 1px 6px rgba(250, 204, 21, 0.25));
+}
+
 /* Selection */
 ::selection {
   background: #FACC15;

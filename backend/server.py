@@ -57,8 +57,9 @@ VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:admin@clockwork.com")
 # Task due-soon reminder window
 REMINDER_LEAD_MINUTES = 30  # notify worker 30 min before due_time
 REMINDER_LOOP_SECONDS = 60  # scheduler tick
+IDLE_ALERT_MINUTES = 10  # clocked-in but inactive threshold
 
-app = FastAPI(title="LoveWorks API")
+app = FastAPI(title="iLoveWorks API")
 api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -607,6 +608,35 @@ async def delete_avatar(user: dict = Depends(get_current_user)):
     await db.users.update_one({"id": user["id"]}, {"$set": {"avatar_path": None}})
     updated = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
     return serialize_user(updated)
+
+
+# --- Account deletion (App Store requirement) ---
+class DeleteAccountRequest(BaseModel):
+    password: str
+
+
+@api_router.delete("/me")
+async def delete_my_account(req: DeleteAccountRequest, response: Response, user: dict = Depends(get_current_user)):
+    if user.get("role") == "admin":
+        raise HTTPException(status_code=403, detail="Admin accounts can't be deleted from the app.")
+    full = await db.users.find_one({"id": user["id"]})
+    if not full or not verify_password(req.password, full.get("password_hash", "")):
+        raise HTTPException(status_code=401, detail="Incorrect password")
+    uid = user["id"]
+    await db.tasks.delete_many({"assignee_id": uid})
+    await db.time_entries.delete_many({"user_id": uid})
+    await db.goals.delete_many({"owner_id": uid})
+    await db.goals.update_many({"collaborator_ids": uid}, {"$pull": {"collaborator_ids": uid}})
+    await db.essentials.delete_many({"owner_id": uid})
+    await db.essentials.update_many({"collaborator_ids": uid}, {"$pull": {"collaborator_ids": uid}})
+    await db.notifications.delete_many({"user_id": uid})
+    await db.awards.delete_many({"user_id": uid})
+    await db.push_subscriptions.delete_many({"user_id": uid})
+    await db.peer_access.delete_many({"$or": [{"requester_id": uid}, {"target_id": uid}]})
+    await db.files.update_many({"user_id": uid}, {"$set": {"is_deleted": True}})
+    await db.users.delete_one({"id": uid})
+    clear_auth_cookies(response)
+    return {"ok": True, "deleted": True}
 
 
 # --- File download (auth required; supports ?auth=<token> for <img> tags) ---
@@ -1755,6 +1785,25 @@ async def clock_out(
             {"$set": {"clock_out": out_dt.isoformat(), "duration_seconds": duration}},
         )
         closed.append({**a, "clock_out": out_dt.isoformat(), "duration_seconds": duration})
+    # Alert admins that a worker clocked out (with per-activity durations)
+    if closed and user.get("role") == "worker":
+        def _fmt_dur(secs):
+            h, m = int(secs // 3600), int((secs % 3600) // 60)
+            return f"{h}h {m:02d}m" if h else f"{m}m"
+        parts = [f"{c.get('activity', 'working')} · {_fmt_dur(c.get('duration_seconds') or 0)}" for c in closed]
+        try:
+            admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(20)
+            wname = user.get("name") or user.get("email") or "A worker"
+            for a in admins:
+                await notify(
+                    a["id"], "worker_clock_out",
+                    f"🕒 {wname} clocked out",
+                    " · ".join(parts),
+                    link="/admin/workers",
+                    meta={"worker_id": user["id"], "count": len(closed)},
+                )
+        except Exception as e:
+            logger.warning(f"clock-out admin notify failed: {e}")
     # Return single entry shape if exactly one was closed (backward compatible),
     # else return the list.
     if len(closed) == 1:
@@ -2067,6 +2116,16 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             except Exception:
                 pass
         active_list = active_map.get(wid, [])
+        is_idle = False
+        idle_minutes = None
+        if active_list and last_seen:
+            try:
+                mins = (now - datetime.fromisoformat(last_seen)).total_seconds() / 60.0
+                if mins >= IDLE_ALERT_MINUTES:
+                    is_idle = True
+                    idle_minutes = int(mins)
+            except Exception:
+                pass
         primary = active_list[0] if active_list else None  # earliest = "primary" timer
         today_hours = today_seconds / 3600.0
         week_hours = week_seconds / 3600.0
@@ -2075,6 +2134,8 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             "online": online,
             "last_seen_at": last_seen,
             "currently_clocked_in": bool(active_list),
+            "is_idle": is_idle,
+            "idle_minutes": idle_minutes,
             "active_activity": primary.get("activity") if primary else None,
             "active_clock_in_at": primary.get("clock_in") if primary else None,
             "active_activities": [
@@ -2627,6 +2688,49 @@ async def reminder_loop():
                         )
                 except Exception as e:
                     logger.warning(f"reminder per-task error: {e}")
+
+            # --- Idle-worker alerts: clocked in but no app activity for 10+ min ---
+            open_entries = await db.time_entries.find({"clock_out": None}, {"_id": 0}).to_list(500)
+            by_user: dict = {}
+            for e in open_entries:
+                by_user.setdefault(e["user_id"], []).append(e)
+            if by_user:
+                admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(20)
+                for uid, entries in by_user.items():
+                    u = await db.users.find_one({"id": uid}, {"_id": 0, "last_seen_at": 1, "name": 1, "email": 1, "role": 1})
+                    if not u or u.get("role") == "admin":
+                        continue
+                    marker = u.get("last_seen_at") or entries[0].get("clock_in") or ""
+                    try:
+                        idle_min = (now - datetime.fromisoformat(marker)).total_seconds() / 60.0
+                    except Exception:
+                        continue
+                    if idle_min < IDLE_ALERT_MINUTES:
+                        continue
+                    if any(en.get("idle_alert_seen") == marker for en in entries):
+                        continue
+                    await db.time_entries.update_many(
+                        {"user_id": uid, "clock_out": None},
+                        {"$set": {"idle_alert_seen": marker}},
+                    )
+                    acts = ", ".join(sorted({en.get("activity", "working") for en in entries}))
+                    wname = u.get("name") or u.get("email") or "A worker"
+                    for a in admins:
+                        await notify(
+                            a["id"], "worker_idle",
+                            f"💤 {wname} looks idle",
+                            f"Clocked in ({acts}) but inactive for {int(idle_min)} min.",
+                            link="/admin/workers",
+                            meta={"worker_id": uid, "idle_minutes": int(idle_min)},
+                        )
+                    # Also nudge the worker — maybe they forgot to clock out
+                    await notify(
+                        uid, "clock_out_reminder",
+                        "⏰ Still clocked in?",
+                        f"Your {acts} clock is running but you've been away {int(idle_min)} min. Forgot to clock out?",
+                        link="/worker",
+                        meta={"idle_minutes": int(idle_min)},
+                    )
         except Exception as e:
             logger.error(f"reminder_loop tick error: {e}")
         await asyncio.sleep(REMINDER_LOOP_SECONDS)
@@ -2638,7 +2742,7 @@ _reminder_task_ref = {"task": None}
 # --- Health ---
 @api_router.get("/")
 async def root():
-    return {"message": "LoveWorks API", "ok": True}
+    return {"message": "iLoveWorks API", "ok": True}
 
 
 # --- App setup ---

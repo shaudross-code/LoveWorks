@@ -19,6 +19,7 @@ import Awards from "@/pages/Awards";
 import Announcements from "@/pages/Announcements";
 import WorkerDashboard from "@/pages/WorkerDashboard";
 import WorkerHistory from "@/pages/WorkerHistory";
+import Privacy from "@/pages/Privacy";
 
 function RootRedirect() {
   const { user } = useAuth();
@@ -35,6 +36,7 @@ function App() {
           <Routes>
             <Route path="/" element={<RootRedirect />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/privacy" element={<Privacy />} />
 
             <Route path="/admin" element={
               <ProtectedRoute role="admin"><AdminLayout><AdminDashboard /></AdminLayout></ProtectedRoute>

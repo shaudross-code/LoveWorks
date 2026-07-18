@@ -66,7 +66,7 @@ Nothing else to do — this is already live.
 - ✅ App works full-screen with its own icon and splash (not a bare website shell).
 - ⚠️ Make sure the production backend is up during review.
 - ⚠️ Provide **demo credentials** in the App Review notes (e.g. the worker test account) so Apple can log in.
-- ⚠️ Account deletion: Apple requires a way for users to delete their account. Ask me to add a "Delete my account" button in Profile before submitting.
+- ✅ Account deletion: available in-app at Profile → Danger zone → "Delete my account" (Apple requirement — done).
 
 ---
 
@@ -90,7 +90,7 @@ Nothing else to do — this is already live.
    ```
 3. In Android Studio: **Build → Generate Signed Bundle / APK → Android App Bundle (.aab)** → select your keystore → *release*.
 4. In Play Console:
-   - Create app: **LoveWorks**, category *Lifestyle*, free.
+   - Create app: **iLoveWorks**, category *Lifestyle*, free.
    - Upload the `.aab` under *Production → Create new release*.
    - Store listing: short description (80 chars), full description, icon 512×512 (`frontend/public/icon-512.png`), feature graphic 1024×500, at least 2 phone screenshots.
    - Complete *Data safety* form (email, name, photos collected; encrypted in transit; users can request deletion).
@@ -101,9 +101,8 @@ Nothing else to do — this is already live.
 
 ## 4. Privacy policy (required by BOTH stores)
 
-You need a public URL with a privacy policy. Options:
-- Ask me to add a `/privacy` page to the app (fastest — it's a public URL on your deployed domain).
-- Or use a generator like [privacypolicies.com](https://www.privacypolicies.com).
+You need a public URL with a privacy policy.
+✅ **Done** — the app serves a public privacy policy at `https://<your-deployed-domain>/privacy` (also linked from the login page and Profile). Use that URL in both store listings.
 
 It must mention: account data (email, name), photos uploaded by users, push notifications, and how to request deletion.
 
@@ -123,4 +122,6 @@ It must mention: account data (email, name), photos uploaded by users, push noti
 To regenerate native icons after changing the source image:
 ```bash
 cd frontend && npx @capacitor/assets generate --ios --android
+```
+droid
 ```

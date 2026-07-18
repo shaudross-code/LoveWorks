@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
-import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart, CheckCircle2, Users, X } from "lucide-react";
+import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart, CheckCircle2, Users, X, Clock } from "lucide-react";
 
 const TYPE_ICON = {
   task_assigned:        ClipboardList,
@@ -16,6 +16,9 @@ const TYPE_ICON = {
   collab_added:         Users,
   peer_access_request:  Users,
   peer_access_response: Users,
+  worker_idle:          AlarmClock,
+  worker_clock_out:     Clock,
+  clock_out_reminder:   AlarmClock,
 };
 const TYPE_COLOR = {
   task_assigned:        "text-sky-400 bg-sky-400/10",
@@ -30,6 +33,9 @@ const TYPE_COLOR = {
   collab_added:         "text-pink-400 bg-pink-400/10",
   peer_access_request:  "text-pink-400 bg-pink-400/10",
   peer_access_response: "text-emerald-400 bg-emerald-400/10",
+  worker_idle:          "text-amber-300 bg-amber-300/10",
+  worker_clock_out:     "text-sky-400 bg-sky-400/10",
+  clock_out_reminder:   "text-amber-300 bg-amber-300/10",
 };
 
 function timeAgo(iso) {

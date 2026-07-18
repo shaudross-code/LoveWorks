@@ -1,19 +1,38 @@
 import { useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import api, { formatApiError } from "@/lib/api";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Loader2, Save, Trash2, User } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Camera, Loader2, Save, Trash2, User, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { PushSettings } from "@/components/PushPrompt";
 
 export default function Profile() {
   const { user, setUser } = useAuth();
+  const nav = useNavigate();
   const fileRef = useRef(null);
   const [name, setName] = useState(user?.name || "");
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [delOpen, setDelOpen] = useState(false);
+  const [delPassword, setDelPassword] = useState("");
+  const [delBusy, setDelBusy] = useState(false);
+
+  const deleteAccount = async () => {
+    if (!delPassword) { toast.error("Enter your password to confirm"); return; }
+    setDelBusy(true);
+    try {
+      await api.delete("/me", { data: { password: delPassword } });
+      toast.success("Account deleted. Goodbye 👋");
+      localStorage.removeItem("access_token");
+      setUser(false);
+      nav("/login", { replace: true });
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setDelBusy(false); }
+  };
 
   const saveName = async (e) => {
     e?.preventDefault?.();
@@ -133,13 +152,78 @@ export default function Profile() {
         <div className="mt-8 pt-6 border-t border-yellow-400/10">
           <div className="text-xs uppercase tracking-widest text-zinc-500">Notifications</div>
           <div className="mt-2 text-sm text-zinc-400 max-w-xl">
-            Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when LoveWorks is closed.
+            Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when iLoveWorks is closed.
           </div>
           <div className="mt-3">
             <PushSettings />
           </div>
         </div>
+
+        <div className="mt-8 pt-6 border-t border-red-500/20">
+          <div className="text-xs uppercase tracking-widest text-red-400 flex items-center gap-1.5">
+            <ShieldAlert className="w-3.5 h-3.5" /> Danger zone
+          </div>
+          {user?.role === "admin" ? (
+            <div className="mt-2 text-sm text-zinc-500" data-testid="admin-delete-note">
+              Admin accounts are managed by the system and can&apos;t be deleted from the app.
+            </div>
+          ) : (
+            <>
+              <div className="mt-2 text-sm text-zinc-400 max-w-xl">
+                Deleting your account permanently removes your profile, tasks, time entries, goals, trips, essentials, awards, and notifications. This cannot be undone.
+              </div>
+              <Button
+                data-testid="delete-account-btn"
+                onClick={() => { setDelPassword(""); setDelOpen(true); }}
+                className="mt-3 bg-red-500/15 hover:bg-red-500/25 text-red-400 border border-red-500/30 rounded-full h-10 px-5 font-semibold"
+              >
+                <Trash2 className="w-4 h-4 mr-2" /> Delete my account
+              </Button>
+            </>
+          )}
+          <div className="mt-4">
+            <a href="/privacy" data-testid="privacy-link" className="text-xs text-zinc-500 hover:text-yellow-400 underline underline-offset-2">
+              Privacy Policy
+            </a>
+          </div>
+        </div>
       </div>
+
+      <Dialog open={delOpen} onOpenChange={setDelOpen}>
+        <DialogContent className="bg-[#121214] border-red-500/30 text-white rounded-2xl" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl flex items-center gap-2">
+              <ShieldAlert className="w-5 h-5 text-red-400" /> Delete your account?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-sm text-zinc-300">
+              This permanently erases everything tied to <span className="font-semibold text-white">{user?.email}</span> — tasks, time entries, goals, trips, essentials, awards, and notifications. <span className="font-semibold text-red-400">This cannot be undone.</span>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">Confirm with your password</label>
+              <Input
+                data-testid="delete-account-password"
+                type="password"
+                value={delPassword}
+                onChange={(e) => setDelPassword(e.target.value)}
+                placeholder="••••••••"
+                className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11"
+              />
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-2">
+            <Button data-testid="delete-account-cancel" variant="ghost" onClick={() => setDelOpen(false)}
+              className="text-zinc-300 hover:text-white rounded-xl h-11 px-4 border border-zinc-700">
+              Cancel
+            </Button>
+            <Button data-testid="delete-account-confirm" onClick={deleteAccount} disabled={delBusy}
+              className="bg-red-500 hover:bg-red-400 text-white font-semibold rounded-xl h-11 flex-1">
+              {delBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Trash2 className="w-4 h-4 mr-2" /> Delete forever</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
