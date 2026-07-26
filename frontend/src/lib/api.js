@@ -5,7 +5,12 @@ export const API_BASE = `${BACKEND_URL}/api`;
 
 const api = axios.create({
   baseURL: API_BASE,
-  withCredentials: true,
+  // withCredentials is intentionally false so that Capacitor iOS/Android webviews
+  // (which run at capacitor://localhost and http://localhost) can talk to the
+  // production backend without hitting the CORS credentials/wildcard-origin
+  // conflict. Same-origin browser calls still send cookies by default; the
+  // Bearer token interceptor below carries auth for all cross-origin cases.
+  withCredentials: false,
 });
 
 // also attach bearer token as fallback (for tools / curl-style use)

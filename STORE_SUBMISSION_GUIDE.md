@@ -1,4 +1,4 @@
-# LoveWorks — App Store & Google Play Submission Guide
+# iLoveWorks — App Store & Google Play Submission Guide
 
 Your app is now packaged in three ways:
 1. **PWA (live now)** — anyone on iPhone/Android can install it from the browser today.
@@ -7,20 +7,34 @@ Your app is now packaged in three ways:
 
 ---
 
-## 0. Before you build for the stores (IMPORTANT)
+## 0. Before you build for the stores (READ THIS)
 
-The mobile apps bundle the web frontend, and API calls go to `REACT_APP_BACKEND_URL`.
-Before building a store release, make sure `frontend/.env` points to your **deployed production URL**
-(not the preview URL), then rebuild:
+The mobile apps **bundle** the web frontend at build time, so the API URL is **frozen into
+the binary**. If you build with the preview URL, your App Store app will forever hit the
+preview environment — not what you want.
+
+We've set this up correctly:
+- `frontend/.env` → preview URL (used while developing in Emergent)
+- `frontend/.env.production` → **your production URL** `https://labor-admin-hub.emergent.host`
+  (used automatically by `yarn build` — Create React App picks it up over `.env` in production mode)
+
+Every time you build for the stores, run these commands on your Mac:
 
 ```bash
 cd frontend
 yarn install
-yarn build
-npx cap sync
+yarn build            # produces build/ with the PRODUCTION URL baked in
+npx cap sync          # copies build/ into ios/ and android/ + updates plugins
 ```
 
-Run `npx cap sync` every time you rebuild the web app.
+Then open Xcode / Android Studio and archive/build as usual.
+
+**If you ever change the backend URL**, edit `frontend/.env.production` and repeat
+`yarn build && npx cap sync`.
+
+**Sanity check before submitting**: after `yarn build`, run
+`grep -r "labor-admin-hub" frontend/build/static/js` — you should see the
+`emergent.host` domain, NOT `preview.emergentagent.com`.
 
 ---
 
