@@ -58,6 +58,14 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
   - Clock-out alert: admins get `worker_clock_out` notification with per-activity durations on every worker clock-out
   - Rebrand → **iLoveWorks** with gold gradient wordmark (`.brand-gold` CSS class) across login/layouts/privacy; index.html/manifest/sw.js/capacitor.config/native strings.xml + Info.plist updated; new app icon generated (gold "iLoveWorks" lettering + pink heart + raining gold hearts/money/gifts); all PWA + native icons/splashes regenerated, web rebuilt, `cap sync` done; SW cache bumped to `iloveworks-v2`
 
+- **Capacitor mobile ↔ backend fix (Jul 2026, tested iteration_6: 23/23 backend, 6/6 frontend flows — 100%)**:
+  - User bug: "Xcode can't get api keys" → iOS build opens but can't reach server. Three root causes fixed:
+    1. **Backend CORS** (`server.py` ~line 2751): `allow_origin_regex` extended to include `capacitor://localhost` (iOS webview) and `ionic://localhost`, anchored `^...$`.
+    2. **Axios `withCredentials: true` → `false`** in `/app/frontend/src/lib/api.js`. Emergent ingress rewrites `Access-Control-Allow-Origin` to `*` on all responses; combined with `Access-Control-Allow-Credentials: true` this is a CORS spec violation that browsers reject. Removing credentials mode makes wildcard origin acceptable. Bearer token from `localStorage.access_token` (already in interceptor) is the sole auth mechanism for cross-origin (mobile) calls; same-origin browser calls still send cookies by default.
+    3. **`.env.production`** created at `/app/frontend/.env.production` with `REACT_APP_BACKEND_URL=https://labor-admin-hub.emergent.host` so `yarn build` bakes the production URL into the iOS/Android bundle. `.env` still holds preview URL for dev.
+  - Updated `/app/STORE_SUBMISSION_GUIDE.md` §0 with exact build sequence (`yarn build && npx cap sync`) and post-build sanity check (`grep -r "labor-admin-hub" frontend/build/static/js`).
+  - Known ingress quirk: platform Cloudflare/ingress overwrites specific `Access-Control-Allow-Origin` header from FastAPI with `*`. Safe only while frontend keeps `withCredentials=false`.
+
 ## Prioritized backlog
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
@@ -84,4 +92,6 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 - POST /goals and POST /essentials use **query params + multipart file**, not JSON bodies.
 - Workers can hold multiple concurrent time entries; `/time/active` returns a list.
 - Capacitor projects in `frontend/ios|android`: regenerate assets via `npx @capacitor/assets generate`, re-sync via `npx cap sync`; never hand-edit.
-- Test reports: `/app/test_reports/iteration_1..4.json` (iteration_4 = full regression incl. Trips/Essentials/Collaboration/PWA — all pass).
+- Test reports: `/app/test_reports/iteration_1..6.json` (iteration_4 = full regression incl. Trips/Essentials/Collaboration/PWA — all pass; iteration_6 = Capacitor CORS + Bearer-only auth — 23/23 backend + 6/6 frontend).
+- **Capacitor iOS/Android build MUST rely on Bearer token, not cookies.** Do not re-enable `withCredentials: true` in `/app/frontend/src/lib/api.js` without also fixing the platform ingress `*` rewrite. Same-origin browser cookies still work unchanged.
+- **Production URL is baked into mobile builds via `frontend/.env.production`** — never delete this file. If prod URL changes, edit it and re-run `yarn build && npx cap sync`.
