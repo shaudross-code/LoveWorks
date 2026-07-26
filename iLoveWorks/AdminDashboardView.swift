@@ -445,7 +445,7 @@ struct AddWorkerView: View {
                         Text("EMAIL")
                             .font(.system(size: 10, weight: .bold))
                             .foregroundStyle(Theme.textMuted)
-                        TextField("worker@clockwork.com", text: $email)
+                        TextField("worker@loveworks.com", text: $email)
                             .padding()
                             .background(Theme.surface)
                             .cornerRadius(12)
