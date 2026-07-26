@@ -15,7 +15,13 @@ enum APIError: Error {
 
 class APIClient {
     static let shared = APIClient()
+    // Debug builds (Run from Xcode) use the local dev server; Release builds
+    // (Archive for the App Store / TestFlight) use production automatically.
+#if DEBUG
     private let baseURL = "http://127.0.0.1:8001/api"
+#else
+    private let baseURL = "https://labor-admin-hub.emergent.host/api"
+#endif
     
     private init() {}
     
