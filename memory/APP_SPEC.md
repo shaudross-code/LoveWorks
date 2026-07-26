@@ -1,4 +1,5 @@
-# LoveWorks — Complete App Specification (Recreation Blueprint)
+# LoveWorks / **iLoveWorks** — Complete App Specification (Recreation Blueprint)
+> Jun 2026 rebrand: app name is now **iLoveWorks**, rendered with the gold-gradient `.brand-gold` CSS class (index.css) on login/layouts/privacy; manifest, index.html, sw.js (cache `iloveworks-v2`), capacitor appName, Android strings.xml and iOS Info.plist all say iLoveWorks; icon includes gold "iLoveWorks" lettering. Public `/privacy` route (Privacy.jsx, no auth) + in-app account deletion exist (store prerequisites done).
 > Purpose: this document contains enough detail to rebuild the entire app from scratch.
 > Companion docs: `PRD.md` (product summary/backlog), `test_credentials.md`, `/app/STORE_SUBMISSION_GUIDE.md`.
 > Last synced with code: June 2026 (server.py 2,722 lines; frontend 13 pages / 12 components).
@@ -213,11 +214,15 @@ first_task "First on the Board"/sparkle · five_tasks "High Five"/high-five · t
 Granting an award notifies "🏆 New award: …" → /worker/awards.
 
 ### Notification types (frontend icon/color map in NotificationBell)
-task_assigned(sky/ClipboardList), task_updated(amber), task_due_soon(red/AlarmClock), task_completed(emerald/CheckCircle2, admin-bound), award(yellow/Trophy), announcement(emerald/Megaphone), goal_assigned(fuchsia/Target), goal_completed(yellow/Sparkles), goal_reaction(pink/Heart), collab_added(pink/Users), peer_access_request(pink/Users, renders inline Accept/Decline buttons which call respond + mark read), peer_access_response(emerald/Users), test.
+task_assigned(sky/ClipboardList), task_updated(amber), task_due_soon(red/AlarmClock), task_completed(emerald/CheckCircle2, admin-bound), award(yellow/Trophy), announcement(emerald/Megaphone), goal_assigned(fuchsia/Target), goal_completed(yellow/Sparkles), goal_reaction(pink/Heart), collab_added(pink/Users), peer_access_request(pink/Users, renders inline Accept/Decline buttons which call respond + mark read), peer_access_response(emerald/Users), worker_idle(amber/AlarmClock, admin-bound), worker_clock_out(sky/Clock, admin-bound), clock_out_reminder(amber/AlarmClock, worker nudge), test.
 Every `notify()` also fires a Web Push to all active subscriptions (payload {title,body,link,meta}; ttl 12h; 404/410 endpoints deactivated).
 
 ### Reminder loop (background asyncio task, started on startup)
 Tick every 60s (8s warmup). For each non-completed task with due_time: skip if `last_reminder_date == today(local)`; check `_task_is_due_today` (daily→always; weekly→dow matches or unset; monthly→1st of month; once→due_at date is today, else dow match); if 0 < minutes-until-due ≤ 30 → atomically set last_reminder_date (race-checked) then notify assignee "⏰ Due in N min: {title}".
+**Idle alerts** (same loop, `IDLE_ALERT_MINUTES=10`): for each worker with open time entries, if `now - last_seen_at ≥ 10 min` and not already alerted for this last_seen marker (`idle_alert_seen` stamped on open entries) → notify all admins `worker_idle` ("💤 {name} looks idle") + notify the worker `clock_out_reminder` ("⏰ Still clocked in?").
+**Clock-out alert**: `POST /time/clock-out` notifies all admins `worker_clock_out` ("🕒 {name} clocked out" + per-activity durations).
+**Account deletion**: `DELETE /api/me` (JSON body {password}; 403 for admins; 401 wrong password) cascades tasks/time_entries/goals(+collab pull)/essentials(+collab pull)/notifications/awards/push_subscriptions/peer_access, soft-deletes files, deletes user, clears cookies.
+`/admin/worker-status` also returns `is_idle: bool`, `idle_minutes: int|null` (💤 chip on admin worker cards).
 
 ---
 

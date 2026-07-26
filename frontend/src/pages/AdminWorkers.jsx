@@ -229,6 +229,13 @@ export default function AdminWorkers() {
 
               {/* Streak + inconsistency chips */}
               <div className="mt-3 flex flex-wrap gap-2" data-testid={`worker-streak-block-${s.worker.id}`}>
+                {s.is_idle && (
+                  <span data-testid={`idle-chip-${s.worker.id}`}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-amber-400/15 text-amber-300 border border-amber-400/30"
+                    title="Clocked in but no app activity for 10+ minutes">
+                    💤 idle {s.idle_minutes}m
+                  </span>
+                )}
                 {(s.streak_days || 0) >= 2 && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest bg-orange-400/15 text-orange-300 border border-orange-400/30">
                     🔥 {s.streak_days}-day streak

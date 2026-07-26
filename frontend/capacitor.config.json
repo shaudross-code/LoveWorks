@@ -1,6 +1,6 @@
 {
   "appId": "com.loveworks.app",
-  "appName": "LoveWorks",
+  "appName": "iLoveWorks",
   "webDir": "build",
   "server": {
     "androidScheme": "https"

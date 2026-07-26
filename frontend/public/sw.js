@@ -1,6 +1,6 @@
 /* LoveWorks Service Worker — Web Push + offline PWA caching */
 
-const CACHE_NAME = 'loveworks-v1';
+const CACHE_NAME = 'iloveworks-v2';
 const PRECACHE = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let data = { title: 'LoveWorks', body: '', link: '/' };
+  let data = { title: 'iLoveWorks', body: '', link: '/' };
   try {
     if (event.data) {
       data = { ...data, ...event.data.json() };
@@ -73,7 +73,7 @@ self.addEventListener('push', (event) => {
     vibrate: [120, 60, 120],
   };
 
-  event.waitUntil(self.registration.showNotification(data.title || 'LoveWorks', options));
+  event.waitUntil(self.registration.showNotification(data.title || 'iLoveWorks', options));
 });
 
 self.addEventListener('notificationclick', (event) => {

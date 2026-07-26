@@ -27,7 +27,7 @@ export default function AdminLayout({ children }) {
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-5 h-5 fill-white" /></div>
             <div className="flex-1 min-w-0">
-              <div className="font-display font-bold text-lg leading-none">LoveWorks</div>
+              <div className="font-display font-bold text-lg leading-none brand-gold">iLoveWorks</div>
               <div className="text-xs text-zinc-500 mt-1 uppercase tracking-widest">Admin Console</div>
             </div>
             <NotificationBell align="left" />
@@ -76,7 +76,7 @@ export default function AdminLayout({ children }) {
       <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/10 px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 fill-white" /></div>
-          <div className="font-display font-bold text-sm">LoveWorks</div>
+          <div className="font-display font-bold text-sm brand-gold">iLoveWorks</div>
         </div>
         <div className="flex items-center gap-2">
           <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-xs flex items-center gap-1 px-2 h-8 rounded-full hover:bg-white/5">

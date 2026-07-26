@@ -25,7 +25,7 @@ export default function WorkerLayout({ children }) {
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-white" /></div>
             <div>
-              <div className="font-display font-bold leading-none text-sm sm:text-base">LoveWorks</div>
+              <div className="font-display font-bold leading-none text-sm sm:text-base brand-gold">iLoveWorks</div>
               <div className="hidden sm:block text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Workspace</div>
             </div>
           </div>
