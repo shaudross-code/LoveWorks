@@ -76,10 +76,35 @@ Nothing else to do — this is already live.
    - App Privacy: declare that you collect email, name, and photos (user content) linked to identity, for app functionality.
 7. Submit for review. First review typically takes 1–3 days.
 
+### Demo credentials for App Review Notes (COPY-PASTE)
+Apple's reviewer needs credentials to sign in. In App Store Connect →
+**App Review Information → Sign-in required (ON) → paste this into "Sign-in Information"**:
+
+```
+Email: reviewer@loveworks.com
+Password: iLoveWorks2026!
+
+Notes:
+- This is a dedicated reviewer admin account, separate from the production owner's login.
+- After sign-in you'll land on the admin dashboard. You can:
+    • View workers, tasks, payroll, goals, trips, essentials.
+    • Create a new worker (Workers → +) to see the invite flow.
+    • Assign a task and mark it complete to see the earnings & awards flow.
+- To test the worker-side experience, log out and sign in with:
+    Email: lovetest@loveworks.com
+    Password: Love123!
+- Account deletion is at Profile → Danger zone (also demonstrable with the reviewer account — it will re-seed on next backend restart).
+```
+
+The `reviewer@loveworks.com` account is idempotently seeded from `backend/.env`
+(`REVIEWER_EMAIL` / `REVIEWER_PASSWORD`), so it always exists after a deploy and
+its password never drifts. It is fully separate from the production owner's admin
+account (`admin@loveworks.com`).
+
 ### Common rejection points (already handled or to note)
 - ✅ App works full-screen with its own icon and splash (not a bare website shell).
 - ⚠️ Make sure the production backend is up during review.
-- ⚠️ Provide **demo credentials** in the App Review notes (e.g. the worker test account) so Apple can log in.
+- ✅ Provided **demo credentials** in the App Review notes block above (`reviewer@loveworks.com` — dedicated reviewer admin).
 - ✅ Account deletion: available in-app at Profile → Danger zone → "Delete my account" (Apple requirement — done).
 
 ---

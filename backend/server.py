@@ -2817,6 +2817,28 @@ async def startup():
         )
         logger.info(f"Updated admin password for: {admin_email}")
 
+    # seed App Store / Play Store reviewer admin (isolated demo account for Apple/Google review teams)
+    reviewer_email = os.environ.get("REVIEWER_EMAIL", "").lower().strip()
+    reviewer_password = os.environ.get("REVIEWER_PASSWORD", "").strip()
+    if reviewer_email and reviewer_password:
+        existing_reviewer = await db.users.find_one({"email": reviewer_email})
+        if not existing_reviewer:
+            await db.users.insert_one({
+                "id": str(uuid.uuid4()),
+                "email": reviewer_email,
+                "password_hash": hash_password(reviewer_password),
+                "name": "App Store Reviewer",
+                "role": "admin",
+                "created_at": now_utc().isoformat(),
+            })
+            logger.info(f"Seeded reviewer admin user: {reviewer_email}")
+        elif not verify_password(reviewer_password, existing_reviewer["password_hash"]):
+            await db.users.update_one(
+                {"email": reviewer_email},
+                {"$set": {"password_hash": hash_password(reviewer_password)}},
+            )
+            logger.info(f"Updated reviewer admin password for: {reviewer_email}")
+
     # Start background task-reminder scheduler
     if _reminder_task_ref.get("task") is None or _reminder_task_ref["task"].done():
         _reminder_task_ref["task"] = asyncio.create_task(reminder_loop())

@@ -83,7 +83,8 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 - Weekly leaderboard on Admin Overview; CSV payroll export; Trips/Essentials top-line numbers on Overview; photo proof of completion; Stripe payouts; worker invitation email (Resend)
 
 ## Test credentials
-- Admin: `admin@clockwork.com` / `admin123` (seeded automatically)
+- Admin (owner): `admin@loveworks.com` / `admin123` (seeded from `ADMIN_EMAIL` in `backend/.env`; renamed from `admin@clockwork.com` on 2026-07-26)
+- Reviewer admin (App Store / Play Store demo — isolated from owner): `reviewer@loveworks.com` / `iLoveWorks2026!` (seeded from `REVIEWER_EMAIL` in `backend/.env`, added 2026-07-26)
 - Worker: `lovetest@loveworks.com` / `Love123!`
 
 ## Critical notes for future agents
