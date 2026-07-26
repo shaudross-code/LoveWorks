@@ -2750,10 +2750,14 @@ app.include_router(api_router)
 
 cors_origins_env = os.environ.get("CORS_ORIGINS", "*").strip()
 if cors_origins_env in ("", "*"):
-    # Permissive but credentials-friendly: match localhost (dev) + emergent preview & prod domains.
+    # Permissive but credentials-friendly:
+    #   - localhost dev (http://localhost:*, https://localhost:*)
+    #   - Emergent preview & production subdomains
+    #   - Capacitor iOS webview (capacitor://localhost)
+    #   - Capacitor/Ionic Android webview (http://localhost, ionic://localhost)
     app.add_middleware(
         CORSMiddleware,
-        allow_origin_regex=r"https?://(localhost(:\d+)?|.*\.emergentagent\.com|.*\.emergent\.host)",
+        allow_origin_regex=r"^(https?://(localhost(:\d+)?|.*\.emergentagent\.com|.*\.emergent\.host)|capacitor://localhost|ionic://localhost)$",
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
