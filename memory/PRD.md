@@ -66,6 +66,12 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
   - Updated `/app/STORE_SUBMISSION_GUIDE.md` §0 with exact build sequence (`yarn build && npx cap sync`) and post-build sanity check (`grep -r "labor-admin-hub" frontend/build/static/js`).
   - Known ingress quirk: platform Cloudflare/ingress overwrites specific `Access-Control-Allow-Origin` header from FastAPI with `*`. Safe only while frontend keeps `withCredentials=false`.
 
+- **Reviewer sandbox isolation (Jul 2026, tested iteration_7: 28/28 backend — 100%)**:
+  - User request: reviewer account must not contain/see the real household's data (it's for Apple review only).
+  - `sandbox: true` flag on reviewer admin + new seeded demo worker (`demo@loveworks.com` / `DemoWorker2026!`, env `REVIEWER_WORKER_EMAIL/PASSWORD`) with sample data (3 tasks, 1 goal, 1 trip, 1 essential, 1 time entry).
+  - `_sb(user)` + `_scoped_worker_ids(user)` helpers scope EVERY admin-facing endpoint (workers, peers, tasks, time entries, payroll, worker-status, goals, essentials + totals, announcements create/list/delete + fan-out, awards, peer-access, idle/clock-out/task-completed admin notifications). Sandbox admins created workers inherit the flag. Bidirectional: reviewer never sees real data; owner never sees reviewer's test data.
+  - Regression test: `/app/backend/tests/test_sandbox_isolation.py`.
+
 ## Prioritized backlog
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
@@ -84,7 +90,8 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 
 ## Test credentials
 - Admin (owner): `admin@loveworks.com` / `admin123` (seeded from `ADMIN_EMAIL` in `backend/.env`; renamed from `admin@clockwork.com` on 2026-07-26)
-- Reviewer admin (App Store / Play Store demo — isolated from owner): `reviewer@loveworks.com` / `iLoveWorks2026!` (seeded from `REVIEWER_EMAIL` in `backend/.env`, added 2026-07-26)
+- Reviewer admin (App Store / Play Store demo — SANDBOXED, sees only its own demo data): `reviewer@loveworks.com` / `iLoveWorks2026!` (seeded from `REVIEWER_EMAIL` in `backend/.env`, added 2026-07-26; sandbox isolation added later that day)
+- Sandbox demo worker (reviewer's worker login): `demo@loveworks.com` / `DemoWorker2026!` (seeded from `REVIEWER_WORKER_EMAIL`)
 - Worker: `lovetest@loveworks.com` / `Love123!`
 
 ## Critical notes for future agents
