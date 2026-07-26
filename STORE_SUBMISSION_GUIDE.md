@@ -85,21 +85,26 @@ Email: reviewer@loveworks.com
 Password: iLoveWorks2026!
 
 Notes:
-- This is a dedicated reviewer admin account, separate from the production owner's login.
-- After sign-in you'll land on the admin dashboard. You can:
+- This is a dedicated, fully SANDBOXED reviewer admin account — it only sees its own
+  demo data and cannot see or affect any real household's data (and vice versa).
+- After sign-in you'll land on the admin dashboard, pre-populated with a demo worker,
+  tasks, a goal, a trip, an essential and payroll history. You can:
     • View workers, tasks, payroll, goals, trips, essentials.
     • Create a new worker (Workers → +) to see the invite flow.
     • Assign a task and mark it complete to see the earnings & awards flow.
 - To test the worker-side experience, log out and sign in with:
-    Email: lovetest@loveworks.com
-    Password: Love123!
-- Account deletion is at Profile → Danger zone (also demonstrable with the reviewer account — it will re-seed on next backend restart).
+    Email: demo@loveworks.com
+    Password: DemoWorker2026!
+- Account deletion is at Profile → Danger zone.
 ```
 
 The `reviewer@loveworks.com` account is idempotently seeded from `backend/.env`
-(`REVIEWER_EMAIL` / `REVIEWER_PASSWORD`), so it always exists after a deploy and
-its password never drifts. It is fully separate from the production owner's admin
-account (`admin@loveworks.com`).
+(`REVIEWER_EMAIL` / `REVIEWER_PASSWORD`), along with a sandbox demo worker
+(`REVIEWER_WORKER_EMAIL` / `REVIEWER_WORKER_PASSWORD`) and its sample data, so they
+always exist after a deploy and passwords never drift. **Both accounts carry a
+`sandbox` flag: every admin endpoint (workers, tasks, payroll, goals, trips,
+essentials, announcements, notifications, live monitor) is scoped so sandbox
+accounts and real accounts can never see each other's data.**
 
 ### Common rejection points (already handled or to note)
 - ✅ App works full-screen with its own icon and splash (not a bare website shell).
@@ -162,5 +167,86 @@ To regenerate native icons after changing the source image:
 ```bash
 cd frontend && npx @capacitor/assets generate --ios --android
 ```
-droid
+
+---
+
+## 6. Store listing copy (COPY-PASTE)
+
+### Apple App Store
+
+**App Name** (max 30 chars):
 ```
+iLoveWorks – Chores & Rewards
+```
+
+**Subtitle** (max 30 chars):
+```
+Turn housework into rewards
+```
+
+**Promotional Text** (max 170 chars — editable anytime without review):
+```
+Every chore has a price. Clock in, finish tasks, and watch the money pile up toward goals, trips, and treats — the love-powered way to run your household.
+```
+
+**Keywords** (max 100 chars, comma-separated):
+```
+chores,allowance,family,tasks,rewards,household,time tracker,clock in,goals,payroll,housework
+```
+
+**Description** (max 4,000 chars):
+```
+Show your Love. Get Loved with Gifts. 💛
+
+iLoveWorks turns everyday housework into something worth celebrating. One person runs the show as the Overseer — creating tasks, setting a price on each one, and cheering on the crew. Everyone else clocks in, gets things done, and watches their earnings grow toward the things they actually want.
+
+PRICED TASKS, REAL MOTIVATION
+• Assign chores and projects with a dollar value on every task
+• Set deadlines by date, day of the week, or time of day
+• One-time, daily, weekly, or monthly repeating tasks
+• Completing a task instantly adds to that person's earnings
+
+CLOCK IN TO ANYTHING
+• Run multiple activity clocks at the same time — Working, Studying, Cleaning, Workout, Parenting, Break, Self Care
+• A beautiful live timer keeps everyone honest
+• Gentle reminders if you look idle or forget to clock out
+
+GOALS, TRIPS & ESSENTIALS
+• Create savings goals with photos, target amounts, and deadlines
+• Plan trips together and watch task earnings fill the progress bar
+• Keep a shared Essentials list — groceries, household items, kid stuff — with prices, photos, and purchased check-offs
+• Collaborate: invite teammates onto shared goals and lists
+
+FOR THE OVERSEER
+• Live dashboard: who's clocked in, on what, and for how long
+• Payroll view with per-person earnings, hours, and weekly projections
+• Celebrate completed goals with appreciation notes and reactions
+• Post announcements the whole crew sees instantly
+
+MADE TO KEEP YOU GOING
+• Streaks, awards, and a weekly activity strip for every worker
+• Push notifications for new tasks, due-soon reminders, completions, and celebrations
+• Peer view: request permission to peek at a teammate's week
+• Gorgeous pink & gold design that makes chores feel a little less like chores
+
+Whether it's parents motivating kids, partners splitting the load, or a small crew tracking real work — iLoveWorks makes effort visible, valued, and rewarded.
+
+Your data stays yours: accounts are private, photos are stored securely, and you can delete your account (and everything with it) anytime from the app.
+```
+
+**What's New (version notes for 1.0)**:
+```
+Welcome to iLoveWorks 1.0! Priced tasks, multi-activity clock-ins, goals, trips, essentials, awards, and push notifications — everything you need to turn housework into rewards.
+```
+
+### Google Play
+
+**Short description** (max 80 chars):
+```
+Priced chores, clock-ins, goals & rewards — run your household with love.
+```
+
+**Full description** (max 4,000 chars): reuse the Apple description above — Play allows the same text.
+
+**Category**: Lifestyle (or Productivity) · **Content rating**: Everyone
+
