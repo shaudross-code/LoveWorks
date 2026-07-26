@@ -33,8 +33,8 @@ Then open Xcode / Android Studio and archive/build as usual.
 `yarn build && npx cap sync`.
 
 **Sanity check before submitting**: after `yarn build`, run
-`grep -r "labor-admin-hub" frontend/build/static/js` — you should see the
-`emergent.host` domain, NOT `preview.emergentagent.com`.
+`grep -c "preview.emergentagent" frontend/build/static/js/main.*.js` — it MUST print `0`.
+Then `grep -c "emergent.host" frontend/build/static/js/main.*.js` — it must print `1` or more.
 
 ---
 

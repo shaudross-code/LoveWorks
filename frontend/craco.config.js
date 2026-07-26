@@ -1,5 +1,8 @@
 // craco.config.js
 const path = require("path");
+if (process.env.NODE_ENV === "production") {
+  require("dotenv").config({ path: path.resolve(__dirname, ".env.production") });
+}
 require("dotenv").config();
 
 // Check if we're in development/preview mode (not production build)
