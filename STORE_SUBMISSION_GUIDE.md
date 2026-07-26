@@ -85,21 +85,26 @@ Email: reviewer@loveworks.com
 Password: iLoveWorks2026!
 
 Notes:
-- This is a dedicated reviewer admin account, separate from the production owner's login.
-- After sign-in you'll land on the admin dashboard. You can:
+- This is a dedicated, fully SANDBOXED reviewer admin account — it only sees its own
+  demo data and cannot see or affect any real household's data (and vice versa).
+- After sign-in you'll land on the admin dashboard, pre-populated with a demo worker,
+  tasks, a goal, a trip, an essential and payroll history. You can:
     • View workers, tasks, payroll, goals, trips, essentials.
     • Create a new worker (Workers → +) to see the invite flow.
     • Assign a task and mark it complete to see the earnings & awards flow.
 - To test the worker-side experience, log out and sign in with:
-    Email: lovetest@loveworks.com
-    Password: Love123!
-- Account deletion is at Profile → Danger zone (also demonstrable with the reviewer account — it will re-seed on next backend restart).
+    Email: demo@loveworks.com
+    Password: DemoWorker2026!
+- Account deletion is at Profile → Danger zone.
 ```
 
 The `reviewer@loveworks.com` account is idempotently seeded from `backend/.env`
-(`REVIEWER_EMAIL` / `REVIEWER_PASSWORD`), so it always exists after a deploy and
-its password never drifts. It is fully separate from the production owner's admin
-account (`admin@loveworks.com`).
+(`REVIEWER_EMAIL` / `REVIEWER_PASSWORD`), along with a sandbox demo worker
+(`REVIEWER_WORKER_EMAIL` / `REVIEWER_WORKER_PASSWORD`) and its sample data, so they
+always exist after a deploy and passwords never drift. **Both accounts carry a
+`sandbox` flag: every admin endpoint (workers, tasks, payroll, goals, trips,
+essentials, announcements, notifications, live monitor) is scoped so sandbox
+accounts and real accounts can never see each other's data.**
 
 ### Common rejection points (already handled or to note)
 - ✅ App works full-screen with its own icon and splash (not a bare website shell).

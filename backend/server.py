@@ -342,6 +342,17 @@ TASK_AWARD_THRESHOLDS = [
 ]
 
 
+# --- Sandbox scoping (App Store reviewer isolation) ---
+def _sb(user: dict) -> dict:
+    """Sandbox accounts (store reviewers) only see sandbox data; real accounts never see it."""
+    return {"sandbox": True} if user.get("sandbox") else {"sandbox": {"$ne": True}}
+
+
+async def _scoped_worker_ids(user: dict) -> list:
+    rows = await db.users.find({"role": "worker", **_sb(user)}, {"_id": 0, "id": 1}).to_list(1000)
+    return [r["id"] for r in rows]
+
+
 # --- Notification & award helpers ---
 async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None) -> dict:
     doc = {
@@ -743,7 +754,7 @@ async def create_goal(
     owner_id = user["id"]
     assigned_by_admin = False
     if assignee_id and user["role"] == "admin":
-        worker = await db.users.find_one({"id": assignee_id, "role": "worker"})
+        worker = await db.users.find_one({"id": assignee_id, "role": "worker", **_sb(user)})
         if not worker:
             raise HTTPException(status_code=404, detail="Worker not found")
         owner_id = assignee_id
@@ -910,8 +921,9 @@ async def list_goals(
     if user["role"] == "worker":
         # Workers see their own goals AND anything they're a collaborator on
         query["$or"] = [{"owner_id": user["id"]}, {"collaborator_ids": user["id"]}]
-    elif owner_id:
-        query["owner_id"] = owner_id
+    else:
+        allowed = await _scoped_worker_ids(user) + [user["id"]]
+        query["owner_id"] = owner_id if owner_id in allowed else {"$in": allowed}
     if kind:
         # Backwards compat: rows created before `kind` was added implicitly = "goal"
         if kind == "goal":
@@ -1202,8 +1214,9 @@ async def list_essentials(
     query: dict = {}
     if user["role"] == "worker":
         query["$or"] = [{"owner_id": user["id"]}, {"collaborator_ids": user["id"]}]
-    elif owner_id:
-        query["owner_id"] = owner_id
+    else:
+        allowed = await _scoped_worker_ids(user) + [user["id"]]
+        query["owner_id"] = owner_id if owner_id in allowed else {"$in": allowed}
     rows = await db.essentials.find(query, {"_id": 0}).sort("created_at", -1).to_list(2000)
     rows = [_attach_essential_image_url(r) for r in rows]
     if user["role"] == "admin":
@@ -1241,7 +1254,7 @@ async def create_essential(
 
     owner_id = user["id"]
     if assignee_id and user["role"] == "admin":
-        worker = await db.users.find_one({"id": assignee_id, "role": "worker"})
+        worker = await db.users.find_one({"id": assignee_id, "role": "worker", **_sb(user)})
         if not worker:
             raise HTTPException(status_code=404, detail="Worker not found")
         owner_id = assignee_id
@@ -1395,8 +1408,9 @@ async def essentials_totals(user: dict = Depends(get_current_user), owner_id: Op
     query: dict = {}
     if user["role"] == "worker":
         query["owner_id"] = user["id"]
-    elif owner_id:
-        query["owner_id"] = owner_id
+    else:
+        allowed = await _scoped_worker_ids(user) + [user["id"]]
+        query["owner_id"] = owner_id if owner_id in allowed else {"$in": allowed}
     rows = await db.essentials.find(query, {"_id": 0}).to_list(5000)
     by_cat: dict = {}
     total = 0.0
@@ -1434,15 +1448,18 @@ async def create_worker(req: CreateWorkerRequest, admin: dict = Depends(require_
         "password_hash": hash_password(req.password),
         "name": req.name,
         "role": "worker",
+        "created_by": admin["id"],
         "created_at": now_utc().isoformat(),
     }
+    if admin.get("sandbox"):
+        user_doc["sandbox"] = True
     await db.users.insert_one(user_doc)
     return serialize_user(user_doc)
 
 
 @api_router.get("/workers")
 async def list_workers(admin: dict = Depends(require_admin)):
-    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "password_hash": 0}).to_list(1000)
     return [serialize_user(w) for w in workers]
 
 
@@ -1450,7 +1467,7 @@ async def list_workers(admin: dict = Depends(require_admin)):
 async def list_peers(user: dict = Depends(get_current_user)):
     """Lightweight list of fellow workers (for teammate pickers + peer-access requests).
     Admin gets all workers too. Each row: id, name, email, avatar_url."""
-    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    workers = await db.users.find({"role": "worker", **_sb(user)}, {"_id": 0, "password_hash": 0}).to_list(1000)
     rows = []
     for w in workers:
         if w["id"] == user["id"]:
@@ -1462,7 +1479,7 @@ async def list_peers(user: dict = Depends(get_current_user)):
 
 @api_router.delete("/workers/{worker_id}")
 async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
-    res = await db.users.delete_one({"id": worker_id, "role": "worker"})
+    res = await db.users.delete_one({"id": worker_id, "role": "worker", **_sb(admin)})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Worker not found")
     await db.tasks.delete_many({"assignee_id": worker_id})
@@ -1528,7 +1545,7 @@ def _validate_dow(v):
 
 @api_router.post("/tasks")
 async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
-    worker = await db.users.find_one({"id": req.assignee_id, "role": "worker"})
+    worker = await db.users.find_one({"id": req.assignee_id, "role": "worker", **_sb(admin)})
     if not worker:
         raise HTTPException(status_code=404, detail="Worker not found")
     task = {
@@ -1578,8 +1595,9 @@ async def list_tasks(user: dict = Depends(get_current_user), assignee_id: Option
     query: dict = {}
     if user["role"] == "worker":
         query["assignee_id"] = user["id"]
-    elif assignee_id:
-        query["assignee_id"] = assignee_id
+    else:
+        ids = await _scoped_worker_ids(user)
+        query["assignee_id"] = assignee_id if assignee_id in ids else {"$in": ids}
     tasks = await db.tasks.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     # attach assignee_name for admin convenience
     if user["role"] == "admin":
@@ -1705,9 +1723,9 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         await evaluate_task_count_awards(owner_id)
         # Ping admins so they know a task got completed
         try:
-            worker = await db.users.find_one({"id": owner_id}, {"_id": 0, "name": 1, "email": 1})
+            worker = await db.users.find_one({"id": owner_id}, {"_id": 0, "name": 1, "email": 1, "sandbox": 1})
             wname = (worker or {}).get("name") or (worker or {}).get("email") or "A worker"
-            admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(50)
+            admins = await db.users.find({"role": "admin", **_sb(worker or {})}, {"_id": 0, "id": 1}).to_list(50)
             for a in admins:
                 await notify(
                     a["id"], "task_completed",
@@ -1792,7 +1810,7 @@ async def clock_out(
             return f"{h}h {m:02d}m" if h else f"{m}m"
         parts = [f"{c.get('activity', 'working')} · {_fmt_dur(c.get('duration_seconds') or 0)}" for c in closed]
         try:
-            admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(20)
+            admins = await db.users.find({"role": "admin", **_sb(user)}, {"_id": 0, "id": 1}).to_list(20)
             wname = user.get("name") or user.get("email") or "A worker"
             for a in admins:
                 await notify(
@@ -1825,8 +1843,9 @@ async def list_time_entries(user: dict = Depends(get_current_user), user_id: Opt
     query: dict = {}
     if user["role"] == "worker":
         query["user_id"] = user["id"]
-    elif user_id:
-        query["user_id"] = user_id
+    else:
+        ids = await _scoped_worker_ids(user)
+        query["user_id"] = user_id if user_id in ids else {"$in": ids + [user["id"]]}
     entries = await db.time_entries.find(query, {"_id": 0}).sort("clock_in", -1).to_list(2000)
     return entries
 
@@ -1834,7 +1853,7 @@ async def list_time_entries(user: dict = Depends(get_current_user), user_id: Opt
 # --- Payroll ---
 @api_router.get("/payroll")
 async def payroll(admin: dict = Depends(require_admin)):
-    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "password_hash": 0}).to_list(1000)
     worker_ids = [w["id"] for w in workers]
     if not worker_ids:
         return []
@@ -1885,7 +1904,7 @@ WORKDAYS_PER_WEEK = 5
 
 @api_router.get("/admin/worker-status")
 async def admin_worker_status(admin: dict = Depends(require_admin)):
-    workers = await db.users.find({"role": "worker"}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "password_hash": 0}).to_list(1000)
     if not workers:
         return []
     worker_ids = [w["id"] for w in workers]
@@ -2274,7 +2293,11 @@ async def awards_catalog(user: dict = Depends(get_current_user)):
 
 @api_router.get("/awards")
 async def list_awards(user: dict = Depends(get_current_user), user_id: Optional[str] = None):
-    target = user_id if (user["role"] == "admin" and user_id) else user["id"]
+    target = user["id"]
+    if user["role"] == "admin" and user_id:
+        t = await db.users.find_one({"id": user_id, **_sb(user)}, {"_id": 0, "id": 1})
+        if t:
+            target = user_id
     earned = await db.awards.find({"user_id": target}, {"_id": 0}).sort("earned_at", -1).to_list(500)
     earned_codes = {a["code"] for a in earned}
     catalog = []
@@ -2301,12 +2324,13 @@ async def create_announcement(req: AnnouncementCreate, admin: dict = Depends(req
         "body": req.body.strip(),
         "tag": tag,
         "created_by": admin["id"],
+        "sandbox": bool(admin.get("sandbox")),
         "created_at": now_utc().isoformat(),
     }
     await db.announcements.insert_one(doc)
     doc.pop("_id", None)
-    # Fan-out a notification to every worker
-    workers = await db.users.find({"role": "worker"}, {"_id": 0, "id": 1}).to_list(2000)
+    # Fan-out a notification to every matching worker
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "id": 1}).to_list(2000)
     icon = {"feature": "✨", "maintenance": "🛠️", "announcement": "📣", "update": "📣"}.get(tag, "📣")
     for w in workers:
         await notify(
@@ -2321,13 +2345,13 @@ async def create_announcement(req: AnnouncementCreate, admin: dict = Depends(req
 
 @api_router.get("/announcements")
 async def list_announcements(user: dict = Depends(get_current_user)):
-    items = await db.announcements.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    items = await db.announcements.find({**_sb(user)}, {"_id": 0}).sort("created_at", -1).to_list(500)
     return items
 
 
 @api_router.delete("/announcements/{aid}")
 async def delete_announcement(aid: str, admin: dict = Depends(require_admin)):
-    res = await db.announcements.delete_one({"id": aid})
+    res = await db.announcements.delete_one({"id": aid, **_sb(admin)})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Announcement not found")
     return {"ok": True}
@@ -2359,7 +2383,7 @@ async def peer_access_request(req: PeerAccessRequest, user: dict = Depends(get_c
         raise HTTPException(status_code=403, detail="Only workers can request peer access")
     if req.target_id == user["id"]:
         raise HTTPException(status_code=400, detail="That's you 😅")
-    target = await db.users.find_one({"id": req.target_id, "role": "worker"})
+    target = await db.users.find_one({"id": req.target_id, "role": "worker", **_sb(user)})
     if not target:
         raise HTTPException(status_code=404, detail="Worker not found")
     # If already granted, just return
@@ -2476,7 +2500,7 @@ async def admin_force_peer_access(
     if requester_id == target_id:
         raise HTTPException(status_code=400, detail="Pick two different workers")
     for uid, role_label in [(requester_id, "requester"), (target_id, "target")]:
-        u = await db.users.find_one({"id": uid, "role": "worker"})
+        u = await db.users.find_one({"id": uid, "role": "worker", **_sb(admin)})
         if not u:
             raise HTTPException(status_code=404, detail=f"{role_label} not a worker")
     existing = await db.peer_access.find_one({"requester_id": requester_id, "target_id": target_id}, {"_id": 0})
@@ -2509,7 +2533,7 @@ async def peer_overview(target_id: str, user: dict = Depends(get_current_user)):
     """Returns a peer's overview if access granted (admin always allowed)."""
     if user["role"] != "admin" and not await _peer_can_view(user["id"], target_id):
         raise HTTPException(status_code=403, detail="No access — request peer view first")
-    target = await db.users.find_one({"id": target_id, "role": "worker"}, {"_id": 0, "password_hash": 0})
+    target = await db.users.find_one({"id": target_id, "role": "worker", **_sb(user)}, {"_id": 0, "password_hash": 0})
     if not target:
         raise HTTPException(status_code=404, detail="Worker not found")
     # Compute weekly strip + streak the same way as my_weekly_activity but for target
@@ -2695,9 +2719,9 @@ async def reminder_loop():
             for e in open_entries:
                 by_user.setdefault(e["user_id"], []).append(e)
             if by_user:
-                admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1}).to_list(20)
+                admins = await db.users.find({"role": "admin"}, {"_id": 0, "id": 1, "sandbox": 1}).to_list(20)
                 for uid, entries in by_user.items():
-                    u = await db.users.find_one({"id": uid}, {"_id": 0, "last_seen_at": 1, "name": 1, "email": 1, "role": 1})
+                    u = await db.users.find_one({"id": uid}, {"_id": 0, "last_seen_at": 1, "name": 1, "email": 1, "role": 1, "sandbox": 1})
                     if not u or u.get("role") == "admin":
                         continue
                     marker = u.get("last_seen_at") or entries[0].get("clock_in") or ""
@@ -2716,6 +2740,8 @@ async def reminder_loop():
                     acts = ", ".join(sorted({en.get("activity", "working") for en in entries}))
                     wname = u.get("name") or u.get("email") or "A worker"
                     for a in admins:
+                        if bool(a.get("sandbox")) != bool(u.get("sandbox")):
+                            continue
                         await notify(
                             a["id"], "worker_idle",
                             f"💤 {wname} looks idle",
@@ -2817,7 +2843,7 @@ async def startup():
         )
         logger.info(f"Updated admin password for: {admin_email}")
 
-    # seed App Store / Play Store reviewer admin (isolated demo account for Apple/Google review teams)
+    # seed App Store / Play Store reviewer admin (isolated SANDBOX account for Apple/Google review teams)
     reviewer_email = os.environ.get("REVIEWER_EMAIL", "").lower().strip()
     reviewer_password = os.environ.get("REVIEWER_PASSWORD", "").strip()
     if reviewer_email and reviewer_password:
@@ -2829,15 +2855,80 @@ async def startup():
                 "password_hash": hash_password(reviewer_password),
                 "name": "App Store Reviewer",
                 "role": "admin",
+                "sandbox": True,
                 "created_at": now_utc().isoformat(),
             })
             logger.info(f"Seeded reviewer admin user: {reviewer_email}")
-        elif not verify_password(reviewer_password, existing_reviewer["password_hash"]):
-            await db.users.update_one(
-                {"email": reviewer_email},
-                {"$set": {"password_hash": hash_password(reviewer_password)}},
-            )
-            logger.info(f"Updated reviewer admin password for: {reviewer_email}")
+        else:
+            sets = {"sandbox": True}
+            if not verify_password(reviewer_password, existing_reviewer["password_hash"]):
+                sets["password_hash"] = hash_password(reviewer_password)
+            await db.users.update_one({"email": reviewer_email}, {"$set": sets})
+        reviewer = await db.users.find_one({"email": reviewer_email}, {"_id": 0, "id": 1})
+
+        # seed a sandbox demo worker + sample data so store reviewers see a populated app
+        demo_email = os.environ.get("REVIEWER_WORKER_EMAIL", "").lower().strip()
+        demo_password = os.environ.get("REVIEWER_WORKER_PASSWORD", "").strip()
+        if demo_email and demo_password:
+            demo = await db.users.find_one({"email": demo_email})
+            if not demo:
+                demo_id = str(uuid.uuid4())
+                await db.users.insert_one({
+                    "id": demo_id,
+                    "email": demo_email,
+                    "password_hash": hash_password(demo_password),
+                    "name": "Demo Worker",
+                    "role": "worker",
+                    "sandbox": True,
+                    "created_by": reviewer["id"],
+                    "created_at": now_utc().isoformat(),
+                })
+                now = now_utc()
+
+                def _demo_task(title, price, status, freq="once", due_time=None, hours_ago=None):
+                    return {
+                        "id": str(uuid.uuid4()), "title": title, "description": "",
+                        "price": float(price), "assignee_id": demo_id, "status": status,
+                        "created_by": reviewer["id"], "created_at": now.isoformat(),
+                        "completed_at": (now - timedelta(hours=hours_ago)).isoformat() if status == "completed" else None,
+                        "due_at": None, "due_time": due_time, "due_day_of_week": None,
+                        "estimated_hours": None, "daily_hours": None,
+                        "frequency": freq, "payout_schedule": "per_task",
+                    }
+                await db.tasks.insert_many([
+                    _demo_task("Water the plants", 5, "completed", hours_ago=2),
+                    _demo_task("Fold the laundry", 8, "completed", hours_ago=1),
+                    _demo_task("Vacuum the living room", 12, "assigned", freq="daily", due_time="18:00"),
+                ])
+                goal_base = {
+                    "product_link": None, "image_path": None, "deadline": None,
+                    "status": "open", "appreciation": None, "completed_at": None,
+                    "completed_by": None, "assigned_by": reviewer["id"], "created_at": now.isoformat(),
+                }
+                await db.goals.insert_many([
+                    {"id": str(uuid.uuid4()), "owner_id": demo_id, "kind": "goal", "title": "New Headphones",
+                     "target_amount": 60.0, "period": "weekly", "allocation_percent": 100.0, **goal_base},
+                    {"id": str(uuid.uuid4()), "owner_id": demo_id, "kind": "trip", "title": "Weekend Lake Trip",
+                     "target_amount": 150.0, "period": "monthly", "allocation_percent": 50.0, **goal_base},
+                ])
+                await db.essentials.insert_one({
+                    "id": str(uuid.uuid4()), "owner_id": demo_id, "title": "Paper towels", "price": 6.99,
+                    "quantity": 2, "category": "household", "note": None, "image_path": None,
+                    "purchased": False, "recurring": True, "due_date": None, "completed_at": None,
+                    "created_by": reviewer["id"], "created_at": now.isoformat(),
+                })
+                demo_clock_in = now - timedelta(hours=3)
+                await db.time_entries.insert_one({
+                    "id": str(uuid.uuid4()), "user_id": demo_id, "clock_in": demo_clock_in.isoformat(),
+                    "clock_out": (demo_clock_in + timedelta(minutes=95)).isoformat(),
+                    "duration_seconds": 95 * 60, "activity": "working",
+                })
+                logger.info(f"Seeded sandbox demo worker + sample data: {demo_email}")
+            else:
+                sets = {"sandbox": True}
+                if not verify_password(demo_password, demo["password_hash"]):
+                    sets["password_hash"] = hash_password(demo_password)
+                await db.users.update_one({"email": demo_email}, {"$set": sets})
 
     # Start background task-reminder scheduler
     if _reminder_task_ref.get("task") is None or _reminder_task_ref["task"].done():
