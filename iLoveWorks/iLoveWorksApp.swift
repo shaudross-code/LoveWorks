@@ -2,31 +2,38 @@
 //  iLoveWorksApp.swift
 //  iLoveWorks
 //
-//  Created by Wick Ross on 7/18/26.
-//
 
 import SwiftUI
-import SwiftData
 
 @main
 struct iLoveWorksApp: App {
-    var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
-        let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
-        do {
-            return try ModelContainer(for: schema, configurations: [modelConfiguration])
-        } catch {
-            fatalError("Could not create ModelContainer: \(error)")
-        }
-    }()
-
+    @StateObject private var sessionManager = SessionManager.shared
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            Group {
+                if sessionManager.isLoading {
+                    ZStack {
+                        Theme.background.ignoresSafeArea()
+                        ProgressView()
+                            .tint(Theme.lovePink)
+                    }
+                } else if let user = sessionManager.currentUser {
+                    if user.role == .admin {
+                        AdminDashboardView()
+                            .environmentObject(sessionManager)
+                            .accentColor(Theme.lovePink)
+                    } else {
+                        WorkerDashboardView()
+                            .environmentObject(sessionManager)
+                            .accentColor(Theme.lovePink)
+                    }
+                } else {
+                    LoginView()
+                        .environmentObject(sessionManager)
+                }
+            }
+            .preferredColorScheme(.dark)
         }
-        .modelContainer(sharedModelContainer)
     }
 }
