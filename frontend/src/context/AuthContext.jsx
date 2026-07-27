@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import api, { formatApiError } from "@/lib/api";
+import { syncNativePushToken } from "@/lib/nativePush";
 
 const AuthContext = createContext(null);
 
@@ -19,6 +20,10 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  useEffect(() => {
+    if (user && typeof user === "object") syncNativePushToken();
+  }, [user]);
 
   const login = async (email, password) => {
     try {

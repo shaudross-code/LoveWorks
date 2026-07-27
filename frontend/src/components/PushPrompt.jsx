@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { BellRing, BellOff, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { enablePush, disablePush, isPushSupported, pushPermission, registerServiceWorker } from "@/lib/push";
+import { isNative, initNativePush, nativePushPermission, disableNativePush } from "@/lib/nativePush";
 
 const DISMISS_KEY = "cw_push_dismissed_at";
 const DISMISS_DAYS = 7;
@@ -20,6 +21,13 @@ export default function PushPrompt() {
   const [supported, setSupported] = useState(false);
 
   useEffect(() => {
+    if (isNative()) {
+      setSupported(true);
+      nativePushPermission().then((p) =>
+        setPerm(p === "prompt" || p === "prompt-with-rationale" ? "default" : p)
+      );
+      return;
+    }
     setSupported(isPushSupported());
     setPerm(pushPermission());
     // Always register SW so push works as soon as user opts in
@@ -29,12 +37,17 @@ export default function PushPrompt() {
   const enable = useCallback(async () => {
     setBusy(true);
     try {
-      await enablePush();
+      if (isNative()) {
+        const res = await initNativePush();
+        if (res !== "granted") throw new Error("Notifications were blocked.");
+      } else {
+        await enablePush();
+      }
       setPerm("granted");
-      toast.success("🔔 Push notifications on — you'll get pings even when the tab is closed.");
+      toast.success("🔔 Push notifications on — you'll get pings even when the app is closed.");
     } catch (e) {
       toast.error(e.message || "Couldn't enable push notifications");
-      setPerm(pushPermission());
+      setPerm(isNative() ? "denied" : pushPermission());
     } finally {
       setBusy(false);
     }
@@ -99,17 +112,29 @@ export default function PushPrompt() {
 export function PushSettings() {
   const [perm, setPerm] = useState("default");
   const [busy, setBusy] = useState(false);
-  useEffect(() => { setPerm(pushPermission()); }, []);
+  useEffect(() => {
+    if (isNative()) {
+      nativePushPermission().then((p) => setPerm(p === "granted" ? "granted" : "default"));
+    } else {
+      setPerm(pushPermission());
+    }
+  }, []);
 
   const toggle = async () => {
     setBusy(true);
     try {
       if (perm === "granted") {
-        await disablePush();
+        if (isNative()) await disableNativePush();
+        else await disablePush();
         toast.success("Push notifications disabled.");
         setPerm("default");
       } else {
-        await enablePush();
+        if (isNative()) {
+          const res = await initNativePush();
+          if (res !== "granted") throw new Error("Notifications were blocked in system settings.");
+        } else {
+          await enablePush();
+        }
         setPerm("granted");
         toast.success("Push notifications enabled.");
       }
@@ -118,7 +143,7 @@ export function PushSettings() {
     } finally { setBusy(false); }
   };
 
-  if (!isPushSupported()) {
+  if (!isNative() && !isPushSupported()) {
     return (
       <div className="text-sm text-zinc-500 inline-flex items-center gap-2">
         <BellOff className="w-4 h-4" /> Push notifications aren&apos;t supported on this browser.

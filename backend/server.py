@@ -54,6 +54,19 @@ VAPID_PUBLIC_KEY = os.environ.get("VAPID_PUBLIC_KEY", "")
 VAPID_PRIVATE_KEY = (os.environ.get("VAPID_PRIVATE_KEY", "") or "").replace("\\n", "\n")
 VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:admin@clockwork.com")
 
+# Native push (Firebase Cloud Messaging for Capacitor iOS/Android)
+FIREBASE_CREDENTIALS_PATH = os.environ.get("FIREBASE_CREDENTIALS_PATH", "")
+FCM_READY = False
+fb_messaging = None
+try:
+    import firebase_admin
+    from firebase_admin import credentials as fb_credentials, messaging as fb_messaging
+    if FIREBASE_CREDENTIALS_PATH and Path(FIREBASE_CREDENTIALS_PATH).exists():
+        firebase_admin.initialize_app(fb_credentials.Certificate(FIREBASE_CREDENTIALS_PATH))
+        FCM_READY = True
+except Exception:  # pragma: no cover
+    fb_messaging = None
+
 # Task due-soon reminder window
 REMINDER_LEAD_MINUTES = 30  # notify worker 30 min before due_time
 REMINDER_LOOP_SECONDS = 60  # scheduler tick
@@ -373,6 +386,11 @@ async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Opt
         await send_web_push(user_id, title, body or "", link=link, meta=doc.get("meta") or {})
     except Exception as e:
         logger.warning(f"web push failed for {user_id}: {e}")
+    # Fire-and-forget native push (Capacitor iOS/Android via FCM)
+    try:
+        await send_native_push(user_id, title, body or "", link=link)
+    except Exception as e:
+        logger.warning(f"native push failed for {user_id}: {e}")
     return doc
 
 
@@ -406,6 +424,32 @@ async def send_web_push(user_id: str, title: str, body: str, link: Optional[str]
         await db.push_subscriptions.update_many(
             {"endpoint": {"$in": dead}}, {"$set": {"is_active": False}}
         )
+
+
+async def send_native_push(user_id: str, title: str, body: str, link: Optional[str] = None) -> None:
+    """Send an FCM push to every active native device token for this user."""
+    if not FCM_READY:
+        return
+    docs = await db.device_tokens.find({"user_id": user_id, "is_active": True}, {"_id": 0}).to_list(20)
+    if not docs:
+        return
+    dead: list = []
+    for d in docs:
+        msg = fb_messaging.Message(
+            token=d["token"],
+            notification=fb_messaging.Notification(title=title, body=body),
+            data={"link": link or "/"},
+            android=fb_messaging.AndroidConfig(priority="high"),
+            apns=fb_messaging.APNSConfig(payload=fb_messaging.APNSPayload(aps=fb_messaging.Aps(sound="default"))),
+        )
+        try:
+            await asyncio.to_thread(fb_messaging.send, msg)
+        except fb_messaging.UnregisteredError:
+            dead.append(d["token"])
+        except Exception as e:
+            logger.warning(f"fcm send failed: {e}")
+    if dead:
+        await db.device_tokens.update_many({"token": {"$in": dead}}, {"$set": {"is_active": False}})
 
 
 async def grant_award(user_id: str, code: str) -> Optional[dict]:
@@ -643,6 +687,7 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
     await db.notifications.delete_many({"user_id": uid})
     await db.awards.delete_many({"user_id": uid})
     await db.push_subscriptions.delete_many({"user_id": uid})
+    await db.device_tokens.delete_many({"user_id": uid})
     await db.peer_access.delete_many({"$or": [{"requester_id": uid}, {"target_id": uid}]})
     await db.files.update_many({"user_id": uid}, {"$set": {"is_deleted": True}})
     await db.users.delete_one({"id": uid})
@@ -2633,6 +2678,34 @@ async def push_unsubscribe(req: PushSubscribeRequest, user: dict = Depends(get_c
     return {"ok": True}
 
 
+class DeviceTokenRequest(BaseModel):
+    token: str
+    platform: str = "android"  # "ios" | "android"
+
+
+@api_router.post("/push/register-device")
+async def push_register_device(req: DeviceTokenRequest, user: dict = Depends(get_current_user)):
+    """Register/refresh a native (Capacitor) FCM device token for the current user."""
+    now = now_utc().isoformat()
+    await db.device_tokens.update_one(
+        {"token": req.token},
+        {
+            "$set": {"user_id": user["id"], "platform": req.platform, "is_active": True, "updated_at": now},
+            "$setOnInsert": {"id": str(uuid.uuid4()), "created_at": now},
+        },
+        upsert=True,
+    )
+    return {"ok": True, "fcm_ready": FCM_READY}
+
+
+@api_router.post("/push/unregister-device")
+async def push_unregister_device(req: DeviceTokenRequest, user: dict = Depends(get_current_user)):
+    await db.device_tokens.update_one(
+        {"token": req.token, "user_id": user["id"]}, {"$set": {"is_active": False}}
+    )
+    return {"ok": True}
+
+
 @api_router.post("/push/test")
 async def push_test(user: dict = Depends(get_current_user)):
     """Lets a user verify their push setup by sending themselves a test notification."""
@@ -2813,6 +2886,8 @@ async def startup():
     await db.announcements.create_index("created_at")
     await db.push_subscriptions.create_index("endpoint", unique=True)
     await db.push_subscriptions.create_index([("user_id", 1), ("is_active", 1)])
+    await db.device_tokens.create_index("token", unique=True)
+    await db.device_tokens.create_index([("user_id", 1), ("is_active", 1)])
     await db.essentials.create_index("owner_id")
     await db.peer_access.create_index([("requester_id", 1), ("target_id", 1)], unique=True)
     await db.peer_access.create_index([("target_id", 1), ("status", 1)])
