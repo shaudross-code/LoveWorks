@@ -80,6 +80,7 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 - **Edit worker** (`PATCH /api/workers/{id}`: name/email/password, dup-email 400, sandbox-scoped) + pencil-icon dialog on Admin Workers page. Tested via curl + UI.
 - **Edit announcements** (`PATCH /api/announcements/{id}`, sets `edited_at`; no re-notification) + pencil-icon reusing compose dialog, "· edited" label. Tested via curl + UI.
 - **STANDING RULE**: after every feature update/change, post an in-app announcement (POST /api/announcements as admin) describing what's new — user requested this workflow. Preview and production DBs are separate: post to production only AFTER user redeploys (prod admin creds same as preview).
+- **Header overlap fix (Jul 2026, tested iteration_8: frontend 100%)**: AdminLayout mobile spacer was a flex-row sibling of <main> (zero width) so the fixed top bar + pills covered page H1s on mobile; spacer moved inside <main> with height calc(104px + var(--safe-top)). iOS notch safe-area added: `--safe-top: env(safe-area-inset-top)` in index.css, `viewport-fit=cover` in index.html, safe-area offsets on AdminLayout fixed bars + WorkerLayout sticky header. Web rebuilt + `cap sync` done.
 
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)

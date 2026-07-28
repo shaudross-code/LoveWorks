@@ -73,7 +73,8 @@ export default function AdminLayout({ children }) {
       </aside>
 
       {/* Mobile top bar */}
-      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/10 px-4 h-14 flex items-center justify-between">
+      <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/10 px-4 flex items-center justify-between"
+        style={{ paddingTop: "var(--safe-top)", height: "calc(3.5rem + var(--safe-top))" }}>
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 fill-white" /></div>
           <div className="font-display font-bold text-sm brand-gold">iLoveWorks</div>
@@ -87,7 +88,8 @@ export default function AdminLayout({ children }) {
       </div>
 
       {/* Mobile sticky nav pills — right under the top bar */}
-      <div className="md:hidden fixed top-14 inset-x-0 z-30 bg-black/85 backdrop-blur-xl border-b border-yellow-400/5 px-4 py-2">
+      <div className="md:hidden fixed inset-x-0 z-30 bg-black/85 backdrop-blur-xl border-b border-yellow-400/5 px-4 py-2"
+        style={{ top: "calc(3.5rem + var(--safe-top))" }}>
         <div className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
           {items.map(({ to, label, icon: Icon, testid }) => (
             <NavLink key={to} to={to} end={to === "/admin"} data-testid={`m-${testid}`}
@@ -103,10 +105,9 @@ export default function AdminLayout({ children }) {
         </div>
       </div>
 
-      {/* Spacer that pushes content below fixed top-bar (h-14) + sticky pills (h-12) */}
-      <div className="md:hidden h-[104px]" />
-
       <main className="flex-1 min-w-0">
+        {/* Spacer that pushes content below fixed top-bar (h-14) + nav pills + iOS safe area */}
+        <div className="md:hidden" style={{ height: "calc(104px + var(--safe-top))" }} />
         <div className="mx-auto max-w-6xl px-4 sm:px-8 md:px-10 py-6 sm:py-8 md:py-12">
           {children}
         </div>

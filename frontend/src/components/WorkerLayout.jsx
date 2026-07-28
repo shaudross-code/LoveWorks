@@ -20,7 +20,7 @@ export default function WorkerLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white">
-      <header className="sticky top-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/15">
+      <header className="sticky top-0 z-40 bg-black/85 backdrop-blur-xl border-b border-yellow-400/15" style={{ paddingTop: "var(--safe-top)" }}>
         <div className="mx-auto max-w-5xl px-4 sm:px-8 py-3 flex items-center gap-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 sm:w-5 sm:h-5 fill-white" /></div>
