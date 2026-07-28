@@ -2899,6 +2899,16 @@ async def startup():
         logger.error(f"Storage init failed: {e}")
     # seed admin
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com").lower()
+
+    # migrate legacy @clockwork.com emails -> @loveworks.com (data is keyed by user id, so it all carries over)
+    async for legacy in db.users.find({"email": {"$regex": "@clockwork\\.com$", "$options": "i"}}):
+        new_email = legacy["email"].lower().rsplit("@", 1)[0] + "@loveworks.com"
+        if await db.users.find_one({"email": new_email}):
+            logger.warning(f"Email migration skipped, {new_email} already exists")
+            continue
+        await db.users.update_one({"id": legacy["id"]}, {"$set": {"email": new_email}})
+        logger.info(f"Migrated user email {legacy['email']} -> {new_email}")
+
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
     existing = await db.users.find_one({"email": admin_email})
     if not existing:

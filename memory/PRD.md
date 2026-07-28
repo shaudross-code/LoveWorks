@@ -75,6 +75,8 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
   - Regression test: `/app/backend/tests/test_sandbox_isolation.py`.
 
 ## Prioritized backlog
+**Recent**: Legacy email migration (Jul 2026) — startup migration renames `*@clockwork.com` emails → `*@loveworks.com` (idempotent, same user id so all data carries). Verified in preview; production applies on next redeploy.
+
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
 - Admin uploads avatar for worker during account creation
