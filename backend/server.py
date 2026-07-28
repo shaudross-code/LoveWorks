@@ -1532,6 +1532,37 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
     return {"ok": True}
 
 
+class UpdateWorkerRequest(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    password: Optional[str] = None
+
+
+@api_router.patch("/workers/{worker_id}")
+async def update_worker(worker_id: str, req: UpdateWorkerRequest, admin: dict = Depends(require_admin)):
+    worker = await db.users.find_one({"id": worker_id, "role": "worker", **_sb(admin)}, {"_id": 0})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    update: dict = {}
+    if req.name is not None and req.name.strip():
+        update["name"] = req.name.strip()
+    if req.email is not None:
+        email = req.email.lower().strip()
+        if email != worker["email"]:
+            if await db.users.find_one({"email": email}):
+                raise HTTPException(status_code=400, detail="Email already in use")
+            update["email"] = email
+    if req.password is not None and req.password.strip():
+        if len(req.password.strip()) < 6:
+            raise HTTPException(status_code=400, detail="Password must be at least 6 characters")
+        update["password_hash"] = hash_password(req.password.strip())
+    if not update:
+        return serialize_user(worker)
+    await db.users.update_one({"id": worker_id}, {"$set": update})
+    worker.update(update)
+    return serialize_user(worker)
+
+
 # --- Tasks ---
 VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting", "self_care"}
 VALID_FREQUENCIES = {"once", "daily", "weekly", "monthly"}
@@ -2394,6 +2425,25 @@ async def list_announcements(user: dict = Depends(get_current_user)):
     return items
 
 
+@api_router.patch("/announcements/{aid}")
+async def update_announcement(aid: str, req: AnnouncementCreate, admin: dict = Depends(require_admin)):
+    existing = await db.announcements.find_one({"id": aid, **_sb(admin)}, {"_id": 0})
+    if not existing:
+        raise HTTPException(status_code=404, detail="Announcement not found")
+    tag = (req.tag or existing.get("tag") or "update").lower().strip()
+    if tag not in {"update", "feature", "maintenance", "announcement"}:
+        tag = "update"
+    update = {
+        "title": req.title.strip(),
+        "body": req.body.strip(),
+        "tag": tag,
+        "edited_at": now_utc().isoformat(),
+    }
+    await db.announcements.update_one({"id": aid}, {"$set": update})
+    existing.update(update)
+    return existing
+
+
 @api_router.delete("/announcements/{aid}")
 async def delete_announcement(aid: str, admin: dict = Depends(require_admin)):
     res = await db.announcements.delete_one({"id": aid, **_sb(admin)})
@@ -2899,6 +2949,16 @@ async def startup():
         logger.error(f"Storage init failed: {e}")
     # seed admin
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@example.com").lower()
+
+    # migrate legacy @clockwork.com emails -> @loveworks.com (data is keyed by user id, so it all carries over)
+    async for legacy in db.users.find({"email": {"$regex": "@clockwork\\.com$", "$options": "i"}}):
+        new_email = legacy["email"].lower().rsplit("@", 1)[0] + "@loveworks.com"
+        if await db.users.find_one({"email": new_email}):
+            logger.warning(f"Email migration skipped, {new_email} already exists")
+            continue
+        await db.users.update_one({"id": legacy["id"]}, {"$set": {"email": new_email}})
+        logger.info(f"Migrated user email {legacy['email']} -> {new_email}")
+
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
     existing = await db.users.find_one({"email": admin_email})
     if not existing:

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Megaphone, Sparkles, Wrench, Bell, Plus, Trash2, Loader2 } from "lucide-react";
+import { Megaphone, Sparkles, Wrench, Bell, Plus, Trash2, Loader2, Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 const TAGS = [
@@ -22,6 +22,7 @@ export default function Announcements() {
   const isAdmin = user?.role === "admin";
   const [items, setItems] = useState([]);
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState(null); // announcement being edited
   const [form, setForm] = useState({ title: "", body: "", tag: "feature" });
   const [busy, setBusy] = useState(false);
 
@@ -36,13 +37,31 @@ export default function Announcements() {
     if (!form.title.trim() || !form.body.trim()) { toast.error("Title and body are required"); return; }
     setBusy(true);
     try {
-      await api.post("/announcements", form);
-      toast.success("Announcement posted — workers notified");
+      if (editing) {
+        await api.patch(`/announcements/${editing.id}`, form);
+        toast.success("Announcement updated");
+      } else {
+        await api.post("/announcements", form);
+        toast.success("Announcement posted — workers notified");
+      }
       setForm({ title: "", body: "", tag: "feature" });
+      setEditing(null);
       setOpen(false);
       load();
     } catch (e) { toast.error(formatApiError(e)); }
     finally { setBusy(false); }
+  };
+
+  const openCreate = () => {
+    setEditing(null);
+    setForm({ title: "", body: "", tag: "feature" });
+    setOpen(true);
+  };
+
+  const openEdit = (a) => {
+    setEditing(a);
+    setForm({ title: a.title, body: a.body, tag: a.tag || "update" });
+    setOpen(true);
   };
 
   const remove = async (a) => {
@@ -60,7 +79,7 @@ export default function Announcements() {
           <p className="mt-2 text-zinc-400">{isAdmin ? "Post an update — every worker gets a notification." : "Updates, new features, and heads-ups from your admin."}</p>
         </div>
         {isAdmin && (
-          <Button data-testid="open-create-announcement" onClick={() => setOpen(true)}
+          <Button data-testid="open-create-announcement" onClick={openCreate}
             className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-full h-11 px-5">
             <Plus className="w-4 h-4 mr-2" /> New post
           </Button>
@@ -89,14 +108,23 @@ export default function Announcements() {
                     <div className="font-display text-xl font-semibold">{a.title}</div>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] uppercase tracking-widest ${tag.cls}`}>{tag.label}</span>
                   </div>
-                  <div className="text-xs text-zinc-500 mt-1">{new Date(a.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}</div>
+                  <div className="text-xs text-zinc-500 mt-1">
+                    {new Date(a.created_at).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}
+                    {a.edited_at && <span className="text-zinc-600"> · edited</span>}
+                  </div>
                   <div className="mt-3 text-zinc-200 whitespace-pre-wrap break-words leading-relaxed">{a.body}</div>
                 </div>
                 {isAdmin && (
-                  <button data-testid={`delete-announcement-${a.id}`} onClick={() => remove(a)}
-                    className="text-zinc-500 hover:text-red-400 transition">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button data-testid={`edit-announcement-${a.id}`} onClick={() => openEdit(a)}
+                      className="text-zinc-500 hover:text-yellow-300 transition" aria-label="Edit announcement">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button data-testid={`delete-announcement-${a.id}`} onClick={() => remove(a)}
+                      className="text-zinc-500 hover:text-red-400 transition" aria-label="Delete announcement">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
@@ -105,9 +133,9 @@ export default function Announcements() {
       </div>
 
       {isAdmin && (
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
           <DialogContent className="bg-[#121214] border-yellow-400/20 text-white rounded-2xl" aria-describedby={undefined}>
-            <DialogHeader><DialogTitle className="font-display text-2xl">New announcement</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle className="font-display text-2xl">{editing ? "Edit announcement" : "New announcement"}</DialogTitle></DialogHeader>
             <form onSubmit={submit} className="space-y-4">
               <div>
                 <label className="text-xs uppercase tracking-widest text-zinc-500">Type</label>
