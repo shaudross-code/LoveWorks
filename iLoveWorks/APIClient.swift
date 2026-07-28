@@ -66,7 +66,7 @@ class APIClient {
     }
     
     private func getToken() -> String? {
-        if let tokenData = KeychainService.shared.read(service: "com.clockwork.auth", account: "access_token") {
+        if let tokenData = KeychainService.shared.read(service: "TUE.iLoveWorks", account: "access_token") {
             return String(data: tokenData, encoding: .utf8)
         }
         return nil

@@ -37,7 +37,7 @@ class SessionManager: ObservableObject {
     
     func checkSession() {
         Task {
-            if let _ = KeychainService.shared.read(service: "com.clockwork.auth", account: "access_token") {
+            if let _ = KeychainService.shared.read(service: "TUE.iLoveWorks", account: "access_token") {
                 do {
                     let user: User = try await APIClient.shared.request("/auth/me")
                     await MainActor.run {
@@ -64,7 +64,7 @@ class SessionManager: ObservableObject {
         
         // Save token
         if let tokenData = response.accessToken.data(using: .utf8) {
-            _ = KeychainService.shared.save(tokenData, service: "com.clockwork.auth", account: "access_token")
+            _ = KeychainService.shared.save(tokenData, service: "TUE.iLoveWorks", account: "access_token")
         }
         
         await MainActor.run {
@@ -73,7 +73,7 @@ class SessionManager: ObservableObject {
     }
     
     func logout() {
-        _ = KeychainService.shared.delete(service: "com.clockwork.auth", account: "access_token")
+        _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
         currentUser = nil
     }
 }
