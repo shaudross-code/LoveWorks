@@ -4,7 +4,7 @@ import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList } from "lucide-react";
+import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { activityOf } from "@/lib/activities";
 import WeeklyStrip from "@/components/WeeklyStrip";
@@ -39,6 +39,9 @@ export default function AdminWorkers() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [busy, setBusy] = useState(false);
+  const [edit, setEdit] = useState(null); // worker being edited
+  const [editForm, setEditForm] = useState({ name: "", email: "", password: "" });
+  const [editBusy, setEditBusy] = useState(false);
   const [now, setNow] = useState(Date.now());
 
   const load = useCallback(async () => {
@@ -75,6 +78,25 @@ export default function AdminWorkers() {
       toast.success("Worker removed");
       load();
     } catch (e) { toast.error(formatApiError(e)); }
+  };
+
+  const openEdit = (w) => {
+    setEdit(w);
+    setEditForm({ name: w.name || "", email: w.email || "", password: "" });
+  };
+
+  const saveEdit = async (e) => {
+    e.preventDefault();
+    setEditBusy(true);
+    try {
+      const payload = { name: editForm.name, email: editForm.email };
+      if (editForm.password.trim()) payload.password = editForm.password.trim();
+      await api.patch(`/workers/${edit.id}`, payload);
+      toast.success("Worker updated", { description: `They now sign in with ${editForm.email}.` });
+      setEdit(null);
+      load();
+    } catch (e) { toast.error(formatApiError(e)); }
+    finally { setEditBusy(false); }
   };
 
   const onlineCount = statuses.filter(s => s.online).length;
@@ -185,9 +207,14 @@ export default function AdminWorkers() {
                     <div className="mt-2 text-[11px] text-zinc-500 uppercase tracking-widest">Off the clock</div>
                   )}
                 </div>
-                <button data-testid={`delete-worker-${w.id}`} onClick={() => remove(w)} className="text-zinc-500 hover:text-red-400 transition" aria-label="Remove worker">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button data-testid={`edit-worker-${w.id}`} onClick={() => openEdit(w)} className="text-zinc-500 hover:text-yellow-300 transition" aria-label="Edit worker">
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button data-testid={`delete-worker-${w.id}`} onClick={() => remove(w)} className="text-zinc-500 hover:text-red-400 transition" aria-label="Remove worker">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -269,6 +296,38 @@ export default function AdminWorkers() {
           );
         })}
       </div>
+
+      {/* Edit worker dialog */}
+      <Dialog open={!!edit} onOpenChange={(o) => { if (!o) setEdit(null); }}>
+        <DialogContent className="bg-[#121214] border-yellow-400/20 text-white rounded-2xl" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">Edit worker</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={saveEdit} className="space-y-4">
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">Full name</label>
+              <Input data-testid="edit-worker-name" required value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">Email</label>
+              <Input data-testid="edit-worker-email" required type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+              <div className="text-xs text-zinc-500 mt-1">All their hours, tasks and earnings stay with the account — only the sign-in address changes.</div>
+            </div>
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">New password (optional)</label>
+              <Input data-testid="edit-worker-password" minLength={6} type="text" placeholder="Leave blank to keep current" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })}
+                className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11" />
+            </div>
+            <DialogFooter>
+              <Button data-testid="submit-edit-worker" type="submit" disabled={editBusy} className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
+                {editBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Save changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -75,7 +75,11 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
   - Regression test: `/app/backend/tests/test_sandbox_isolation.py`.
 
 ## Prioritized backlog
-**Recent**: Legacy email migration (Jul 2026) — startup migration renames `*@clockwork.com` emails → `*@loveworks.com` (idempotent, same user id so all data carries). Verified in preview; production applies on next redeploy.
+**Recent (Jul 2026)**:
+- Legacy email migration — startup migration renames `*@clockwork.com` emails → `*@loveworks.com` (idempotent, same user id so all data carries). Verified in preview; production applies on next redeploy.
+- **Edit worker** (`PATCH /api/workers/{id}`: name/email/password, dup-email 400, sandbox-scoped) + pencil-icon dialog on Admin Workers page. Tested via curl + UI.
+- **Edit announcements** (`PATCH /api/announcements/{id}`, sets `edited_at`; no re-notification) + pencil-icon reusing compose dialog, "· edited" label. Tested via curl + UI.
+- **STANDING RULE**: after every feature update/change, post an in-app announcement (POST /api/announcements as admin) describing what's new — user requested this workflow. Preview and production DBs are separate: post to production only AFTER user redeploys (prod admin creds same as preview).
 
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
