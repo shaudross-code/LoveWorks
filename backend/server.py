@@ -56,13 +56,19 @@ VAPID_SUBJECT = os.environ.get("VAPID_SUBJECT", "mailto:admin@clockwork.com")
 
 # Native push (Firebase Cloud Messaging for Capacitor iOS/Android)
 FIREBASE_CREDENTIALS_PATH = os.environ.get("FIREBASE_CREDENTIALS_PATH", "")
+FIREBASE_SERVICE_ACCOUNT_JSON = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "")
 FCM_READY = False
 fb_messaging = None
 try:
     import firebase_admin
     from firebase_admin import credentials as fb_credentials, messaging as fb_messaging
-    if FIREBASE_CREDENTIALS_PATH and Path(FIREBASE_CREDENTIALS_PATH).exists():
-        firebase_admin.initialize_app(fb_credentials.Certificate(FIREBASE_CREDENTIALS_PATH))
+    _fb_cred = None
+    if FIREBASE_SERVICE_ACCOUNT_JSON.strip():
+        _fb_cred = fb_credentials.Certificate(_json.loads(FIREBASE_SERVICE_ACCOUNT_JSON))
+    elif FIREBASE_CREDENTIALS_PATH and Path(FIREBASE_CREDENTIALS_PATH).exists():
+        _fb_cred = fb_credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
+    if _fb_cred:
+        firebase_admin.initialize_app(_fb_cred)
         FCM_READY = True
 except Exception:  # pragma: no cover
     fb_messaging = None
