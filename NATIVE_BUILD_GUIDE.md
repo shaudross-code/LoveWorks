@@ -7,11 +7,17 @@ If that bundle is stale, Xcode / Android Studio will show an old look even thoug
 Those bundle folders are now **committed to the repo** (un-ignored in `ios/.gitignore` and `android/.gitignore`),
 so every "Save to GitHub" carries the exact bundle that matches the web app.
 
+## Important: open the Capacitor Xcode workspace
+
+Open `frontend/ios/App/App.xcworkspace` in Xcode and build the `App` scheme to get the same app
+as the web version. Do not open the repository-root `iLoveWorks.xcodeproj` for this: it is a
+separate SwiftUI app, not the Capacitor web app, and its UI and build settings are different.
+
 ## To ship the current look to the stores
 1. In Emergent: **Save to GitHub** (bundle + config are included automatically).
 2. On your Mac: `git pull`, then open `frontend/ios/App/App.xcworkspace` in Xcode.
 3. Xcode → **Product → Clean Build Folder** (⇧⌘K), then **Run** / **Archive**.
-   - Optional (only if you have Node installed): `cd frontend && yarn install && npx cap sync ios` – not required.
+   - After web app changes, run `cd frontend && yarn install && yarn build && npx cap sync ios` before building in Xcode.
    - If CocoaPods complains: `cd frontend/ios/App && pod install`.
 4. Android Studio: open `frontend/android`, **Build → Clean Project**, then Run / Generate Signed Bundle.
 
