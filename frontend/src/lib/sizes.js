@@ -10,13 +10,14 @@ const LETTER6 = ["XS", "S", "M", "L", "XL", "XXL"];
 const SML = ["S", "M", "L", "XL"];
 const BANDS = ["28", "30", "32", "34", "36", "38", "40", "42", "44", "46"];
 const CUPS = ["AA", "A", "B", "C", "D", "DD", "DDD", "F", "G", "H"];
+const DRESS = ["00", "0", "2", "4", "6", "8", "10", "12", "14", "16", "18", "20"];
 
 const L = (k, label) => ({ k, label, type: "length" });
 const C = (k, label, options, fits) => ({ k, label, type: "chips", options, fits });
 
 export const SECTIONS = [
   { key: "body", title: "Body", blurb: "Measured snug, not tight.", fields: [
-    L("height", "Height"), { k: "weight", label: "Weight", type: "weight" }, L("neck", "Neck"),
+    { k: "height", label: "Height", type: "height" }, { k: "weight", label: "Weight", type: "weight" }, L("neck", "Neck"),
     L("shoulder", "Shoulder width"), L("chest", "Chest / bust"), L("waist", "Waist"), L("hips", "Hips"),
     L("sleeve", "Sleeve length"), L("inseam", "Inseam"), L("head", "Head circumference"), L("hand", "Hand circumference"),
   ] },
@@ -24,6 +25,18 @@ export const SECTIONS = [
     { k: "shoe_us", label: "Shoe size", type: "shoe" },
     C("shoe_width", "Width", ["Narrow", "Regular", "Wide", "Extra wide"]),
     { k: "boot_notes", label: "Boot preferences", type: "text", placeholder: "Steel toe, high-top, slip-resistant…" },
+  ] },
+  { key: "casual", title: "Casual fits", blurb: "Everyday clothes off the clock.", fields: [
+    C("casual_top", "Casual top / tee", LETTER), C("hoodie", "Hoodie / sweater", LETTER),
+    L("jeans_waist", "Jeans waist"), L("jeans_inseam", "Jeans inseam"), C("shorts", "Shorts", LETTER),
+    C("dress", "Dress size", DRESS, ["womens"]),
+    C("casual_fit", "Preferred fit", ["Slim", "Regular", "Relaxed", "Oversized"]),
+  ] },
+  { key: "workout", title: "Workout fits", blurb: "Gym, training and team activewear.", fields: [
+    C("workout_top", "Workout top", LETTER), C("workout_shorts", "Workout shorts", LETTER),
+    C("joggers", "Joggers / sweatpants", LETTER), C("workout_leggings", "Leggings / tights", LETTER6),
+    C("compression", "Compression / base layer", LETTER6),
+    C("workout_fit", "Preferred fit", ["Fitted", "Regular", "Loose"]),
   ] },
   { key: "workwear", title: "Workwear", blurb: "Shirts, jackets, pants and gear.", fields: [
     C("top", "Top / T-shirt", LETTER), C("jacket", "Jacket / outerwear", LETTER),
@@ -59,17 +72,44 @@ export const fmtNum = (n, d = 1) => (Number.isFinite(n) ? String(+n.toFixed(d)) 
 export const lengthUnit = (units) => (units === "metric" ? "cm" : "in");
 export const weightUnit = (units) => (units === "metric" ? "kg" : "lb");
 
-// canonical cm/kg <-> display units
+// canonical cm/kg <-> display units ("height" behaves like a length)
 const toDisplay = (type, cm, units) => {
-  if (type === "length") return units === "metric" ? cm : cm / 2.54;
+  if (type === "length" || type === "height") return units === "metric" ? cm : cm / 2.54;
   if (type === "weight") return units === "metric" ? cm : cm * 2.20462;
   return cm;
 };
 const toCanonical = (type, v, units) => {
-  if (type === "length") return units === "metric" ? v : v * 2.54;
+  if (type === "length" || type === "height") return units === "metric" ? v : v * 2.54;
   if (type === "weight") return units === "metric" ? v : v / 2.20462;
   return v;
 };
+
+// Feet & inches helpers (imperial height)
+export function ftIn(totalIn) {
+  let ft = Math.floor(totalIn / 12);
+  let inch = Math.round((totalIn - ft * 12) * 2) / 2;
+  if (inch >= 12) { ft += 1; inch = 0; }
+  return { ft, inch };
+}
+const withHeightParts = (values, canon) => {
+  if (Number.isFinite(canon.height)) {
+    const { ft, inch } = ftIn(canon.height / 2.54);
+    return { ...values, height_ft: String(ft), height_in: fmtNum(inch) };
+  }
+  return { ...values, height_ft: "", height_in: "" };
+};
+export function setHeightImperial(form, ft, inch) {
+  const values = { ...form.values, height_ft: ft, height_in: inch };
+  const canon = { ...form.canon };
+  const f = parseFloat(ft), i = parseFloat(inch);
+  if (!Number.isFinite(f) && !Number.isFinite(i)) { delete canon.height; values.height = ""; }
+  else {
+    const total = (Number.isFinite(f) ? f : 0) * 12 + (Number.isFinite(i) ? i : 0);
+    canon.height = total * 2.54;
+    values.height = fmtNum(total);
+  }
+  return { ...form, values, canon };
+}
 
 // Shoe conversions (men's table for mens/unspecified, women's for womens)
 export const SHOE_SCALES = ["US", "EU", "UK"];
@@ -87,14 +127,15 @@ export function shoeToUS(v, scale, fit) {
 
 const ALL_FIELDS = SECTIONS.flatMap((s) => s.fields);
 const typeOf = (k) => ALL_FIELDS.find((f) => f.k === k)?.type || "text";
-const isNum = (t) => t === "length" || t === "weight" || t === "shoe";
+const isNum = (t) => t === "length" || t === "weight" || t === "shoe" || t === "height";
 const fieldFor = (k, fit) => ALL_FIELDS.find((f) => f.k === k && applicable(f, fit));
 const displayStr = (t, canonV, units, scale, fit) =>
   t === "shoe" ? fmtNum(shoeFromUS(canonV, fit)[scale]) : fmtNum(toDisplay(t, canonV, units));
 
 // Form state: `values` are display strings, `canon` holds exact canonical numbers (cm/kg/US) for numeric fields.
 export function toForm(doc, units) {
-  const values = {}, canon = {};
+  let values = {};
+  const canon = {};
   const fit = doc?.fit || null;
   const shoeScale = units === "metric" ? "EU" : "US";
   for (const [k, v] of Object.entries(doc?.values || {})) {
@@ -102,6 +143,7 @@ export function toForm(doc, units) {
     if (isNum(t)) { canon[k] = v; values[k] = displayStr(t, v, units, shoeScale, fit); }
     else values[k] = String(v);
   }
+  if (units !== "metric") values = withHeightParts(values, canon);
   return { fit, values, canon, shoeScale };
 }
 
@@ -128,11 +170,12 @@ export function fromForm(form) {
 
 export function convertForm(form, fromUnits, toUnits) {
   if (fromUnits === toUnits) return form;
-  const values = { ...form.values };
+  let values = { ...form.values };
   for (const [k, c] of Object.entries(form.canon || {})) {
     const t = typeOf(k);
-    if (t === "length" || t === "weight") values[k] = fmtNum(toDisplay(t, c, toUnits));
+    if (t === "length" || t === "weight" || t === "height") values[k] = fmtNum(toDisplay(t, c, toUnits));
   }
+  if (toUnits !== "metric") values = withHeightParts(values, form.canon || {});
   return { ...form, values };
 }
 

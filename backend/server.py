@@ -1574,11 +1574,15 @@ async def update_worker(worker_id: str, req: UpdateWorkerRequest, admin: dict = 
 # --- Sizes (body measurements, footwear, workwear, underclothes) ---
 # Canonical storage: lengths in cm, weight in kg, shoe in US size of the chosen fit's scale.
 SIZE_FIELDS = {
-    "height": ("Height", "length"), "weight": ("Weight", "weight"), "neck": ("Neck", "length"),
+    "height": ("Height", "height"), "weight": ("Weight", "weight"), "neck": ("Neck", "length"),
     "shoulder": ("Shoulder width", "length"), "chest": ("Chest / bust", "length"), "waist": ("Waist", "length"),
     "hips": ("Hips", "length"), "sleeve": ("Sleeve length", "length"), "inseam": ("Inseam", "length"),
     "head": ("Head circumference", "length"), "hand": ("Hand circumference", "length"),
     "shoe_us": ("Shoe size", "shoe"), "shoe_width": ("Shoe width", "text"), "boot_notes": ("Boot preferences", "text"),
+    "casual_top": ("Casual top / tee", "text"), "hoodie": ("Hoodie / sweater", "text"), "jeans_waist": ("Jeans waist", "length"),
+    "jeans_inseam": ("Jeans inseam", "length"), "shorts": ("Shorts", "text"), "dress": ("Dress size", "text"), "casual_fit": ("Casual fit", "text"),
+    "workout_top": ("Workout top", "text"), "workout_shorts": ("Workout shorts", "text"), "joggers": ("Joggers / sweatpants", "text"),
+    "workout_leggings": ("Leggings / tights", "text"), "compression": ("Compression / base layer", "text"), "workout_fit": ("Workout fit", "text"),
     "top": ("Top / T-shirt", "text"), "jacket": ("Jacket", "text"), "pants_waist": ("Pants waist", "length"),
     "pants_inseam": ("Pants inseam", "length"), "pants_letter": ("Pants size", "text"), "gloves": ("Gloves", "text"),
     "hat": ("Hat", "text"), "hivis": ("Hi-vis vest", "text"),
@@ -1609,7 +1613,7 @@ def _clean_size_values(values: dict) -> dict:
         v = values.get(key)
         if v is None or v == "":
             continue
-        if kind in ("length", "weight", "shoe"):
+        if kind in ("length", "weight", "shoe", "height"):
             if isinstance(v, bool):
                 raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} must be a number")
             try:
@@ -1639,6 +1643,15 @@ def _fmt_num(n: float) -> str:
 def _fmt_size(kind: str, v, units: str, fit: Optional[str]) -> str:
     if v is None:
         return "—"
+    if kind == "height":
+        if units != "imperial":
+            return f"{_fmt_num(v)} cm"
+        total = v / 2.54
+        ft = int(total // 12)
+        inch = round((total - ft * 12) * 2) / 2
+        if inch >= 12:
+            ft, inch = ft + 1, 0
+        return f"{ft}'{_fmt_num(inch)}\""
     if kind == "length":
         return f"{_fmt_num(v / 2.54)} in" if units == "imperial" else f"{_fmt_num(v)} cm"
     if kind == "weight":

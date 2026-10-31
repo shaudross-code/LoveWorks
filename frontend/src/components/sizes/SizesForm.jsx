@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { SECTIONS, FITS, sectionFields, completion, setNumeric, changeFit } from "@/lib/sizes";
-import { ChipRow, NumberField, TextField, ShoeField } from "./SizeFields";
+import { ChipRow, NumberField, TextField, ShoeField, HeightField } from "./SizeFields";
 
 export function UnitsToggle({ units, onChange }) {
   return (
@@ -40,6 +40,7 @@ function Field({ field, form, setForm, units, highlight }) {
   const value = form.values[field.k] ?? "";
   const on = highlight.includes(field.k);
   if (field.type === "chips") return <ChipRow field={field} value={value} onChange={set} highlight={on} />;
+  if (field.type === "height") return <HeightField field={field} form={form} setForm={setForm} units={units} highlight={on} />;
   if (field.type === "shoe") return <ShoeField field={field} form={form} setForm={setForm} units={units} highlight={on} />;
   if (field.type === "length" || field.type === "weight") {
     return <NumberField field={field} value={value} units={units} onChange={(raw) => setForm(setNumeric(form, field.k, raw, units))} highlight={on} />;

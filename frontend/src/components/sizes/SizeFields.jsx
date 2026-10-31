@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { lengthUnit, weightUnit, shoeFromUS, fmtNum, SHOE_SCALES, changeShoeScale, setNumeric } from "@/lib/sizes";
+import { lengthUnit, weightUnit, shoeFromUS, fmtNum, SHOE_SCALES, changeShoeScale, setNumeric, setHeightImperial } from "@/lib/sizes";
 
 const label = "text-xs uppercase tracking-widest text-zinc-500";
 const inputCls = "mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base";
@@ -52,6 +52,35 @@ export function TextField({ field, value, onChange, highlight }) {
             data-testid={`input-${field.k}`} className={`${cls} border rounded-xl px-3 text-sm placeholder:text-zinc-600 focus:outline-none focus:ring-1 focus:ring-yellow-400/40`} />
         : <Input value={value ?? ""} maxLength={60} onChange={(e) => onChange(e.target.value)} placeholder={field.placeholder}
             data-testid={`input-${field.k}`} className={cls} />}
+    </div>
+  );
+}
+
+export function HeightField({ field, form, setForm, units, highlight }) {
+  if (units === "metric") {
+    return <NumberField field={field} value={form.values.height ?? ""} units={units} highlight={highlight}
+      onChange={(raw) => setForm(setNumeric(form, "height", raw, units))} />;
+  }
+  const ft = form.values.height_ft ?? "", inch = form.values.height_in ?? "";
+  const box = "bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base pr-9";
+  return (
+    <div className={hl(highlight)} data-testid="size-field-height">
+      <label className={label}>{field.label}</label>
+      <div className="mt-2 flex gap-2">
+        <div className="relative flex-1">
+          <Input type="number" inputMode="numeric" step="1" min="0" max="8" value={ft} data-testid="input-height_ft" placeholder="—"
+            onChange={(e) => setForm(setHeightImperial(form, e.target.value, inch))} className={box} />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500">ft</span>
+        </div>
+        <div className="relative flex-1">
+          <Input type="number" inputMode="decimal" step="0.5" min="0" max="11.5" value={inch} data-testid="input-height_in" placeholder="—"
+            onChange={(e) => setForm(setHeightImperial(form, ft, e.target.value))} className={box} />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500">in</span>
+        </div>
+      </div>
+      {Number.isFinite(form.canon?.height) && (
+        <div className="mt-1.5 text-xs text-zinc-500" data-testid="height-equivalent">{fmtNum(form.canon.height)} cm</div>
+      )}
     </div>
   );
 }
