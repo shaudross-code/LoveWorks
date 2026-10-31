@@ -1610,6 +1610,8 @@ def _clean_size_values(values: dict) -> dict:
         if v is None or v == "":
             continue
         if kind in ("length", "weight", "shoe"):
+            if isinstance(v, bool):
+                raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} must be a number")
             try:
                 num = float(v)
             except (TypeError, ValueError):
@@ -1618,10 +1620,16 @@ def _clean_size_values(values: dict) -> dict:
                 raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} is out of range")
             out[key] = round(num, 2)
         else:
-            s = str(v).strip()
+            s = str(v).strip() if isinstance(v, (str, int, float)) else ""
             if s:
                 out[key] = s[:1000 if key in ("fit_notes", "boot_notes") else 60]
     return out
+
+
+def _size_changed(a, b) -> bool:
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return abs(a - b) > 0.005
+    return a != b
 
 
 def _fmt_num(n: float) -> str:
@@ -1647,7 +1655,7 @@ def _diff_sizes(old: dict, new: dict, old_fit, new_fit, units: str) -> list:
     if (old_fit or None) != (new_fit or None):
         changes.append({"key": "fit", "label": "Fit", "old": FIT_LABELS.get(old_fit, "—"), "new": FIT_LABELS.get(new_fit, "—")})
     for key, (label, kind) in SIZE_FIELDS.items():
-        if old.get(key) != new.get(key):
+        if _size_changed(old.get(key), new.get(key)):
             changes.append({"key": key, "label": label,
                             "old": _fmt_size(kind, old.get(key), units, old_fit), "new": _fmt_size(kind, new.get(key), units, new_fit)})
     return changes

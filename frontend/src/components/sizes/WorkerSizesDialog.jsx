@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 import api, { formatApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -10,6 +11,7 @@ import LastUpdated from "@/components/sizes/LastUpdated";
 import { toForm, fromForm, convertForm } from "@/lib/sizes";
 
 export default function WorkerSizesDialog({ worker, onClose }) {
+  const { user } = useAuth();
   const [doc, setDoc] = useState(null);
   const [units, setUnits] = useState("imperial");
   const [form, setForm] = useState(null);
@@ -30,7 +32,7 @@ export default function WorkerSizesDialog({ worker, onClose }) {
   const save = async () => {
     setBusy(true);
     try {
-      const { data } = await api.put(`/workers/${worker.id}/sizes`, { fit: form.fit, values: fromForm(form, units), notify });
+      const { data } = await api.put(`/workers/${worker.id}/sizes`, { fit: form.fit, values: fromForm(form), notify });
       const n = data.changes.length;
       if (!n) toast.message("No changes to save");
       else toast.success(`${n} size${n === 1 ? "" : "s"} updated`, { description: data.notified ? `${worker.name} has been notified.` : "Saved quietly — worker not notified." });
@@ -50,7 +52,7 @@ export default function WorkerSizesDialog({ worker, onClose }) {
             </span>
             <div className="ml-auto"><UnitsToggle units={units} onChange={switchUnits} /></div>
           </div>
-          {doc && <div className="mt-2"><LastUpdated doc={doc} selfId={worker?.id} /></div>}
+          {doc && <div className="mt-2"><LastUpdated doc={doc} selfId={user?.id} /></div>}
         </DialogHeader>
         <div className="px-5 pb-5">
           {!form ? (

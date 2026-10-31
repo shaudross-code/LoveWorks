@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { SECTIONS, FITS, sectionFields, completion } from "@/lib/sizes";
+import { SECTIONS, FITS, sectionFields, completion, setNumeric, changeFit } from "@/lib/sizes";
 import { ChipRow, NumberField, TextField, ShoeField } from "./SizeFields";
 
 export function UnitsToggle({ units, onChange }) {
@@ -16,9 +16,9 @@ export function UnitsToggle({ units, onChange }) {
   );
 }
 
-export function FitPicker({ fit, onChange }) {
+export function FitPicker({ fit, onChange, highlight }) {
   return (
-    <div data-testid="fit-picker">
+    <div data-testid="fit-picker" className={highlight ? "ring-2 ring-pink-400/70 rounded-xl p-2 -m-2 bg-pink-400/5 transition" : ""}>
       <div className="text-xs uppercase tracking-widest text-zinc-500">Fit</div>
       <div className="mt-2 flex flex-wrap gap-2">
         {FITS.map((f) => (
@@ -40,8 +40,10 @@ function Field({ field, form, setForm, units, highlight }) {
   const value = form.values[field.k] ?? "";
   const on = highlight.includes(field.k);
   if (field.type === "chips") return <ChipRow field={field} value={value} onChange={set} highlight={on} />;
-  if (field.type === "shoe") return <ShoeField field={field} form={form} setForm={setForm} highlight={on} />;
-  if (field.type === "length" || field.type === "weight") return <NumberField field={field} value={value} units={units} onChange={set} highlight={on} />;
+  if (field.type === "shoe") return <ShoeField field={field} form={form} setForm={setForm} units={units} highlight={on} />;
+  if (field.type === "length" || field.type === "weight") {
+    return <NumberField field={field} value={value} units={units} onChange={(raw) => setForm(setNumeric(form, field.k, raw, units))} highlight={on} />;
+  }
   return <TextField field={field} value={value} onChange={set} highlight={on} />;
 }
 
@@ -80,7 +82,7 @@ export default function SizesForm({ form, setForm, units, highlight = [] }) {
   return (
     <div className="space-y-4">
       <div className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-5">
-        <FitPicker fit={form.fit} onChange={(fit) => setForm({ ...form, fit })} />
+        <FitPicker fit={form.fit} onChange={(fit) => setForm(changeFit(form, fit))} highlight={highlight.includes("fit")} />
       </div>
       {SECTIONS.map((s, i) => (
         <Section key={s.key} section={s} form={form} setForm={setForm} units={units} highlight={highlight}

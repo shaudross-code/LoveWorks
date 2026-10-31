@@ -35,7 +35,7 @@ export default function MySizes() {
   const save = async () => {
     setBusy(true);
     try {
-      const { data } = await api.put("/sizes/me", { fit: form.fit, units, values: fromForm(form, units) });
+      const { data } = await api.put("/sizes/me", { fit: form.fit, units, values: fromForm(form) });
       apply(data.sizes);
       toast.success(data.changes.length ? "Sizes saved" : "Saved — nothing changed");
     } catch (e) { toast.error(formatApiError(e)); }

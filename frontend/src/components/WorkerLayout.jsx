@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
@@ -18,6 +19,11 @@ const items = [
 export default function WorkerLayout({ children }) {
   const { user, logout } = useAuth();
   const nav = useNavigate();
+  const { pathname } = useLocation();
+  const pillsRef = useRef(null);
+  useEffect(() => {
+    pillsRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white">
@@ -30,11 +36,11 @@ export default function WorkerLayout({ children }) {
               <div className="hidden sm:block text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Workspace</div>
             </div>
           </div>
-          <nav className="ml-6 hidden sm:flex items-center gap-1">
+          <nav className="ml-4 lg:ml-6 hidden sm:flex items-center gap-0.5 lg:gap-1">
             {items.map(({ to, label, icon: Icon, testid }) => (
               <NavLink key={to} to={to} end={to === "/worker"} data-testid={testid}
                 className={({ isActive }) =>
-                  `inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition ${
+                  `inline-flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-2 rounded-lg text-sm whitespace-nowrap transition ${
                     isActive ? "bg-pink-400/10 text-pink-300" : "text-zinc-400 hover:text-white hover:bg-white/5"
                   }`
                 }
@@ -60,7 +66,7 @@ export default function WorkerLayout({ children }) {
         </div>
         {/* Mobile nav row — horizontally scrollable */}
         <div className="sm:hidden border-t border-yellow-400/5 mx-auto max-w-5xl px-4 py-2">
-          <div className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
+          <div ref={pillsRef} className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
             {items.map(({ to, label, icon: Icon, testid }) => (
               <NavLink key={to} to={to} end={to === "/worker"} data-testid={`m-${testid}`}
                 className={({ isActive }) =>

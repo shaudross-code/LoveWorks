@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { lengthUnit, weightUnit, shoeFromUS, shoeToUS, fmtNum, SHOE_SCALES, changeShoeScale } from "@/lib/sizes";
+import { lengthUnit, weightUnit, shoeFromUS, fmtNum, SHOE_SCALES, changeShoeScale, setNumeric } from "@/lib/sizes";
 
 const label = "text-xs uppercase tracking-widest text-zinc-500";
 const inputCls = "mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base";
@@ -56,16 +56,15 @@ export function TextField({ field, value, onChange, highlight }) {
   );
 }
 
-export function ShoeField({ field, form, setForm, highlight }) {
+export function ShoeField({ field, form, setForm, units, highlight }) {
   const raw = form.values.shoe_us ?? "";
-  const n = parseFloat(raw);
-  const eq = Number.isFinite(n) ? shoeFromUS(shoeToUS(n, form.shoeScale, form.fit), form.fit) : null;
+  const eq = Number.isFinite(form.canon?.shoe_us) ? shoeFromUS(form.canon.shoe_us, form.fit) : null;
   return (
     <div className={hl(highlight)} data-testid="size-field-shoe_us">
       <label className={label}>{field.label}</label>
       <div className="mt-2 flex gap-2">
         <Input type="number" inputMode="decimal" step="0.5" min="0" value={raw} data-testid="input-shoe_us"
-          onChange={(e) => setForm({ ...form, values: { ...form.values, shoe_us: e.target.value } })}
+          onChange={(e) => setForm(setNumeric(form, "shoe_us", e.target.value, units))}
           className="bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base w-28" placeholder="—" />
         <div className="flex rounded-xl border border-zinc-800 bg-zinc-900 p-1 gap-1">
           {SHOE_SCALES.map((s) => (

@@ -87,30 +87,41 @@ export function shoeToUS(v, scale, fit) {
 
 const ALL_FIELDS = SECTIONS.flatMap((s) => s.fields);
 const typeOf = (k) => ALL_FIELDS.find((f) => f.k === k)?.type || "text";
+const isNum = (t) => t === "length" || t === "weight" || t === "shoe";
+const fieldFor = (k, fit) => ALL_FIELDS.find((f) => f.k === k && applicable(f, fit));
+const displayStr = (t, canonV, units, scale, fit) =>
+  t === "shoe" ? fmtNum(shoeFromUS(canonV, fit)[scale]) : fmtNum(toDisplay(t, canonV, units));
 
-// Form state keeps display strings; canonical values live on the server.
+// Form state: `values` are display strings, `canon` holds exact canonical numbers (cm/kg/US) for numeric fields.
 export function toForm(doc, units) {
-  const values = {};
+  const values = {}, canon = {};
   const fit = doc?.fit || null;
+  const shoeScale = units === "metric" ? "EU" : "US";
   for (const [k, v] of Object.entries(doc?.values || {})) {
     const t = typeOf(k);
-    if (t === "length" || t === "weight") values[k] = fmtNum(toDisplay(t, v, units));
-    else if (t === "shoe") values[k] = fmtNum(shoeFromUS(v, fit)[units === "metric" ? "EU" : "US"]);
+    if (isNum(t)) { canon[k] = v; values[k] = displayStr(t, v, units, shoeScale, fit); }
     else values[k] = String(v);
   }
-  return { fit, values, shoeScale: units === "metric" ? "EU" : "US" };
+  return { fit, values, canon, shoeScale };
 }
 
-export function fromForm(form, units) {
+export function setNumeric(form, k, raw, units) {
+  const t = typeOf(k);
+  const n = parseFloat(raw);
+  const canon = { ...form.canon };
+  if (Number.isFinite(n)) canon[k] = t === "shoe" ? shoeToUS(n, form.shoeScale, form.fit) : toCanonical(t, n, units);
+  else delete canon[k];
+  return { ...form, values: { ...form.values, [k]: raw }, canon };
+}
+
+export function fromForm(form) {
   const out = {};
   for (const [k, raw] of Object.entries(form.values || {})) {
     if (raw === "" || raw == null) continue;
-    const t = typeOf(k);
-    if (t === "length" || t === "weight" || t === "shoe") {
-      const n = parseFloat(raw);
-      if (!Number.isFinite(n)) continue;
-      out[k] = t === "shoe" ? shoeToUS(n, form.shoeScale, form.fit) : toCanonical(t, n, units);
-    } else out[k] = raw;
+    const f = fieldFor(k, form.fit);
+    if (!f) continue;
+    if (isNum(f.type)) { if (Number.isFinite(form.canon?.[k])) out[k] = form.canon[k]; }
+    else out[k] = raw;
   }
   return out;
 }
@@ -118,22 +129,24 @@ export function fromForm(form, units) {
 export function convertForm(form, fromUnits, toUnits) {
   if (fromUnits === toUnits) return form;
   const values = { ...form.values };
-  for (const [k, raw] of Object.entries(values)) {
+  for (const [k, c] of Object.entries(form.canon || {})) {
     const t = typeOf(k);
-    if ((t === "length" || t === "weight") && raw !== "") {
-      const n = parseFloat(raw);
-      if (Number.isFinite(n)) values[k] = fmtNum(toDisplay(t, toCanonical(t, n, fromUnits), toUnits));
-    }
+    if (t === "length" || t === "weight") values[k] = fmtNum(toDisplay(t, c, toUnits));
   }
   return { ...form, values };
 }
 
 export function changeShoeScale(form, scale) {
-  const raw = form.values.shoe_us;
-  const n = parseFloat(raw);
   const values = { ...form.values };
-  if (Number.isFinite(n)) values.shoe_us = fmtNum(shoeFromUS(shoeToUS(n, form.shoeScale, form.fit), form.fit)[scale]);
+  if (Number.isFinite(form.canon?.shoe_us)) values.shoe_us = fmtNum(shoeFromUS(form.canon.shoe_us, form.fit)[scale]);
   return { ...form, values, shoeScale: scale };
+}
+
+export function changeFit(form, fit) {
+  const canon = { ...form.canon };
+  const n = parseFloat(form.values.shoe_us);
+  if (Number.isFinite(n)) canon.shoe_us = shoeToUS(n, form.shoeScale, fit);
+  return { ...form, fit, canon };
 }
 
 export function completion(section, form) {
