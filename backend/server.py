@@ -694,6 +694,7 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
     await db.awards.delete_many({"user_id": uid})
     await db.push_subscriptions.delete_many({"user_id": uid})
     await db.device_tokens.delete_many({"user_id": uid})
+    await db.sizes.delete_many({"user_id": uid})
     await db.peer_access.delete_many({"$or": [{"requester_id": uid}, {"target_id": uid}]})
     await db.files.update_many({"user_id": uid}, {"$set": {"is_deleted": True}})
     await db.users.delete_one({"id": uid})
@@ -1535,6 +1536,7 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Worker not found")
     await db.tasks.delete_many({"assignee_id": worker_id})
     await db.time_entries.delete_many({"user_id": worker_id})
+    await db.sizes.delete_many({"user_id": worker_id})
     return {"ok": True}
 
 
@@ -1567,6 +1569,179 @@ async def update_worker(worker_id: str, req: UpdateWorkerRequest, admin: dict = 
     await db.users.update_one({"id": worker_id}, {"$set": update})
     worker.update(update)
     return serialize_user(worker)
+
+
+# --- Sizes (body measurements, footwear, workwear, underclothes) ---
+# Canonical storage: lengths in cm, weight in kg, shoe in US size of the chosen fit's scale.
+SIZE_FIELDS = {
+    "height": ("Height", "length"), "weight": ("Weight", "weight"), "neck": ("Neck", "length"),
+    "shoulder": ("Shoulder width", "length"), "chest": ("Chest / bust", "length"), "waist": ("Waist", "length"),
+    "hips": ("Hips", "length"), "sleeve": ("Sleeve length", "length"), "inseam": ("Inseam", "length"),
+    "head": ("Head circumference", "length"), "hand": ("Hand circumference", "length"),
+    "shoe_us": ("Shoe size", "shoe"), "shoe_width": ("Shoe width", "text"), "boot_notes": ("Boot preferences", "text"),
+    "top": ("Top / T-shirt", "text"), "jacket": ("Jacket", "text"), "pants_waist": ("Pants waist", "length"),
+    "pants_inseam": ("Pants inseam", "length"), "pants_letter": ("Pants size", "text"), "gloves": ("Gloves", "text"),
+    "hat": ("Hat", "text"), "hivis": ("Hi-vis vest", "text"),
+    "underwear_style": ("Underwear style", "text"), "underwear_size": ("Underwear size", "text"),
+    "undershirt": ("Undershirt", "text"), "socks": ("Socks", "text"),
+    "bra_band": ("Bra band", "text"), "bra_cup": ("Bra cup", "text"), "sports_bra": ("Sports bra", "text"),
+    "leggings": ("Leggings / base layer", "text"), "base_layer": ("Base layer", "text"),
+    "fit_notes": ("Fit notes", "text"),
+}
+SIZE_FITS = {"mens", "womens", "unspecified"}
+SIZE_UNITS = {"imperial", "metric"}
+FIT_LABELS = {"mens": "Men's", "womens": "Women's", "unspecified": "Prefer not to say"}
+
+
+class SizesPayload(BaseModel):
+    fit: Optional[str] = None
+    units: Optional[str] = None
+    values: dict = Field(default_factory=dict)
+
+
+class AdminSizesPayload(SizesPayload):
+    notify: bool = True
+
+
+def _clean_size_values(values: dict) -> dict:
+    out: dict = {}
+    for key, (_, kind) in SIZE_FIELDS.items():
+        v = values.get(key)
+        if v is None or v == "":
+            continue
+        if kind in ("length", "weight", "shoe"):
+            if isinstance(v, bool):
+                raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} must be a number")
+            try:
+                num = float(v)
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} must be a number")
+            if not (0 < num < 1000):
+                raise HTTPException(status_code=400, detail=f"{SIZE_FIELDS[key][0]} is out of range")
+            out[key] = round(num, 2)
+        else:
+            s = str(v).strip() if isinstance(v, (str, int, float)) else ""
+            if s:
+                out[key] = s[:1000 if key in ("fit_notes", "boot_notes") else 60]
+    return out
+
+
+def _size_changed(a, b) -> bool:
+    if isinstance(a, (int, float)) and isinstance(b, (int, float)):
+        return abs(a - b) > 0.005
+    return a != b
+
+
+def _fmt_num(n: float) -> str:
+    return f"{n:.1f}".rstrip("0").rstrip(".")
+
+
+def _fmt_size(kind: str, v, units: str, fit: Optional[str]) -> str:
+    if v is None:
+        return "—"
+    if kind == "length":
+        return f"{_fmt_num(v / 2.54)} in" if units == "imperial" else f"{_fmt_num(v)} cm"
+    if kind == "weight":
+        return f"{_fmt_num(v * 2.20462)} lb" if units == "imperial" else f"{_fmt_num(v)} kg"
+    if kind == "shoe":
+        if units == "imperial":
+            return f"US {_fmt_num(v)}"
+        return f"EU {_fmt_num(round((v + (31 if fit == 'womens' else 33)) * 2) / 2)}"
+    return str(v)
+
+
+def _diff_sizes(old: dict, new: dict, old_fit, new_fit, units: str) -> list:
+    changes = []
+    if (old_fit or None) != (new_fit or None):
+        changes.append({"key": "fit", "label": "Fit", "old": FIT_LABELS.get(old_fit, "—"), "new": FIT_LABELS.get(new_fit, "—")})
+    for key, (label, kind) in SIZE_FIELDS.items():
+        if _size_changed(old.get(key), new.get(key)):
+            changes.append({"key": key, "label": label,
+                            "old": _fmt_size(kind, old.get(key), units, old_fit), "new": _fmt_size(kind, new.get(key), units, new_fit)})
+    return changes
+
+
+def _empty_sizes(user_id: str) -> dict:
+    return {"id": None, "user_id": user_id, "fit": None, "units": "imperial", "values": {}, "updated_at": None, "updated_by": None}
+
+
+async def _get_sizes(user_id: str) -> dict:
+    doc = await db.sizes.find_one({"user_id": user_id}, {"_id": 0})
+    return doc or _empty_sizes(user_id)
+
+
+async def _save_sizes(user_id: str, payload: SizesPayload, actor: dict) -> tuple:
+    if payload.fit is not None and payload.fit not in SIZE_FITS:
+        raise HTTPException(status_code=400, detail="Invalid fit")
+    if payload.units is not None and payload.units not in SIZE_UNITS:
+        raise HTTPException(status_code=400, detail="Invalid units")
+    existing = await _get_sizes(user_id)
+    values = _clean_size_values(payload.values or {})
+    fit = payload.fit if payload.fit is not None else existing.get("fit")
+    units = payload.units or existing.get("units") or "imperial"
+    changes = _diff_sizes(existing.get("values") or {}, values, existing.get("fit"), fit, existing.get("units") or "imperial")
+    doc = {
+        "id": existing.get("id") or str(uuid.uuid4()),
+        "user_id": user_id, "fit": fit, "units": units, "values": values,
+        "updated_at": existing.get("updated_at"), "updated_by": existing.get("updated_by"),
+        "created_at": existing.get("created_at") or now_utc().isoformat(),
+    }
+    if changes or not existing.get("id"):
+        doc["updated_at"] = now_utc().isoformat()
+        doc["updated_by"] = {"id": actor["id"], "name": actor.get("name") or actor.get("email"), "role": actor.get("role")}
+    await db.sizes.update_one({"user_id": user_id}, {"$set": doc}, upsert=True)
+    return doc, changes
+
+
+@api_router.get("/sizes/me")
+async def get_my_sizes(user: dict = Depends(get_current_user)):
+    return await _get_sizes(user["id"])
+
+
+@api_router.put("/sizes/me")
+async def save_my_sizes(payload: SizesPayload, user: dict = Depends(get_current_user)):
+    doc, changes = await _save_sizes(user["id"], payload, user)
+    return {"sizes": doc, "changes": changes}
+
+
+@api_router.delete("/sizes/me")
+async def clear_my_sizes(user: dict = Depends(get_current_user)):
+    existing = await _get_sizes(user["id"])
+    doc, _ = await _save_sizes(user["id"], SizesPayload(fit=None, units=existing.get("units"), values={}), user)
+    await db.sizes.update_one({"user_id": user["id"]}, {"$set": {"fit": None}})
+    doc["fit"] = None
+    return doc
+
+
+@api_router.get("/workers/{worker_id}/sizes")
+async def get_worker_sizes(worker_id: str, admin: dict = Depends(require_admin)):
+    worker = await db.users.find_one({"id": worker_id, "role": "worker", **_sb(admin)}, {"_id": 0})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    return {"worker": serialize_user(worker), "sizes": await _get_sizes(worker_id)}
+
+
+@api_router.put("/workers/{worker_id}/sizes")
+async def save_worker_sizes(worker_id: str, payload: AdminSizesPayload, admin: dict = Depends(require_admin)):
+    worker = await db.users.find_one({"id": worker_id, "role": "worker", **_sb(admin)}, {"_id": 0})
+    if not worker:
+        raise HTTPException(status_code=404, detail="Worker not found")
+    payload.units = None  # admin edits never change the worker's unit preference
+    doc, changes = await _save_sizes(worker_id, payload, admin)
+    notified = False
+    if changes and payload.notify:
+        parts = [f"{c['label']} {c['old']} → {c['new']}" for c in changes[:4]]
+        if len(changes) > 4:
+            parts.append(f"+{len(changes) - 4} more")
+        await notify(
+            worker_id, "sizes_updated",
+            f"{admin.get('name') or 'Your admin'} updated your sizes",
+            ", ".join(parts),
+            link="/worker/sizes?changed=" + ",".join(c["key"] for c in changes),
+            meta={"changes": changes, "by": admin.get("name")},
+        )
+        notified = True
+    return {"sizes": doc, "changes": changes, "notified": notified}
 
 
 # --- Tasks ---
@@ -2947,6 +3122,7 @@ async def startup():
     await db.essentials.create_index("owner_id")
     await db.peer_access.create_index([("requester_id", 1), ("target_id", 1)], unique=True)
     await db.peer_access.create_index([("target_id", 1), ("status", 1)])
+    await db.sizes.create_index("user_id", unique=True)
     # init object storage
     try:
         init_storage()
@@ -3070,6 +3246,18 @@ async def startup():
                 if not verify_password(demo_password, demo["password_hash"]):
                     sets["password_hash"] = hash_password(demo_password)
                 await db.users.update_one({"email": demo_email}, {"$set": sets})
+            demo_user = await db.users.find_one({"email": demo_email}, {"_id": 0, "id": 1})
+            if demo_user and not await db.sizes.find_one({"user_id": demo_user["id"]}):
+                await db.sizes.insert_one({
+                    "id": str(uuid.uuid4()), "user_id": demo_user["id"], "fit": "mens", "units": "imperial",
+                    "values": {"height": 177.8, "weight": 79.38, "chest": 101.6, "waist": 86.36, "inseam": 81.28,
+                               "shoe_us": 10.5, "shoe_width": "Regular", "boot_notes": "Steel toe, high-top",
+                               "top": "L", "jacket": "L", "pants_waist": 86.36, "pants_inseam": 81.28, "gloves": "L",
+                               "hat": "M", "hivis": "L", "underwear_style": "Boxer briefs", "underwear_size": "M",
+                               "undershirt": "L", "socks": "L", "fit_notes": "Prefers a relaxed fit in jackets."},
+                    "updated_at": now_utc().isoformat(), "created_at": now_utc().isoformat(),
+                    "updated_by": {"id": demo_user["id"], "name": "Demo Worker", "role": "worker"},
+                })
 
     # Start background task-reminder scheduler
     if _reminder_task_ref.get("task") is None or _reminder_task_ref["task"].done():

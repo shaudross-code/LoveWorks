@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/lib/api";
-import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart, CheckCircle2, Users, X, Clock } from "lucide-react";
+import { Bell, Check, CheckCheck, Trophy, ClipboardList, Megaphone, Sparkles, AlarmClock, Target, Heart, CheckCircle2, Users, X, Clock, Ruler } from "lucide-react";
 
 const TYPE_ICON = {
+  sizes_updated:        Ruler,
   task_assigned:        ClipboardList,
   task_updated:         ClipboardList,
   task_due_soon:        AlarmClock,
@@ -21,6 +22,7 @@ const TYPE_ICON = {
   clock_out_reminder:   AlarmClock,
 };
 const TYPE_COLOR = {
+  sizes_updated:        "text-pink-400 bg-pink-400/10",
   task_assigned:        "text-sky-400 bg-sky-400/10",
   task_updated:         "text-amber-300 bg-amber-300/10",
   task_due_soon:        "text-red-400 bg-red-400/10",

@@ -80,7 +80,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const targetUrl = (event.notification.data && event.notification.data.link) || '/';
   event.waitUntil((async () => {
-    const allClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const c of allClients) {
       try {
         const u = new URL(c.url);
@@ -90,8 +90,8 @@ self.addEventListener('notificationclick', (event) => {
         }
       } catch (_) { /* noop */ }
     }
-    if (clients.openWindow) {
-      await clients.openWindow(targetUrl);
+    if (self.clients.openWindow) {
+      await self.clients.openWindow(targetUrl);
     }
   })());
 });

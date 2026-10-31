@@ -1,0 +1,40 @@
+{
+  "summary": "Tested the My Sizes feature from end to end. Backend: 17 of 17 new pytest tests pass. They cover GET/PUT/DELETE /api/sizes/me (default doc, unknown fields dropped, change formatting, the 4 validation cases, units persistence, clear keeps the units setting), the admin GET/PUT /api/workers/{id}/sizes (404 for an unknown worker, 403 for a worker token, notification title/body/'+N more'/link/meta, no notification when nothing changed or when notify is false, an admin edit leaves the worker's units unchanged, change values use metric or imperial units based on the worker's setting), sandbox isolation (works both ways, demo worker has seeded sizes) and the cascade delete when a worker is deleted (no orphan size records in the DB). Frontend: worker pages on mobile (390x844) and desktop. Checked: nav position (just before Profile), H1 not covered by the header on mobile, the fit picker shows the right underclothes fields for each fit, section counts update live, in/cm and lb/kg toggle, US/EU/UK shoe sizes, chip select and deselect, save toast, values persist after reload, 'Saved — nothing changed', clear. Admin dialog: title, badge, notify switch, the 'N sizes updated / has been notified' toast, values persist, 'No changes to save', quiet save. Worker notification: shows with the ruler icon, the link opens /worker/sizes?changed=..., ring-2 highlight on the changed fields clears after about 6s. Also checked admin's own /admin/sizes page, the announcement, and regressions (edit pencil, delete worker, worker Profile page). Found and fixed 1 UI bug (wrong 'by you' attribution in the admin dialog). Found 1 open data-precision bug.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "PUT /api/sizes/me & /api/workers/{id}/sizes", "issue": "A save with fit omitted or null keeps the existing fit. Only DELETE can reset fit to null. Acceptable, but 'Prefer not to say' is the only way to un-set it."},
+      {"endpoint": "PUT /api/sizes/me", "issue": "Values for fields that don't apply to the current fit (e.g. bra_band after switching to mens) are kept and sent, because fromForm sends every value in the form. These hidden values stay in storage and the admin can't see them."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "WorkerSizesDialog / LastUpdated", "issue": "FIXED by testing agent: the dialog passed selfId={worker.id}, so when the worker made the last edit the admin saw 'Last updated ... by you'. It now passes the logged-in admin's id, so it shows 'by Love Tester' or 'by you' (when the admin made the last edit).", "selector": "[data-testid=worker-sizes-dialog] [data-testid=last-updated]", "priority": "MEDIUM"},
+      {"component": "lib/sizes.js convertForm / toForm", "issue": "Rounding drift. convertForm converts from the rounded display strings (1 decimal). Entering weight 180 lb, toggling to metric (81.6) and back gives 179.9 lb, and saving stores the drifted value (reproduced in the UI). Also, a worker who uses metric and opens values entered in imperial (e.g. 182.88 cm shown as 182.9) gets a spurious change on a save with no edits. They then see a 'Sizes saved' toast instead of 'Saved — nothing changed', and with the admin dialog the worker gets a notification like 'Height 72 in → 72 in'. Fix: keep the canonical values in the form state (convert from canonical, not from the displayed string), or skip the diff when the change is within the rounding tolerance (e.g. <0.05 cm / 0.05 kg).", "selector": "[data-testid=units-metric]/[data-testid=units-imperial]", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Worker desktop header (1920 wide)", "issues": ["Nav labels 'What's new' and 'My Sizes' wrap onto two lines because the header container is tight now that there's an extra item. Use whitespace-nowrap or a smaller gap."]},
+      {"screen": "Worker mobile nav pills", "issues": ["On a direct load of /worker/sizes the pill row sometimes stays scrolled to the start, so the active 'My Sizes' pill is off-screen. Consider scrollIntoView on the active pill."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_sizes_iter9.py", "/app/test_reports/pytest/pytest_iter9.xml"],
+  "action_items": [
+    "Fix the unit-conversion rounding drift in /app/frontend/src/lib/sizes.js (convertForm/toForm/fromForm). Keep canonical values, or use a tolerance in the backend _diff_sizes, so a units toggle or a save with no edits doesn't change stored values or send spurious 'X → X' notifications.",
+    "Optional: drop values for fields that don't apply to the current fit in fromForm (or keep them on purpose and document it).",
+    "Optional: stop the desktop worker nav labels wrapping (whitespace-nowrap)."
+  ],
+  "critical_code_review_comments": [
+    "server.py is 3264 lines. The sizes block (~165 lines) should move into its own module (e.g. routes/sizes.py).",
+    "_clean_size_values accepts booleans for numeric fields (float(True)=1.0) and str()s nested objects for text fields. Minor input-validation gap.",
+    "_diff_sizes compares floats exactly. That's fine for the API, but together with the client's 1-decimal display rounding it causes spurious changes (see ui_bugs).",
+    "The FitPicker isn't highlighted when 'fit' is in ?changed=. Only the size fields are."
+  ],
+  "updated_files": ["/app/frontend/src/components/sizes/WorkerSizesDialog.jsx", "/app/backend/tests/test_sizes_iter9.py"],
+  "success_rate": {"backend": "100% (17/17)", "frontend": "~95% (all requested flows pass; 1 bug fixed, 1 precision bug open)"},
+  "seed_data_creation": "Throwaway workers test_sizes_*/test_cascade_*@example.com were created and deleted by the pytest fixtures. test_uidel@example.com was created and then deleted through the UI. Love Tester's sizes were overwritten (fit mens, height 72in, weight 179.9lb, shoe US 11, gloves L, top L). The admin's own height was set to 70in.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run pytest /app/backend/tests/test_sizes_iter9.py with REACT_APP_BACKEND_URL exported. Sections other than Body start collapsed unless a field in them is highlighted. Toasts are sonner [data-sonner-toast]. The clear button uses window.confirm, so accept the dialog. Real workers: Love Tester (2ccdb3b8...) and Ms Ross (0c724a85..., don't touch). Auth checks: bcrypt $2b$ hashes, cookies set on login, CORS allows the explicit origin with credentials.",
+  "rca of the issue": "'by you' bug: WorkerSizesDialog passed the worker's id as LastUpdated.selfId, so the 'you' label matched the worker and not the viewing admin. Fixed with useAuth().user.id. Precision drift: convertForm rebuilds values from the rounded display strings, and fromForm sends the rounded number back as the canonical value. Repro: enter weight 180 → click units-metric → click units-imperial → the input shows 179.9."
+}

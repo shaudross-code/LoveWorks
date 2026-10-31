@@ -1,8 +1,9 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler } from "lucide-react";
 
 const items = [
   { to: "/admin",                label: "Overview",       icon: LayoutDashboard, testid: "nav-overview" },
@@ -13,12 +14,18 @@ const items = [
   { to: "/admin/essentials",     label: "Essentials",     icon: ShoppingBag,     testid: "nav-essentials" },
   { to: "/admin/payroll",        label: "Payroll",        icon: BadgeDollarSign, testid: "nav-payroll" },
   { to: "/admin/announcements",  label: "Announcements",  icon: Megaphone,       testid: "nav-announcements" },
+  { to: "/admin/sizes",          label: "My Sizes",       icon: Ruler,           testid: "nav-sizes" },
   { to: "/admin/profile",        label: "Profile",        icon: UserCircle2,     testid: "nav-profile" },
 ];
 
 export default function AdminLayout({ children }) {
   const { user, logout } = useAuth();
   const nav = useNavigate();
+  const { pathname } = useLocation();
+  const pillsRef = useRef(null);
+  useEffect(() => {
+    pillsRef.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [pathname]);
 
   return (
     <div className="min-h-screen bg-[#09090B] text-white flex">
@@ -90,7 +97,7 @@ export default function AdminLayout({ children }) {
       {/* Mobile sticky nav pills — right under the top bar */}
       <div className="md:hidden fixed inset-x-0 z-30 bg-black/85 backdrop-blur-xl border-b border-yellow-400/5 px-4 py-2"
         style={{ top: "calc(3.5rem + var(--safe-top))" }}>
-        <div className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
+        <div ref={pillsRef} className="-mx-1 flex gap-2 overflow-x-auto no-scrollbar">
           {items.map(({ to, label, icon: Icon, testid }) => (
             <NavLink key={to} to={to} end={to === "/admin"} data-testid={`m-${testid}`}
               className={({ isActive }) =>

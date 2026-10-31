@@ -20,6 +20,7 @@ import Announcements from "@/pages/Announcements";
 import WorkerDashboard from "@/pages/WorkerDashboard";
 import WorkerHistory from "@/pages/WorkerHistory";
 import Privacy from "@/pages/Privacy";
+import MySizes from "@/pages/MySizes";
 
 function RootRedirect() {
   const { user } = useAuth();
@@ -83,6 +84,12 @@ function App() {
             } />
             <Route path="/worker/profile" element={
               <ProtectedRoute role="worker"><WorkerLayout><Profile /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/sizes" element={
+              <ProtectedRoute role="worker"><WorkerLayout><MySizes /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/sizes" element={
+              <ProtectedRoute role="admin"><AdminLayout><MySizes /></AdminLayout></ProtectedRoute>
             } />
             <Route path="/admin/profile" element={
               <ProtectedRoute role="admin"><AdminLayout><Profile /></AdminLayout></ProtectedRoute>
