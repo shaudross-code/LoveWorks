@@ -1,7 +1,6 @@
 App/build
 App/Pods
 App/output
-App/App/public
 DerivedData
 xcuserdata
 
@@ -9,5 +8,5 @@ xcuserdata
 capacitor-cordova-ios-plugins
 
 # Generated Config files
-App/App/capacitor.config.json
-App/App/config.xml
+
+# Web bundle + generated config are committed on purpose so Xcode builds match the web app without a local `cap sync`.

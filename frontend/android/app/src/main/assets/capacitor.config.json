@@ -1,0 +1,30 @@
+{
+	"appId": "com.loveworks.app",
+	"appName": "iLoveWorks",
+	"webDir": "build",
+	"server": {
+		"androidScheme": "https"
+	},
+	"ios": {
+		"contentInset": "never",
+		"backgroundColor": "#09090B"
+	},
+	"android": {
+		"backgroundColor": "#09090B"
+	},
+	"plugins": {
+		"PushNotifications": {
+			"presentationOptions": [
+				"badge",
+				"sound",
+				"alert"
+			]
+		},
+		"SplashScreen": {
+			"launchShowDuration": 1200,
+			"launchAutoHide": true,
+			"backgroundColor": "#781b3a",
+			"showSpinner": false
+		}
+	}
+}
