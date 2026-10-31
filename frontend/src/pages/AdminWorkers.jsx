@@ -4,10 +4,11 @@ import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil } from "lucide-react";
+import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil, Ruler } from "lucide-react";
 import { toast } from "sonner";
 import { activityOf } from "@/lib/activities";
 import WeeklyStrip from "@/components/WeeklyStrip";
+import WorkerSizesDialog from "@/components/sizes/WorkerSizesDialog";
 
 function timeAgo(iso) {
   if (!iso) return "never";
@@ -42,6 +43,8 @@ export default function AdminWorkers() {
   const [edit, setEdit] = useState(null); // worker being edited
   const [editForm, setEditForm] = useState({ name: "", email: "", password: "" });
   const [editBusy, setEditBusy] = useState(false);
+  const [sizesFor, setSizesFor] = useState(null); // worker whose sizes are open
+  const closeSizes = useCallback(() => setSizesFor(null), []);
   const [now, setNow] = useState(Date.now());
 
   const load = useCallback(async () => {
@@ -208,6 +211,10 @@ export default function AdminWorkers() {
                   )}
                 </div>
                 <div className="flex items-center gap-2">
+                  <button data-testid={`sizes-worker-${w.id}`} onClick={() => setSizesFor(w)}
+                    className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] border border-yellow-400/20 text-zinc-300 hover:border-yellow-400/60 hover:text-yellow-300 transition" aria-label="View sizes">
+                    <Ruler className="w-3.5 h-3.5" /> Sizes
+                  </button>
                   <button data-testid={`edit-worker-${w.id}`} onClick={() => openEdit(w)} className="text-zinc-500 hover:text-yellow-300 transition" aria-label="Edit worker">
                     <Pencil className="w-4 h-4" />
                   </button>
@@ -328,6 +335,8 @@ export default function AdminWorkers() {
           </form>
         </DialogContent>
       </Dialog>
+
+      <WorkerSizesDialog worker={sizesFor} onClose={closeSizes} />
     </div>
   );
 }

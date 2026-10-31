@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
-import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane, Heart } from "lucide-react";
+import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane, Heart, Ruler } from "lucide-react";
 
 const items = [
   { to: "/worker",                label: "Workday",      icon: Clock,        testid: "nav-workday" },
@@ -11,6 +11,7 @@ const items = [
   { to: "/worker/essentials",     label: "Essentials",   icon: ShoppingBag,  testid: "nav-essentials" },
   { to: "/worker/awards",         label: "Awards",       icon: Trophy,       testid: "nav-awards" },
   { to: "/worker/announcements",  label: "What's new",   icon: Megaphone,    testid: "nav-announcements" },
+  { to: "/worker/sizes",          label: "My Sizes",     icon: Ruler,        testid: "nav-sizes" },
   { to: "/worker/profile",        label: "Profile",      icon: UserCircle2,  testid: "nav-profile" },
 ];
 

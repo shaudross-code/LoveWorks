@@ -2,7 +2,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler } from "lucide-react";
 
 const items = [
   { to: "/admin",                label: "Overview",       icon: LayoutDashboard, testid: "nav-overview" },
@@ -13,6 +13,7 @@ const items = [
   { to: "/admin/essentials",     label: "Essentials",     icon: ShoppingBag,     testid: "nav-essentials" },
   { to: "/admin/payroll",        label: "Payroll",        icon: BadgeDollarSign, testid: "nav-payroll" },
   { to: "/admin/announcements",  label: "Announcements",  icon: Megaphone,       testid: "nav-announcements" },
+  { to: "/admin/sizes",          label: "My Sizes",       icon: Ruler,           testid: "nav-sizes" },
   { to: "/admin/profile",        label: "Profile",        icon: UserCircle2,     testid: "nav-profile" },
 ];
 
