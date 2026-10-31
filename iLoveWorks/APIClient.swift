@@ -84,4 +84,54 @@ class APIClient {
         
         return full
     }
+
+
+    func fetchSizes(workerId: String?) async throws -> SizesData? {
+        var urlString = "\(baseURL)/sizes/me"
+        if let wid = workerId { urlString = "\(baseURL)/admin/workers/\(wid)/sizes" }
+        guard let url = URL(string: urlString) else { throw APIError.invalidURL }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        if let token = getToken() { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidURL }
+        
+        if httpResponse.statusCode == 404 { return nil } // No sizes set yet
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError("Failed to fetch sizes.")
+        }
+        
+        return try JSONDecoder().decode(SizesData.self, from: data)
+    }
+    
+    func updateSizes(workerId: String?, values: [String: AnyValue], fit: String, units: String, notifyWorker: Bool) async throws -> SizesData {
+        var urlString = "\(baseURL)/sizes/me"
+        if let wid = workerId { urlString = "\(baseURL)/admin/workers/\(wid)/sizes?notify_worker=\(notifyWorker)" }
+        guard let url = URL(string: urlString) else { throw APIError.invalidURL }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let token = getToken() { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
+        
+        struct SizesUpdateReq: Codable {
+            let fit: String
+            let units: String
+            let values: [String: AnyValue]
+        }
+        let body = SizesUpdateReq(fit: fit, units: units, values: values)
+        request.httpBody = try JSONEncoder().encode(body)
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else { throw APIError.invalidURL }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw APIError.serverError("Failed to update sizes.")
+        }
+        
+        return try JSONDecoder().decode(SizesData.self, from: data)
+    }
+
 }
