@@ -1,9 +1,24 @@
 import { Input } from "@/components/ui/input";
+import { CircleHelp } from "lucide-react";
 import { lengthUnit, weightUnit, shoeFromUS, fmtNum, SHOE_SCALES, changeShoeScale, setNumeric, setHeightImperial } from "@/lib/sizes";
 
 const label = "text-xs uppercase tracking-widest text-zinc-500";
 const inputCls = "mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base";
 const hl = (on) => (on ? "ring-2 ring-pink-400/70 rounded-xl p-2 -m-2 bg-pink-400/5 transition" : "");
+
+function FieldLabel({ field, onGuide }) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <label className={label}>{field.label}</label>
+      {onGuide && (
+        <button type="button" onClick={onGuide} aria-label={`How to measure ${field.label.toLowerCase()}`} data-testid={`guide-${field.k}`}
+          className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-yellow-400/80 hover:text-yellow-300 transition">
+          <CircleHelp className="w-3.5 h-3.5" /> How
+        </button>
+      )}
+    </div>
+  );
+}
 
 export function ChipRow({ field, value, onChange, highlight }) {
   return (
@@ -27,11 +42,11 @@ export function ChipRow({ field, value, onChange, highlight }) {
   );
 }
 
-export function NumberField({ field, value, units, onChange, highlight }) {
+export function NumberField({ field, value, units, onChange, highlight, onGuide }) {
   const unit = field.type === "weight" ? weightUnit(units) : lengthUnit(units);
   return (
     <div className={hl(highlight)} data-testid={`size-field-${field.k}`}>
-      <label className={label}>{field.label}</label>
+      <FieldLabel field={field} onGuide={onGuide} />
       <div className="relative">
         <Input type="number" inputMode="decimal" step="0.1" min="0" value={value ?? ""} data-testid={`input-${field.k}`}
           onChange={(e) => onChange(e.target.value)} className={`${inputCls} pr-12`} placeholder="—" />
@@ -56,16 +71,16 @@ export function TextField({ field, value, onChange, highlight }) {
   );
 }
 
-export function HeightField({ field, form, setForm, units, highlight }) {
+export function HeightField({ field, form, setForm, units, highlight, onGuide }) {
   if (units === "metric") {
-    return <NumberField field={field} value={form.values.height ?? ""} units={units} highlight={highlight}
+    return <NumberField field={field} value={form.values.height ?? ""} units={units} highlight={highlight} onGuide={onGuide}
       onChange={(raw) => setForm(setNumeric(form, "height", raw, units))} />;
   }
   const ft = form.values.height_ft ?? "", inch = form.values.height_in ?? "";
   const box = "bg-zinc-900 border-zinc-800 text-white rounded-xl h-12 text-base pr-9";
   return (
     <div className={hl(highlight)} data-testid="size-field-height">
-      <label className={label}>{field.label}</label>
+      <FieldLabel field={field} onGuide={onGuide} />
       <div className="mt-2 flex gap-2">
         <div className="relative flex-1">
           <Input type="number" inputMode="numeric" step="1" min="0" max="8" value={ft} data-testid="input-height_ft" placeholder="—"

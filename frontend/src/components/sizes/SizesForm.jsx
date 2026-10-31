@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, BookOpen } from "lucide-react";
 import { SECTIONS, FITS, sectionFields, completion, setNumeric, changeFit } from "@/lib/sizes";
+import { GUIDE_KEYS } from "@/lib/measureGuide";
 import { ChipRow, NumberField, TextField, ShoeField, HeightField } from "./SizeFields";
+import MeasureGuideDialog from "./MeasureGuideDialog";
 
 export function UnitsToggle({ units, onChange }) {
   return (
@@ -35,20 +37,21 @@ export function FitPicker({ fit, onChange, highlight }) {
   );
 }
 
-function Field({ field, form, setForm, units, highlight }) {
+function Field({ field, form, setForm, units, highlight, openGuide }) {
   const set = (v) => setForm({ ...form, values: { ...form.values, [field.k]: v } });
   const value = form.values[field.k] ?? "";
   const on = highlight.includes(field.k);
+  const onGuide = GUIDE_KEYS.has(field.k) ? () => openGuide(field.k) : undefined;
   if (field.type === "chips") return <ChipRow field={field} value={value} onChange={set} highlight={on} />;
-  if (field.type === "height") return <HeightField field={field} form={form} setForm={setForm} units={units} highlight={on} />;
+  if (field.type === "height") return <HeightField field={field} form={form} setForm={setForm} units={units} highlight={on} onGuide={onGuide} />;
   if (field.type === "shoe") return <ShoeField field={field} form={form} setForm={setForm} units={units} highlight={on} />;
   if (field.type === "length" || field.type === "weight") {
-    return <NumberField field={field} value={value} units={units} onChange={(raw) => setForm(setNumeric(form, field.k, raw, units))} highlight={on} />;
+    return <NumberField field={field} value={value} units={units} onChange={(raw) => setForm(setNumeric(form, field.k, raw, units))} highlight={on} onGuide={onGuide} />;
   }
   return <TextField field={field} value={value} onChange={set} highlight={on} />;
 }
 
-function Section({ section, form, setForm, units, highlight, defaultOpen }) {
+function Section({ section, form, setForm, units, highlight, defaultOpen, openGuide }) {
   const [open, setOpen] = useState(defaultOpen);
   const fields = sectionFields(section, form.fit);
   const { filled, total } = completion(section, form);
@@ -67,12 +70,20 @@ function Section({ section, form, setForm, units, highlight, defaultOpen }) {
         <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (
-        <div className="px-5 pb-5 pt-1 grid gap-5 sm:grid-cols-2">
-          {fields.map((f) => (
-            <div key={`${f.k}-${(f.fits || []).join("")}`} className={f.type === "textarea" || f.type === "chips" ? "sm:col-span-2" : ""}>
-              <Field field={f} form={form} setForm={setForm} units={units} highlight={highlight} />
-            </div>
-          ))}
+        <div className="px-5 pb-5 pt-1">
+          {section.key === "body" && (
+            <button type="button" onClick={() => openGuide("chest")} data-testid="open-measure-guide"
+              className="mb-4 inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-xs font-semibold border border-yellow-400/30 text-yellow-300 hover:bg-yellow-400/10 transition">
+              <BookOpen className="w-3.5 h-3.5" /> How to measure — tap any “How” for a picture
+            </button>
+          )}
+          <div className="grid gap-5 sm:grid-cols-2">
+            {fields.map((f) => (
+              <div key={`${f.k}-${(f.fits || []).join("")}`} className={f.type === "textarea" || f.type === "chips" ? "sm:col-span-2" : ""}>
+                <Field field={f} form={form} setForm={setForm} units={units} highlight={highlight} openGuide={openGuide} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -80,15 +91,17 @@ function Section({ section, form, setForm, units, highlight, defaultOpen }) {
 }
 
 export default function SizesForm({ form, setForm, units, highlight = [] }) {
+  const [guideKey, setGuideKey] = useState(null);
   return (
     <div className="space-y-4">
       <div className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-5">
         <FitPicker fit={form.fit} onChange={(fit) => setForm(changeFit(form, fit))} highlight={highlight.includes("fit")} />
       </div>
       {SECTIONS.map((s, i) => (
-        <Section key={s.key} section={s} form={form} setForm={setForm} units={units} highlight={highlight}
+        <Section key={s.key} section={s} form={form} setForm={setForm} units={units} highlight={highlight} openGuide={setGuideKey}
           defaultOpen={i === 0 || sectionFields(s, form.fit).some((f) => highlight.includes(f.k))} />
       ))}
+      <MeasureGuideDialog fieldKey={guideKey} onChange={setGuideKey} onClose={() => setGuideKey(null)} />
     </div>
   );
 }
