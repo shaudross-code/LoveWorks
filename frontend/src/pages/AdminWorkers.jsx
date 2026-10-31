@@ -158,7 +158,7 @@ export default function AdminWorkers() {
         </Dialog>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {statuses.length === 0 && (
           <div className="col-span-full text-center bg-[#121214] border border-yellow-400/15 rounded-2xl p-10">
             <BadgeCheck className="w-8 h-8 text-yellow-400 mx-auto" />
@@ -174,8 +174,8 @@ export default function AdminWorkers() {
             : 0;
           return (
             <div key={w.id} data-testid={`worker-card-${w.id}`}
-              className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-5">
-              <div className="flex items-start gap-3">
+              className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-4 sm:p-5 min-w-0 overflow-hidden">
+              <div className="flex items-start gap-3 flex-wrap sm:flex-nowrap">
                 <div className="relative">
                   <Avatar url={w.avatar_url} name={w.name || w.email} size={52} />
                   <span data-testid={`presence-${w.id}`}
@@ -185,7 +185,7 @@ export default function AdminWorkers() {
                     title={s.online ? "Online now" : `Last seen ${timeAgo(s.last_seen_at)}`}
                   />
                 </div>
-                <div className="flex-1 min-w-0">
+                <div className="flex-1 min-w-0 basis-40">
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="font-display text-lg font-semibold truncate">{w.name}</div>
                     {s.online ? (
@@ -210,7 +210,7 @@ export default function AdminWorkers() {
                     <div className="mt-2 text-[11px] text-zinc-500 uppercase tracking-widest">Off the clock</div>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0 ml-auto">
                   <button data-testid={`sizes-worker-${w.id}`} onClick={() => setSizesFor(w)}
                     className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] border border-yellow-400/20 text-zinc-300 hover:border-yellow-400/60 hover:text-yellow-300 transition" aria-label="View sizes">
                     <Ruler className="w-3.5 h-3.5" /> Sizes

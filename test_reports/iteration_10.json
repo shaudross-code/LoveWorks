@@ -1,0 +1,28 @@
+{
+  "summary": "Checked the native bundle freshness fix. Static checks: 21/21 pass for both iOS and Android. Each bundle has an index.html with viewport-fit=cover, and it points to main.020f5f24.js and main.578cd8ee.css, which both exist. The JS contains 'My Sizes', 'How to measure' and the prod URL https://labor-admin-hub.emergent.host, and has no preview.emergentagent.com. Each bundle has 10 measure webp images, and capacitor.config.json has contentInset 'never' and appId com.loveworks.app. git check-ignore exits with rc=1, so nothing is ignored, and git ls-files shows 32 iOS and 34 Android bundle files already tracked. Browser at 390x844: the worker header does not cover the H1 on /worker, /worker/sizes or /worker/profile. The nav-sizes pill is present. The sizes sections appear in the right order. The guide-waist dialog opens with the image waist.webp loaded (naturalWidth 720). As admin, the /admin and /admin/workers headers do not overlap the H1, nav-sizes is present, and the Sizes button opens worker-sizes-dialog. Desktop 1920 regression: login and both dashboards load fine. Found 2 issues that are unrelated to the fix: horizontal overflow on the mobile Workers page, and scroll position kept between pages.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AdminWorkers worker card (mobile 390px)", "issue": "The page overflows sideways: document scrollWidth is 423 at a 390 viewport. The worker card is 423px wide, so the 'This week' stat box, the Sunday cell of the weekly strip, and the edit/delete icons are cut off on the right. This will also show in the native iOS/Android app. Likely cause: the parent div uses 'grid lg:grid-cols-2' with no grid-cols-1 below lg, so the implicit auto column grows to the content's min width (header row with Sizes pill + icons, and the 7-cell WeeklyStrip). Suggested fix: add 'grid-cols-1' to the grid and 'min-w-0' to the card, and/or let the action buttons wrap.", "selector": "[data-testid^='worker-card-']", "priority": "MEDIUM"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Route changes (worker + admin mobile)", "issues": ["The scroll position is kept when you change pages. Going from a scrolled /worker/sizes to /worker/profile kept scrollY=348, so the profile H1 opened above the screen. Add a ScrollToTop on pathname change (window.scrollTo(0,0))."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/static_native_bundle_check.sh"],
+  "action_items": [
+    "Fix mobile horizontal overflow on /admin/workers: add grid-cols-1 and min-w-0 on worker cards (AdminWorkers.jsx line ~161/176).",
+    "Add scroll-to-top on route change in WorkerLayout/AdminLayout (or App router)."
+  ],
+  "critical_code_review_comments": [
+    "Bundle freshness is still a manual step: the committed ios/android public folders go stale again whenever someone changes src/ without running 'yarn build && npx cap sync'. Consider a script such as 'yarn native:sync' and a note or check in NATIVE_BUILD_GUIDE.md.",
+    "The mobile admin top bar is fixed while the worker header is sticky. Both work, but they behave differently."
+  ],
+  "updated_files": ["/app/backend/tests/static_native_bundle_check.sh"],
+  "success_rate": {"backend": "N/A (static checks 100%: 21/21)", "frontend": "~90% (all requested checks pass; 1 mobile overflow bug found on /admin/workers)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Rerun the static bundle checks with 'bash /app/backend/tests/static_native_bundle_check.sh'. Bundle hash at test time: main.020f5f24.js. Do not run yarn build or cap sync. Mobile overlap check method: compare main h1 getBoundingClientRect().top with the bottom of the fixed/sticky header. Admin mobile header bottom is 105px; worker header bottom is 114px."
+}
