@@ -121,6 +121,7 @@ export default function AdminTasks() {
     e.preventDefault();
     if (!form.assignee_id) { toast.error("Pick a worker"); return; }
     if (!form.title.trim()) { toast.error("Title is required"); return; }
+    if (!Number.isFinite(parseFloat(form.price)) || parseFloat(form.price) < 0) { toast.error("Enter a price (0 or more)"); return; }
     setBusy(true);
     // Convert daily_hours according to unit toggle
     let dailyHours = null;

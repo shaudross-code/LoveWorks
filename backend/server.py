@@ -554,6 +554,8 @@ async def check_lockout(identifier: str):
             last = datetime.fromisoformat(last)
         if last and (now_utc() - last) < timedelta(minutes=LOCKOUT_MINUTES):
             raise HTTPException(status_code=429, detail="Too many failed attempts. Try again later.")
+        # lockout window has passed — start counting fresh
+        await db.login_attempts.update_one({"identifier": identifier}, {"$set": {"count": 0}})
 
 
 async def record_failed(identifier: str):
@@ -708,6 +710,10 @@ async def download_file(path: str, user: dict = Depends(get_current_user)):
     record = await db.files.find_one({"storage_path": path, "is_deleted": False})
     if not record:
         raise HTTPException(status_code=404, detail="File not found")
+    if record.get("user_id") != user["id"]:
+        owner = await db.users.find_one({"id": record.get("user_id")}, {"_id": 0, "sandbox": 1})
+        if not owner or bool(owner.get("sandbox")) != bool(user.get("sandbox")):
+            raise HTTPException(status_code=403, detail="Not allowed")
     try:
         data, content_type = get_object(path)
     except Exception as e:
@@ -1824,7 +1830,7 @@ def _upcoming_windows(today: date) -> list:
 async def _theme_state(sandbox: bool) -> dict:
     doc = await db.settings.find_one({"key": "theme", "sandbox": sandbox}, {"_id": 0})
     mode = (doc or {}).get("value") or "auto"
-    today = now_utc().date()
+    today = now_local().date()
     auto = _auto_theme(today)
     if mode == "auto":
         effective = auto[0] if auto else "default"
@@ -1999,6 +2005,8 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
     task = await db.tasks.find_one({"id": task_id}, {"_id": 0})
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    if user["role"] == "admin" and task["assignee_id"] not in await _scoped_worker_ids(user):
+        raise HTTPException(status_code=404, detail="Task not found")
     # workers may only update status of their own tasks
     update: dict = {}
     if user["role"] == "worker":
@@ -2017,8 +2025,12 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         if req.price is not None:
             update["price"] = float(req.price)
         if req.assignee_id is not None:
+            if not await db.users.find_one({"id": req.assignee_id, "role": "worker", **_sb(user)}):
+                raise HTTPException(status_code=404, detail="Worker not found")
             update["assignee_id"] = req.assignee_id
         if req.status is not None:
+            if req.status not in ("assigned", "in_progress", "completed"):
+                raise HTTPException(status_code=400, detail="Invalid status")
             update["status"] = req.status
             if req.status == "completed":
                 update["completed_at"] = now_utc().isoformat()
@@ -2124,7 +2136,7 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
 
 @api_router.delete("/tasks/{task_id}")
 async def delete_task(task_id: str, admin: dict = Depends(require_admin)):
-    res = await db.tasks.delete_one({"id": task_id})
+    res = await db.tasks.delete_one({"id": task_id, "assignee_id": {"$in": await _scoped_worker_ids(admin)}})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"ok": True}
