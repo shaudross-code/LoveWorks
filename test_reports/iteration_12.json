@@ -1,0 +1,23 @@
+{
+  "summary": "Iteration 12: tested the native 'look' fixes. Ran 58/58 static checks with /app/tests/static_native_look_check.py: iOS Info.plist (light status bar, Dark style, VC-based appearance off, encryption flag, display name, remote-notification), SPM (exact 7.6.8, vendored push plugin from 7.0.0, pbxproj local package and bundle id/versions, no Podfile/Pods/xcworkspace, no `import Firebase`), Android colors.xml/styles.xml (they parse, use the expected colors, set status/nav bar colors and windowLightStatusBar=false, no duplicate color resources), bundles (main.3983a432.js is the same in build, iOS and Android; it uses the prod URL, has no preview URL, includes My Sizes and How to measure; 10 measure webp files per shell; contentInset never and #09090B), and git hygiene. Browser regression at 390x844 all passed: /admin/workers scrollWidth=390, 2 Sizes pills plus pencils; m-nav-sizes reset scrollY from 360 to 0; H1 top 160px vs header bottom 105px; /privacy has no overflow; the worker guide opens at Height (1 of 10), Next goes to Neck, Escape closes it, guide-chest opens Chest/bust with chest.webp naturalWidth=720. Desktop 1920x800: all 8 worker nav items sit on one line at 36px high; the admin sidebar shows My Sizes before Profile. Login sets httpOnly Secure cookies and CORS allows credentials for the explicit origin.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/tests/static_native_look_check.py", "/app/tests/static_ios_spm_check.py"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Android targetSdk=35: on Android 15+ devices edge-to-edge is enforced, so android:statusBarColor/navigationBarColor are ignored. The bars will show whatever the WebView draws behind them. The page background is #09090B, so it should still look dark. env(safe-area-inset-top) may be 0 on older Android WebViews, so content could slide under the status bar. Consider Capacitor's android.adjustMarginsForEdgeToEdge ('force' or 'auto') or @capacitor/status-bar if users report overlap on Android 15.",
+    "capacitor.config.json has a plugins.SplashScreen block (backgroundColor #781b3a), but @capacitor/splash-screen is not installed (packageClassList only lists PushNotificationsPlugin), so that config does nothing. The native launch screen and splash drawable decide the splash look.",
+    "Info.plist UIRequiredDeviceCapabilities=armv7 comes from the Capacitor template. It is harmless, but arm64 is the more accurate value for iOS 14+."
+  ],
+  "updated_files": ["/app/tests/static_native_look_check.py"],
+  "success_rate": {"backend": "N/A (unchanged; login/cookie/CORS spot-checked OK)", "frontend": "100%", "static": "58/58 (100%)"},
+  "test_credentials": "admin@loveworks.com/admin123, lovetest@loveworks.com/Love123! (from /app/memory/test_credentials.md) - both work",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Run `python3 /app/tests/static_native_look_check.py` (58 checks) plus /app/tests/static_ios_spm_check.py for native static regression. backgroundColor in capacitor.config.json is per-platform (ios.backgroundColor and android.backgroundColor), not top-level. No yarn build or cap sync was run. /app/iLoveWorks* was not touched."
+}

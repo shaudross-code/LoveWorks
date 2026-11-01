@@ -4,6 +4,10 @@ set -euo pipefail
 cd "$(dirname "$0")/../frontend"
 
 yarn build
+# Generated bundles are committed for the native shells; tell linters to skip them.
+for f in build/static/js/*.js; do
+  grep -q '^/\* eslint-disable \*/' "$f" || { printf '/* eslint-disable */\n' | cat - "$f" > "$f.tmp" && mv "$f.tmp" "$f"; }
+done
 npx cap sync
 
 # cap sync rewrites CapApp-SPM/Package.swift pointing at node_modules; keep the vendored copy so Xcode needs no Node.
