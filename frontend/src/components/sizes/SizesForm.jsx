@@ -72,7 +72,7 @@ function Section({ section, form, setForm, units, highlight, defaultOpen, openGu
       {open && (
         <div className="px-5 pb-5 pt-1">
           {section.key === "body" && (
-            <button type="button" onClick={() => openGuide("chest")} data-testid="open-measure-guide"
+            <button type="button" onClick={() => openGuide("height")} data-testid="open-measure-guide"
               className="mb-4 inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-xs font-semibold border border-yellow-400/30 text-yellow-300 hover:bg-yellow-400/10 transition">
               <BookOpen className="w-3.5 h-3.5" /> How to measure — tap any “How” for a picture
             </button>
