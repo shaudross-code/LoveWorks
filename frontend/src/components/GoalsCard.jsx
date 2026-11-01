@@ -175,7 +175,7 @@ export default function GoalsCard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className={`font-display text-lg font-semibold ${g.status === "completed" ? "text-zinc-300 line-through" : ""}`}>{g.title}</div>
+                    <div className={`font-display text-lg font-semibold break-words [overflow-wrap:anywhere] ${g.status === "completed" ? "text-zinc-300 line-through" : ""}`}>{g.title}</div>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${status.className}`}>
                       <StatusIcon className="w-3 h-3" /> {status.label}
                     </span>

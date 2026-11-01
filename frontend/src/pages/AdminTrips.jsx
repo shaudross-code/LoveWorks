@@ -324,7 +324,7 @@ export default function AdminTrips() {
       </div>
 
       <Tabs value={filter} onValueChange={setFilter}>
-        <TabsList className="bg-[#121214] border border-yellow-400/15 rounded-xl p-1">
+        <TabsList className="bg-[#121214] border border-yellow-400/15 rounded-xl p-1 h-auto flex-wrap justify-start max-w-full">
           {STATUS_TABS.map((s) => (
             <TabsTrigger key={s} value={s} data-testid={`trips-tab-${s}`}
               className="rounded-lg data-[state=active]:bg-yellow-400 data-[state=active]:text-black capitalize">
@@ -352,11 +352,11 @@ export default function AdminTrips() {
           const ahead = g.status === "completed" && g.deadline && g.completed_at && new Date(g.completed_at) <= new Date(g.deadline);
           return (
             <div key={g.id} data-testid={`admin-goal-${g.id}`}
-              className={`bg-[#121214] border rounded-2xl p-5 transition ${
+              className={`bg-[#121214] border rounded-2xl p-4 sm:p-5 min-w-0 transition ${
                 g.status === "completed" ? "border-yellow-400/30 shadow-lg shadow-yellow-400/5" : "border-yellow-400/15"
               }`}>
-              <div className="flex items-start gap-4">
-                <div className="w-24 h-24 rounded-xl overflow-hidden bg-zinc-900 border border-yellow-400/10 grid place-items-center shrink-0">
+              <div className="flex items-start gap-4 min-w-0">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden bg-zinc-900 border border-yellow-400/10 grid place-items-center shrink-0">
                   {g.image_url ? (
                     <img alt={g.title} src={`${BACKEND_URL}${g.image_url}${token ? `?auth=${token}` : ""}`} className="w-full h-full object-cover" />
                   ) : (
@@ -365,7 +365,7 @@ export default function AdminTrips() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className={`font-display text-lg font-semibold ${g.status === "completed" ? "text-zinc-300" : "text-white"}`}>{g.title}</div>
+                    <div className={`font-display text-lg font-semibold break-words [overflow-wrap:anywhere] ${g.status === "completed" ? "text-zinc-300" : "text-white"}`}>{g.title}</div>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${cls}`}>
                       <Icon className="w-3 h-3" /> {label}
                     </span>

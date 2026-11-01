@@ -1,0 +1,31 @@
+{
+  "summary": "Frontend-only mobile retest of the checkpoint b925f53 changes: Reactions emoji picker (now a Radix Popover), WeeklyStrip day popover (clamped position plus close on outside tap), the AdminWorkers card overflow-hidden removal, and ThemeContext forceTheme. Note: the review request reached me truncated, so I inferred the scope from the git diff. The emoji picker FIX WORKS. At 390px the popover sits at x=16..378 with all 8 emojis visible. At 320px it sits at 12..308 and the row scrolls sideways, so the last emoji is reachable. Picking an emoji adds the chip (verified with 💎). Tapping the chip again removes it. Esc and an outside click both close the picker. A touch tap opens it. The WeeklyStrip clamp works on hover: Mon/Thu/Sun popovers stay inside the strip (Sun right edge = 357 = strip right edge). BUT tapping or clicking a day tile does NOT open the popover. The cause predates this change, but the new 'tap outside to close' behaviour can never be reached on a phone.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "WeeklyStrip (AdminWorkers + WorkerDashboard)", "issue": "Tapping a day tile never shows the day details popover. Reproduced with a touch-emulated context (is_mobile, has_touch, locator.tap()) at 390px: the popover count stays 0 for Mon and Sun. A mouse click shows the same thing: the first click gives 0 popovers, a second click gives 1. Root cause: a tap fires a compatibility mouseenter first, which runs onMouseEnter -> setHovered(i). React flushes that update, then onClick runs setHovered(cur => cur === i ? null : i), which closes it right away. Fix: use onPointerEnter/onPointerLeave and only set hover when e.pointerType === 'mouse'. Keep the onClick toggle for touch/pen (or make onClick always do setHovered(i) and rely on the new outside-tap listener to close).", "selector": "[data-testid='weekly-day-Mon'] .. [data-testid='weekly-day-Sun'], [data-testid='weekly-day-popover']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/admin/goals and /admin/trips at 320px width (minor, pre-existing)", "issues": ["Page scrolls sideways: document scrollWidth is 373 on goals and 346 on trips. The cause is the status TabsList (inline-flex h-9 ... about 350px wide) and the admin-goal-* cards (right edge 373). No overflow at 390px."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "WeeklyStrip.jsx: replace onMouseEnter/onMouseLeave with pointer events guarded by e.pointerType === 'mouse', so a touch tap does not open and then instantly close the popover. Retest with a touch-emulated tap on Sun and Mon tiles.",
+    "Optional: let the goals/trips status TabsList scroll or wrap (overflow-x-auto), and add min-w-0 to the goal card, to remove the sideways scroll at 320px."
+  ],
+  "critical_code_review_comments": [
+    "Reactions.jsx: the Popover is fine and uses collisionPadding=12 with max-w-[calc(100vw-24px)]. The useState 'open' is kept in sync through onOpenChange, which is correct.",
+    "ThemeContext forceTheme reads sessionStorage only inside a useMemo with [raw] as the dependency. Changing sessionStorage at runtime will not re-render until raw changes. This is acceptable for screenshot tooling, but it ships to production users too. Consider gating it behind a dev or query flag.",
+    "AdminWorkers card: removing overflow-hidden caused no horizontal overflow at 390px or 320px (cards are 356/356 scroll/client), and the day popover can now overflow the card as intended."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "not tested (frontend-only change)", "frontend": "Emoji picker 100%. WeeklyStrip: hover and clamp pass, tap fails."},
+  "seed_data_creation": "None. A 💎 reaction was added to one existing goal and then removed again.",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "test_credentials": "admin@loveworks.com / admin123 (from /app/memory/test_credentials.md)",
+  "context_for_next_testing_agent": "For real tap behaviour, create a context with browser.new_context(viewport 390x844, has_touch=True, is_mobile=True) and use locator.tap(). A plain page.click() also fires mouseenter. Admin goals: /admin/goals, picker testids goal-reaction-picker-{id}, emoji-picker-{id}, emoji-picker-row, pick-emoji-{e}, goal-reaction-{id}-{e}. WeeklyStrip: weekly-day-{Mon..Sun}, weekly-day-popover.",
+  "rca of the issue": "WeeklyStrip tap failure: on touch devices the browser sends mouseover/mouseenter -> mousedown -> mouseup -> click for one tap. onMouseEnter sets hovered=i, then the onClick toggle sees cur===i and sets null, so the popover flashes for one frame or never paints."
+}

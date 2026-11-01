@@ -22,6 +22,7 @@ function fmtHours(h) {
 export default function WeeklyStrip({ days = [], streak = 0, title = "Completed this week", dense = false }) {
   const [hovered, setHovered] = useState(null); // day index
   const rootRef = useRef(null);
+  const lastPointer = useRef("mouse");
   const todayIdx = (new Date().getDay() + 6) % 7;
 
   // Tap/click anywhere else closes the day details
@@ -56,9 +57,10 @@ export default function WeeklyStrip({ days = [], streak = 0, title = "Completed 
             <button
               key={d.day || DAY_LABELS[i]}
               type="button"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={() => setHovered((cur) => (cur === i ? null : i))}
+              onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setHovered(i); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setHovered(null); }}
+              onClick={() => { if (lastPointer.current !== "mouse") setHovered((cur) => (cur === i ? null : i)); }}
               data-testid={`weekly-day-${d.day || DAY_LABELS[i]}`}
               className={`relative rounded-lg ${dense ? "py-1.5" : "py-2"} text-center border transition outline-none ${
                 has
