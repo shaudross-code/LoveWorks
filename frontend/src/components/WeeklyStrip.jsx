@@ -60,7 +60,7 @@ export default function WeeklyStrip({ days = [], streak = 0, title = "Completed 
               onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setHovered(i); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setHovered(null); }}
-              onClick={() => { if (lastPointer.current !== "mouse") setHovered((cur) => (cur === i ? null : i)); }}
+              onClick={(e) => { if (e.detail === 0 || lastPointer.current !== "mouse") setHovered((cur) => (cur === i ? null : i)); }}
               data-testid={`weekly-day-${d.day || DAY_LABELS[i]}`}
               className={`relative rounded-lg ${dense ? "py-1.5" : "py-2"} text-center border transition outline-none ${
                 has

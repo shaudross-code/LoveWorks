@@ -422,7 +422,7 @@ export default function AdminTrips() {
                             <div className="h-full bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                           </div>
                         )}
-                        <div className="mt-3 grid grid-cols-4 gap-2 text-[11px]">
+                        <div className="mt-3 grid grid-cols-2 min-[400px]:grid-cols-4 gap-2 text-[11px]">
                           <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
                             <div className="uppercase tracking-widest text-zinc-500">Today</div>
                             <div className="font-display text-sm font-semibold text-white tabular-nums">${(g.progress?.today || 0).toFixed(2)}</div>
