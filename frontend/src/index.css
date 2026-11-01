@@ -5,12 +5,98 @@
 :root {
   color-scheme: dark;
   --safe-top: env(safe-area-inset-top, 0px);
+  /* Brand palette as RGB triplets so Tailwind opacity modifiers keep working (yellow-* = primary, pink/rose-* = accent). */
+  --c-yellow-300: 253 224 71;
+  --c-yellow-400: 250 204 21;
+  --c-yellow-500: 234 179 8;
+  --c-pink-300: 249 168 212;
+  --c-pink-400: 244 114 182;
+  --c-pink-500: 236 72 153;
+  --c-rose-300: 253 164 175;
+  --c-rose-400: 251 113 133;
+  --c-rose-500: 244 63 94;
+  --c-brand-dark: #b45309;
+  --theme-glow-a: transparent;
+  --theme-glow-b: transparent;
+}
+
+/* Holiday themes — switched by data-theme on <html> (see ThemeContext) */
+[data-theme="halloween"] {
+  --c-yellow-300: 253 186 116; --c-yellow-400: 249 115 22; --c-yellow-500: 234 88 12;
+  --c-pink-300: 196 181 253; --c-pink-400: 167 139 250; --c-pink-500: 139 92 246;
+  --c-rose-300: 196 181 253; --c-rose-400: 167 139 250; --c-rose-500: 124 58 237;
+  --c-brand-dark: #7c2d12;
+  --theme-glow-a: rgba(249, 115, 22, 0.14); --theme-glow-b: rgba(139, 92, 246, 0.14);
+}
+[data-theme="thanksgiving"] {
+  --c-yellow-300: 252 211 77; --c-yellow-400: 245 158 11; --c-yellow-500: 217 119 6;
+  --c-pink-300: 253 186 116; --c-pink-400: 251 146 60; --c-pink-500: 234 88 12;
+  --c-rose-300: 253 186 116; --c-rose-400: 251 146 60; --c-rose-500: 194 65 12;
+  --c-brand-dark: #78350f;
+  --theme-glow-a: rgba(245, 158, 11, 0.12); --theme-glow-b: rgba(194, 65, 12, 0.12);
+}
+[data-theme="christmas"] {
+  --c-yellow-300: 252 165 165; --c-yellow-400: 248 113 113; --c-yellow-500: 239 68 68;
+  --c-pink-300: 134 239 172; --c-pink-400: 74 222 128; --c-pink-500: 34 197 94;
+  --c-rose-300: 134 239 172; --c-rose-400: 74 222 128; --c-rose-500: 22 163 74;
+  --c-brand-dark: #7f1d1d;
+  --theme-glow-a: rgba(239, 68, 68, 0.12); --theme-glow-b: rgba(34, 197, 94, 0.12);
+}
+[data-theme="newyear"] {
+  --c-pink-300: 186 230 253; --c-pink-400: 56 189 248; --c-pink-500: 14 165 233;
+  --c-rose-300: 186 230 253; --c-rose-400: 56 189 248; --c-rose-500: 2 132 199;
+  --theme-glow-a: rgba(250, 204, 21, 0.12); --theme-glow-b: rgba(56, 189, 248, 0.12);
+}
+[data-theme="valentines"] {
+  --c-yellow-300: 253 164 175; --c-yellow-400: 251 113 133; --c-yellow-500: 244 63 94;
+  --c-brand-dark: #881337;
+  --theme-glow-a: rgba(251, 113, 133, 0.14); --theme-glow-b: rgba(244, 114, 182, 0.12);
+}
+[data-theme="stpatricks"] {
+  --c-yellow-300: 134 239 172; --c-yellow-400: 74 222 128; --c-yellow-500: 34 197 94;
+  --c-pink-300: 110 231 183; --c-pink-400: 52 211 153; --c-pink-500: 16 185 129;
+  --c-rose-300: 110 231 183; --c-rose-400: 52 211 153; --c-rose-500: 5 150 105;
+  --c-brand-dark: #14532d;
+  --theme-glow-a: rgba(74, 222, 128, 0.12); --theme-glow-b: rgba(16, 185, 129, 0.12);
+}
+[data-theme="easter"] {
+  --c-yellow-300: 221 214 254; --c-yellow-400: 196 181 253; --c-yellow-500: 167 139 250;
+  --c-pink-300: 167 243 208; --c-pink-400: 110 231 183; --c-pink-500: 52 211 153;
+  --c-rose-300: 167 243 208; --c-rose-400: 110 231 183; --c-rose-500: 16 185 129;
+  --c-brand-dark: #5b21b6;
+  --theme-glow-a: rgba(196, 181, 253, 0.12); --theme-glow-b: rgba(110, 231, 183, 0.12);
+}
+[data-theme="july4"] {
+  --c-yellow-300: 252 165 165; --c-yellow-400: 248 113 113; --c-yellow-500: 239 68 68;
+  --c-pink-300: 147 197 253; --c-pink-400: 96 165 250; --c-pink-500: 59 130 246;
+  --c-rose-300: 147 197 253; --c-rose-400: 96 165 250; --c-rose-500: 37 99 235;
+  --c-brand-dark: #7f1d1d;
+  --theme-glow-a: rgba(248, 113, 113, 0.12); --theme-glow-b: rgba(96, 165, 250, 0.12);
 }
 
 html, body, #root {
   background-color: #09090B;
   color: #FFFFFF;
 }
+html[data-theme]:not([data-theme="default"]) body {
+  background-image: radial-gradient(900px 500px at 10% -10%, var(--theme-glow-a), transparent 60%),
+                    radial-gradient(900px 500px at 90% 110%, var(--theme-glow-b), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Floating holiday decorations */
+@keyframes holiday-drift {
+  0%   { transform: translate3d(0, -8vh, 0) rotate(-8deg); opacity: 0; }
+  10%  { opacity: 0.38; }
+  90%  { opacity: 0.3; }
+  100% { transform: translate3d(0, 108vh, 0) rotate(10deg); opacity: 0; }
+}
+.holiday-floater {
+  position: fixed; top: 0; pointer-events: none; user-select: none; z-index: 5;
+  animation: holiday-drift linear infinite; will-change: transform, opacity;
+  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+}
+@media (prefers-reduced-motion: reduce) { .holiday-floater { display: none; } }
 
 body {
   margin: 0;
@@ -98,17 +184,17 @@ body {
 
 /* Gold branded wordmark for the app name */
 .brand-gold {
-  background: linear-gradient(115deg, #fde68a 0%, #facc15 30%, #b45309 50%, #facc15 70%, #fde68a 100%);
+  background: linear-gradient(115deg, rgb(var(--c-yellow-300)) 0%, rgb(var(--c-yellow-400)) 30%, var(--c-brand-dark) 50%, rgb(var(--c-yellow-400)) 70%, rgb(var(--c-yellow-300)) 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
   letter-spacing: -0.015em;
-  filter: drop-shadow(0 1px 6px rgba(250, 204, 21, 0.25));
+  filter: drop-shadow(0 1px 6px rgb(var(--c-yellow-400) / 0.25));
 }
 
 /* Selection */
 ::selection {
-  background: #FACC15;
+  background: rgb(var(--c-yellow-400));
   color: #000;
 }
 
@@ -116,15 +202,15 @@ body {
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: #0b0b0d; }
 ::-webkit-scrollbar-thumb { background: #2a2a2e; border-radius: 999px; }
-::-webkit-scrollbar-thumb:hover { background: #FACC15; }
+::-webkit-scrollbar-thumb:hover { background: rgb(var(--c-yellow-400)); }
 
 /* Sonner toast custom dark gold */
 [data-sonner-toaster] {
   --normal-bg: #121214;
   --normal-text: #FFF;
-  --normal-border: rgba(250, 204, 21, 0.25);
+  --normal-border: rgb(var(--c-yellow-400) / 0.25);
   --success-bg: #121214;
-  --success-text: #FACC15;
+  --success-text: rgb(var(--c-yellow-400));
   --error-bg: #121214;
   --error-text: #F87171;
 }

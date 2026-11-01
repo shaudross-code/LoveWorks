@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
+import { HolidayBadge } from "@/components/HolidayDecor";
 import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane, Heart, Ruler } from "lucide-react";
 
 const items = [
@@ -35,6 +36,7 @@ export default function WorkerLayout({ children }) {
               <div className="font-display font-bold leading-none text-sm sm:text-base brand-gold">iLoveWorks</div>
               <div className="hidden sm:block text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">Workspace</div>
             </div>
+            <HolidayBadge className="sm:hidden xl:inline-flex" />
           </div>
           <nav className="ml-4 lg:ml-6 hidden sm:flex items-center gap-0.5 lg:gap-1">
             {items.map(({ to, label, icon: Icon, testid }) => (

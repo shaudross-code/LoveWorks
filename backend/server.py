@@ -9,7 +9,7 @@ import uuid
 import json as _json
 import asyncio
 import logging
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 from typing import Optional, List
 try:
     from zoneinfo import ZoneInfo
@@ -1757,6 +1757,119 @@ async def save_worker_sizes(worker_id: str, payload: AdminSizesPayload, admin: d
     return {"sizes": doc, "changes": changes, "notified": notified}
 
 
+# --- Holiday themes (auto-active 7 days before/after each holiday; admin can override) ---
+HOLIDAY_THEMES = {
+    "newyear":      {"name": "New Year",          "greeting": "Happy New Year",            "emoji": "🎆", "emojis": ["🎆", "✨", "🥂"]},
+    "valentines":   {"name": "Valentine's Day",   "greeting": "Happy Valentine's Day",     "emoji": "💝", "emojis": ["💝", "💘", "🌹"]},
+    "stpatricks":   {"name": "St. Patrick's Day", "greeting": "Happy St. Patrick's Day",   "emoji": "☘️", "emojis": ["☘️", "🍀", "🌈"]},
+    "easter":       {"name": "Easter",            "greeting": "Happy Easter",              "emoji": "🐣", "emojis": ["🐣", "🌷", "🥚"]},
+    "july4":        {"name": "4th of July",       "greeting": "Happy 4th of July",         "emoji": "🇺🇸", "emojis": ["🎆", "🇺🇸", "⭐"]},
+    "halloween":    {"name": "Halloween",         "greeting": "Happy Halloween",           "emoji": "🎃", "emojis": ["🎃", "👻", "🦇"]},
+    "thanksgiving": {"name": "Thanksgiving",      "greeting": "Happy Thanksgiving",        "emoji": "🦃", "emojis": ["🦃", "🍂", "🥧"]},
+    "christmas":    {"name": "Christmas",         "greeting": "Merry Christmas",           "emoji": "🎄", "emojis": ["🎄", "❄️", "🎅"]},
+}
+THEME_WINDOW_DAYS = 7
+
+
+def _easter_date(year: int) -> date:
+    a, b, c = year % 19, year // 100, year % 100
+    d, e = b // 4, b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = c // 4, c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    month = (h + l - 7 * m + 114) // 31
+    day = ((h + l - 7 * m + 114) % 31) + 1
+    return date(year, month, day)
+
+
+def _thanksgiving_date(year: int) -> date:
+    first = date(year, 11, 1)
+    first_thu = first + timedelta(days=(3 - first.weekday()) % 7)
+    return first_thu + timedelta(days=21)
+
+
+def _holiday_dates(year: int) -> dict:
+    return {
+        "newyear": date(year, 1, 1), "valentines": date(year, 2, 14), "stpatricks": date(year, 3, 17),
+        "easter": _easter_date(year), "july4": date(year, 7, 4), "halloween": date(year, 10, 31),
+        "thanksgiving": _thanksgiving_date(year), "christmas": date(year, 12, 25),
+    }
+
+
+def _auto_theme(today: date):
+    best = None
+    for y in (today.year - 1, today.year, today.year + 1):
+        for key, d in _holiday_dates(y).items():
+            diff = abs((today - d).days)
+            if diff <= THEME_WINDOW_DAYS and (best is None or diff < best[2]):
+                best = (key, d, diff)
+    return best
+
+
+def _upcoming_windows(today: date) -> list:
+    out = []
+    for y in (today.year, today.year + 1):
+        for key, d in _holiday_dates(y).items():
+            start, end = d - timedelta(days=THEME_WINDOW_DAYS), d + timedelta(days=THEME_WINDOW_DAYS)
+            if end >= today:
+                out.append({"key": key, "name": HOLIDAY_THEMES[key]["name"], "emoji": HOLIDAY_THEMES[key]["emoji"],
+                            "date": d.isoformat(), "starts": start.isoformat(), "ends": end.isoformat()})
+    out.sort(key=lambda w: w["date"])
+    return out[:8]
+
+
+async def _theme_state(sandbox: bool) -> dict:
+    doc = await db.settings.find_one({"key": "theme", "sandbox": sandbox}, {"_id": 0})
+    mode = (doc or {}).get("value") or "auto"
+    today = now_utc().date()
+    auto = _auto_theme(today)
+    if mode == "auto":
+        effective = auto[0] if auto else "default"
+    else:
+        effective = mode
+    ends_on = (auto[1] + timedelta(days=THEME_WINDOW_DAYS)).isoformat() if (mode == "auto" and auto) else None
+    return {
+        "mode": mode, "effective": effective, "theme": HOLIDAY_THEMES.get(effective),
+        "auto_suggestion": auto[0] if auto else None, "ends_on": ends_on, "window_days": THEME_WINDOW_DAYS,
+        "themes": [{"key": k, **v} for k, v in HOLIDAY_THEMES.items()],
+        "upcoming": _upcoming_windows(today),
+        "updated_by": (doc or {}).get("updated_by"), "updated_at": (doc or {}).get("updated_at"),
+    }
+
+
+async def get_optional_user(request: Request):
+    try:
+        return await get_current_user(request)
+    except HTTPException:
+        return None
+
+
+class ThemeUpdate(BaseModel):
+    mode: str
+
+
+@api_router.get("/theme")
+async def get_theme(user: Optional[dict] = Depends(get_optional_user)):
+    return await _theme_state(bool(user and user.get("sandbox")))
+
+
+@api_router.put("/theme")
+async def set_theme(req: ThemeUpdate, admin: dict = Depends(require_admin)):
+    if req.mode not in ("auto", "default") and req.mode not in HOLIDAY_THEMES:
+        raise HTTPException(status_code=400, detail="Unknown theme")
+    sandbox = bool(admin.get("sandbox"))
+    await db.settings.update_one(
+        {"key": "theme", "sandbox": sandbox},
+        {"$set": {"key": "theme", "sandbox": sandbox, "value": req.mode, "updated_at": now_utc().isoformat(),
+                  "updated_by": {"id": admin["id"], "name": admin.get("name")}}},
+        upsert=True,
+    )
+    return await _theme_state(sandbox)
+
+
 # --- Tasks ---
 VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting", "self_care"}
 VALID_FREQUENCIES = {"once", "daily", "weekly", "monthly"}
@@ -1802,7 +1915,7 @@ def _validate_due_time(v: Optional[str]) -> Optional[str]:
 
 
 def _validate_dow(v):
-    if v is None:
+    if v is None or v == -1 or v == "":
         return None
     try:
         n = int(v)

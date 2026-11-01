@@ -3,6 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { ThemeProvider } from "@/context/ThemeContext";
+import { HolidayFloaters } from "@/components/HolidayDecor";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminLayout from "@/components/AdminLayout";
 import WorkerLayout from "@/components/WorkerLayout";
@@ -40,6 +42,8 @@ function App() {
   return (
     <div className="App">
       <AuthProvider>
+        <ThemeProvider>
+        <HolidayFloaters />
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
@@ -107,6 +111,7 @@ function App() {
           </Routes>
         </BrowserRouter>
         <Toaster richColors closeButton position="top-right" theme="dark" />
+        </ThemeProvider>
       </AuthProvider>
     </div>
   );
