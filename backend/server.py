@@ -301,9 +301,9 @@ class CreateWorkerRequest(BaseModel):
 
 
 class TaskCreate(BaseModel):
-    title: str
+    title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = ""
-    price: float
+    price: float = Field(ge=0)
     assignee_id: str
     due_at: Optional[str] = None  # ISO date or datetime (one-time deadline date)
     due_time: Optional[str] = None  # "HH:MM" 24h — time-of-day cutoff
@@ -315,9 +315,9 @@ class TaskCreate(BaseModel):
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = None
+    title: Optional[str] = Field(default=None, min_length=1, max_length=200)
     description: Optional[str] = None
-    price: Optional[float] = None
+    price: Optional[float] = Field(default=None, ge=0)
     assignee_id: Optional[str] = None
     status: Optional[str] = None  # assigned | in_progress | completed
     due_at: Optional[str] = None
@@ -574,7 +574,8 @@ async def clear_failed(identifier: str):
 @api_router.post("/auth/login")
 async def login(req: LoginRequest, request: Request, response: Response):
     email = req.email.lower().strip()
-    ip = request.client.host if request.client else "unknown"
+    fwd = request.headers.get("x-forwarded-for", "")
+    ip = fwd.split(",")[0].strip() if fwd else (request.client.host if request.client else "unknown")
     identifier = f"{ip}:{email}"
     await check_lockout(identifier)
     user = await db.users.find_one({"email": email}, {"_id": 0})
@@ -697,6 +698,7 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
     await db.push_subscriptions.delete_many({"user_id": uid})
     await db.device_tokens.delete_many({"user_id": uid})
     await db.sizes.delete_many({"user_id": uid})
+    await db.files.update_many({"user_id": uid}, {"$set": {"is_deleted": True}})
     await db.peer_access.delete_many({"$or": [{"requester_id": uid}, {"target_id": uid}]})
     await db.files.update_many({"user_id": uid}, {"$set": {"is_deleted": True}})
     await db.users.delete_one({"id": uid})
@@ -711,7 +713,7 @@ async def download_file(path: str, user: dict = Depends(get_current_user)):
     if not record:
         raise HTTPException(status_code=404, detail="File not found")
     if record.get("user_id") != user["id"]:
-        owner = await db.users.find_one({"id": record.get("user_id")}, {"_id": 0, "sandbox": 1})
+        owner = await db.users.find_one({"id": record.get("user_id")}, {"_id": 0, "id": 1, "sandbox": 1})
         if not owner or bool(owner.get("sandbox")) != bool(user.get("sandbox")):
             raise HTTPException(status_code=403, detail="Not allowed")
     try:
@@ -1543,6 +1545,7 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
     await db.tasks.delete_many({"assignee_id": worker_id})
     await db.time_entries.delete_many({"user_id": worker_id})
     await db.sizes.delete_many({"user_id": worker_id})
+    await db.files.update_many({"user_id": worker_id}, {"$set": {"is_deleted": True}})
     return {"ok": True}
 
 

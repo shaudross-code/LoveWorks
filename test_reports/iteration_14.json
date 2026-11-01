@@ -1,0 +1,40 @@
+{
+  "summary": "Tested the code-review fixes from commit 74ba462: lockout counter reset after the window, sandbox ACL on file downloads, theme using the local date, sandbox scoping on task PATCH/DELETE, assignee and status validation, and the price check in AdminTasks. Found one CRITICAL regression in the new file ACL and fixed it (1 line). After the fix, all 6 new pytest tests pass. Re-ran the sandbox/iter13/iter9 suites: 53/56 pass. The 3 failures are stale assertions already known before this change (height is now shown as 5'11\" and the 'x' due day returns 422). UI check: admin login, create task, edit price, delete task all work.",
+  "backend_issues": {
+    "critical": [
+      {"endpoint": "GET /api/files/{path}", "issue": "FIXED BY TESTING AGENT. The new ACL ran db.users.find_one(..., {'_id':0,'sandbox':1}). For real (non-sandbox) users this returns {} because the field is missing, and {} is falsy, so `not owner` was True and the endpoint returned 403. Result: a real admin could not load worker avatars, and collaborators could not load each other's goal/trip/essential images. Only the file owner could see their own file. Fix: projection now includes 'id':1.", "priority": "CRITICAL"}
+    ],
+    "minor": [
+      {"endpoint": "POST /api/auth/login", "issue": "Pre-existing issue, not from this change. The brute-force key is `request.client.host:email`, and client.host is the ingress pod IP. There are at least 2 ingress IPs (10.208.133.66/.69), so attempts spread across several records and a lockout took 9 failures instead of 5. After lockout, a correct password can still succeed if the request lands on a different ingress IP. Suggested fix: key by email only, or use the first X-Forwarded-For IP plus email."},
+      {"endpoint": "startup seed_admin", "issue": "Fails playbook check #5: if the existing admin's password does not match ADMIN_PASSWORD, it overwrites it (lines ~3294-3299). It also uses hardcoded env defaults (ADMIN_EMAIL='admin@example.com', ADMIN_PASSWORD='admin123')."},
+      {"endpoint": "DELETE /api/workers/{id}", "issue": "Does not soft-delete the worker's db.files rows (is_deleted stays False). They now return 403 because the owner is gone, but they are orphaned records."},
+      {"endpoint": "POST/PATCH /api/tasks", "issue": "The backend does not reject a negative price. Only the frontend checks it."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": ["/app/backend/tests/test_code_review_iter14.py", "/app/test_reports/pytest/pytest_iter14.xml"],
+  "action_items": [
+    "Review the testing agent's 1-line fix in download_file (projection includes 'id':1). Avoid projections that can return an empty dict and then treating {} as 'not found'.",
+    "Key login lockout by email (or by X-Forwarded-For IP plus email) instead of the ingress client.host, so lockout reliably triggers at 5 failures.",
+    "Make seed_admin idempotent without resetting an existing admin's password (playbook rule), and remove the hardcoded env defaults.",
+    "Optional: reject price < 0 on the backend in TaskCreate/TaskUpdate; mark files is_deleted when a worker is deleted.",
+    "Update the stale assertions in test_sizes_iter9.py (height is now 5'11\") and test_theme_dow_iter13.py::test_x_is_400_exact (422 is known)."
+  ],
+  "critical_code_review_comments": [
+    "download_file: the sandbox check only compares the sandbox flag. Any real worker can still fetch any other real user's file if they know the path. Paths contain UUIDs, so risk is low, but per-resource ACL is still missing.",
+    "update_task/delete_task call _scoped_worker_ids(), which loads up to 1000 worker IDs per request. A single find_one on the assignee with _sb() would be cheaper. Tasks whose assignee no longer exists cannot be edited or deleted by any admin (they become orphans).",
+    "server.py is 3410 lines and should be split into routers."
+  ],
+  "updated_files": ["/app/backend/server.py (download_file owner projection: added 'id':1)", "/app/backend/tests/test_code_review_iter14.py"],
+  "success_rate": {"backend": "100% of new tests after fix (6/6); 1 critical regression found and fixed", "frontend": "100% (task create/edit/delete flow)"},
+  "seed_data_creation": "TEST_ workers (test_iter14_*@example.com real and sandbox) are created per run and deleted in teardown. Their login_attempts are cleaned up. The UI-created TEST_iter14 task was deleted.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "test_credentials": "From /app/memory/test_credentials.md: admin@loveworks.com/admin123, reviewer@loveworks.com/iLoveWorks2026!, lovetest@loveworks.com/Love123!. No real accounts were left locked.",
+  "context_for_next_testing_agent": "Run with REACT_APP_BACKEND_URL exported. test_code_review_iter14.py uses pymongo directly to backdate login_attempts.last_attempt. Lockout records are per ingress IP, so the test loops until it gets 429.",
+  "rca of the issue": "File ACL 403: the Mongo projection {'_id':0,'sandbox':1} on a user with no 'sandbox' field returns {}. The code used `if not owner`, which treats {} as missing. Reproduction: a real worker uploads an avatar, then the real admin GETs /api/files/<path> and gets 403. Mitigation: include 'id' in the projection (applied) or check `owner is None`."
+}
