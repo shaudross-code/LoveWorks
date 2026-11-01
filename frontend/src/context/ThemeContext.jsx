@@ -4,16 +4,26 @@ import { useAuth } from "@/context/AuthContext";
 
 const ThemeContext = createContext({ state: null, refresh: () => {}, setMode: async () => {} });
 
+// sessionStorage.forceTheme lets screenshot tooling preview a look in this tab only, without touching anyone's setting
+const forcedTheme = () => (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("forceTheme") : null);
+
 export function ThemeProvider({ children }) {
   const { user } = useAuth();
-  const [state, setState] = useState(null);
+  const [raw, setRaw] = useState(null);
 
   const refresh = useCallback(async () => {
-    try { const { data } = await api.get("/theme"); setState(data); }
-    catch { setState((s) => s || { mode: "auto", effective: "default", theme: null }); }
+    try { const { data } = await api.get("/theme"); setRaw(data); }
+    catch { setRaw((s) => s || { mode: "auto", effective: "default", theme: null, themes: [] }); }
   }, []);
 
   useEffect(() => { refresh(); }, [refresh, user?.id]);
+
+  const state = useMemo(() => {
+    const forced = forcedTheme();
+    if (!raw || !forced) return raw;
+    const theme = forced === "default" ? null : (raw.themes || []).find((t) => t.key === forced) || null;
+    return { ...raw, effective: forced, theme };
+  }, [raw]);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", state?.effective || "default");
@@ -21,7 +31,7 @@ export function ThemeProvider({ children }) {
 
   const setMode = useCallback(async (mode) => {
     const { data } = await api.put("/theme", { mode });
-    setState(data);
+    setRaw(data);
     return data;
   }, []);
 

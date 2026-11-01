@@ -3,6 +3,7 @@ import api, { formatApiError } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Smile } from "lucide-react";
 import { toast } from "sonner";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const EMOJIS = ["👍", "❤️", "🔥", "🎉", "⭐", "💪", "🙌", "💎"];
 
@@ -57,31 +58,34 @@ export default function Reactions({ goal, onChange }) {
       ))}
 
       {canReact && (
-        <div className="relative">
-          <button
-            type="button"
-            data-testid={`goal-reaction-picker-${goal.id}`}
-            onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-zinc-900 border border-dashed border-yellow-400/30 text-yellow-300 hover:border-yellow-400/60 transition"
-          >
-            <Smile className="w-3 h-3" /> React
-          </button>
-          {open && (
-            <div className="absolute z-30 mt-1 right-0 bg-[#0f0f12] border border-yellow-400/30 rounded-xl p-2 flex gap-1 shadow-2xl">
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              data-testid={`goal-reaction-picker-${goal.id}`}
+              className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-zinc-900 border border-dashed border-yellow-400/30 text-yellow-300 hover:border-yellow-400/60 transition"
+            >
+              <Smile className="w-3 h-3" /> React
+            </button>
+          </PopoverTrigger>
+          <PopoverContent align="start" sideOffset={6} collisionPadding={12}
+            className="w-auto max-w-[calc(100vw-24px)] p-1.5 bg-[#0f0f12] border-yellow-400/30 rounded-xl shadow-2xl"
+            data-testid={`emoji-picker-${goal.id}`}>
+            <div className="flex gap-1 overflow-x-auto no-scrollbar overscroll-x-contain" style={{ WebkitOverflowScrolling: "touch" }} data-testid="emoji-picker-row">
               {EMOJIS.map((e) => (
                 <button
                   key={e}
                   type="button"
                   data-testid={`pick-emoji-${e}`}
                   onClick={() => toggle(e)}
-                  className="w-9 h-9 grid place-items-center rounded-lg hover:bg-yellow-400/10 text-lg transition"
+                  className="w-10 h-10 shrink-0 grid place-items-center rounded-lg hover:bg-yellow-400/10 active:bg-yellow-400/20 text-xl transition"
                 >
                   {e}
                 </button>
               ))}
             </div>
-          )}
-        </div>
+          </PopoverContent>
+        </Popover>
       )}
     </div>
   );
