@@ -117,7 +117,7 @@ export default function Login() {
                 value={email}
                 required
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
+                placeholder="you@loveworks.com"
                 className="mt-2 bg-zinc-900/70 border-zinc-800 text-white placeholder:text-zinc-600 focus-visible:ring-yellow-400 focus-visible:border-yellow-400 rounded-xl h-12"
               />
             </div>

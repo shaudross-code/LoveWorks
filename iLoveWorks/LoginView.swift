@@ -112,7 +112,7 @@ struct LoginView: View {
                                 .foregroundStyle(Theme.textMuted)
                                 .tracking(1)
                             
-                            TextField("you@company.com", text: $email)
+                            TextField("you@loveworks.com", text: $email)
                                 .disableAutocorrection(true)
                                 .padding()
                                 .background(Color(red: 24/255, green: 24/255, blue: 27/255).opacity(0.7))
