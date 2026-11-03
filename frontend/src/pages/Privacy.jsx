@@ -42,7 +42,7 @@ const SECTIONS = [
 
 export default function Privacy() {
   return (
-    <div className="min-h-screen bg-[#09090B] text-white">
+    <div className="min-h-screen bg-[#09090B] text-white" style={{ paddingTop: "var(--safe-top)" }}>
       <div className="max-w-3xl mx-auto px-6 py-12 sm:py-16">
         <div className="flex items-center gap-3">
           <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 grid place-items-center shadow-lg shadow-pink-500/30">

@@ -680,22 +680,23 @@ struct Tile: View {
             HStack(spacing: 4) {
                 if let icon = icon {
                     Image(systemName: icon)
-                        .font(.system(size: 8))
+                        .font(.system(size: 10))
+                        .foregroundStyle(Theme.textMuted)
                 }
                 Text(label)
-                    .font(.system(size: 8, weight: .black))
+                    .font(.system(size: 10, weight: .black))
                     .foregroundStyle(Theme.textMuted)
                     .tracking(1)
             }
             Text(value)
-                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .font(.custom("Outfit-Bold", size: 24))
                 .foregroundStyle(accentColor)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(Theme.surface.opacity(0.6))
+        .padding(16)
+        .background(Color(red: 24/255, green: 24/255, blue: 27/255).opacity(0.7))
         .cornerRadius(16)
-        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Theme.border, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color(red: 39/255, green: 39/255, blue: 42/255), lineWidth: 1))
     }
 }
 

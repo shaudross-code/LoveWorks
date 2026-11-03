@@ -1137,10 +1137,10 @@
   resolved "https://registry.yarnpkg.com/@capacitor/ios/-/ios-7.6.8.tgz#a50f1213bf9235650fb951e7c4e6bc1a0285c11a"
   integrity sha512-TAM1FdI1Cfl8e/wLBo7x5m61V/J1fMEpyxU2psZzHzsa436k2pwEME6CQoBRYdw6Q6gud0jZSPwOVrNn+MI7Ag==
 
-"@capacitor/push-notifications@^8.1.2":
-  version "8.1.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/push-notifications/-/push-notifications-8.1.2.tgz#d7340d9c81f46500cdb61ecaeb45cc21542a689f"
-  integrity sha512-TQl4XxqJfNF+KbSYBFMXYYT5WXUaleVKXlByhh/8+KySMVNjp+l5OqAUoGe/sY1IAnGXEuUeCjA/WLZEVvGwrA==
+"@capacitor/push-notifications@^7":
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/@capacitor/push-notifications/-/push-notifications-7.0.7.tgz#3d855ecab3b2d1f0bfa5797fea9c989fb6348799"
+  integrity sha512-TgFsPV4uOez0RtFKsWPz3XCrLxc9th+UyAkillUY9vL6ezVKT35te9Sn4vGR0jeU2U0KUNU7Dt6oSCALnSiEKg==
 
 "@craco/craco@7.1.0":
   version "7.1.0"

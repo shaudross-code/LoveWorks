@@ -13,6 +13,21 @@ module.exports = {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+  			yellow: {
+  				300: 'rgb(var(--c-yellow-300) / <alpha-value>)',
+  				400: 'rgb(var(--c-yellow-400) / <alpha-value>)',
+  				500: 'rgb(var(--c-yellow-500) / <alpha-value>)'
+  			},
+  			pink: {
+  				300: 'rgb(var(--c-pink-300) / <alpha-value>)',
+  				400: 'rgb(var(--c-pink-400) / <alpha-value>)',
+  				500: 'rgb(var(--c-pink-500) / <alpha-value>)'
+  			},
+  			rose: {
+  				300: 'rgb(var(--c-rose-300) / <alpha-value>)',
+  				400: 'rgb(var(--c-rose-400) / <alpha-value>)',
+  				500: 'rgb(var(--c-rose-500) / <alpha-value>)'
+  			},
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			card: {

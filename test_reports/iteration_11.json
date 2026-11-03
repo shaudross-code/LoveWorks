@@ -1,0 +1,26 @@
+{
+  "summary": "Static check of the Capacitor iOS project after its CocoaPods→SPM conversion, plus a browser regression at 390x844. New script /app/tests/static_ios_spm_check.py: 87/88 checks pass. The one failure is a false positive: the word 'Firebase' appears only in a code comment in AppDelegate.swift. There is no 'import Firebase' and no 'FirebaseMessaging'. pbxproj: XCLocalSwiftPackageReference 'CapApp-SPM' (relativePath CapApp-SPM) + XCSwiftPackageProductDependency + 'CapApp-SPM in Frameworks'. Bundle id com.loveworks.app, version 1.0.1, build 3, iOS 14.0 deployment target. No Pods refs, Podfile or xcworkspace. Braces balanced. public folder and config.xml are in Resources. Package.swift: exact 7.6.8 + vendored ../Plugins/CapacitorPushNotifications. The plugin's source/test target paths exist and it depends on capacitor-swift-pm from 7.0.0. Info.plist keys, storyboards and assets (every file listed in Contents.json exists) are correct, and capacitor.config.json is correct. git check-ignore: nothing is ignored. All iOS files incl. Plugins/ and CapApp-SPM/ are already tracked by git (git status clean, auto-committed). iOS and Android bundles match the build hash main.dcf63377.js, contain the new strings and the production URL, have no preview URL, ship 10 measure webps and use viewport-fit=cover. All @capacitor packages are ^7 and node_modules are 7.x. native_sync.sh and docs are OK. Browser: admin /admin/workers scrollWidth=390 with 2 sizes-worker buttons. m-nav-sizes → /admin/sizes shows 'Gear that fits.' at scrollY=0. The measure guide dialog image loads (naturalWidth 720). Worker /worker/sizes shows the sections in the correct order. Not done: no Xcode build (macOS not available).",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "My Sizes > How to measure dialog", "issues": ["The general Body-section 'How to measure' button (open-measure-guide) opened the guide on step 4/10 (Chest / bust), not 1/10. This may be on purpose (e.g. jumps to the first unfilled field); if not, start at step 1."]}
+    ]
+  },
+  "test_report_links": ["/app/tests/static_ios_spm_check.py"],
+  "action_items": [
+    "Optional: confirm that opening the generic 'How to measure' guide on step 4/10 is intended.",
+    "User must verify on a Mac: open frontend/ios/App/App.xcodeproj (NOT the root iLoveWorks.xcodeproj), let SPM resolve capacitor-swift-pm 7.6.8, then build. This could not be tested here."
+  ],
+  "critical_code_review_comments": [
+    "AppDelegate.swift has no explicit UNUserNotificationCenter delegate setup. That is fine: the Capacitor PushNotifications plugin handles it.",
+    "native_sync.sh's sed only matches the exact path string '../../../node_modules/@capacitor/push-notifications'. If a future Capacitor CLI writes a different relative path, the re-point silently fails. The later grep -q makes the script exit non-zero under set -e, which is acceptable."
+  ],
+  "updated_files": ["/app/tests/static_ios_spm_check.py"],
+  "success_rate": {"backend": "N/A (not requested)", "frontend": "100%", "static": "100% (87/88; the 1 failure is a false positive from a comment)"},
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Run python3 /app/tests/static_ios_spm_check.py for the iOS SPM and bundle static regression. Its 'no Firebase in any App/*.swift' check fails only because of the AppDelegate comment; tighten it to check for 'import Firebase' if needed. Use m-nav-* testids for admin mobile pills."
+}

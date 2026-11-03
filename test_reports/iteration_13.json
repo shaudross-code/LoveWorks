@@ -1,0 +1,34 @@
+{
+  "summary": "Iteration 13: tested the due_day_of_week bug fix (backend and UI on desktop 1920 and mobile 390), the Holiday theme API (public GET, admin PUT, auth rules) and the theme UI (login page, admin, worker, Profile ThemeSettings chips), plus regressions (Sizes dialog, /worker/sizes, NotificationBell, Halloween announcement). Everything requested works. Found 2 minor issues. At the end all TEST_ tasks were deleted and the theme is back on mode=auto, effective=halloween, ends_on=2026-11-07.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST/PATCH /api/tasks", "issue": "due_day_of_week='x' returns 422 (Pydantic int_parsing error list), not 400 'due_day_of_week must be 0..6'. Cause: TaskCreate/TaskUpdate.due_day_of_week is typed Optional[int], so Pydantic rejects the value before _validate_dow runs. The UI never sends this, so it is cosmetic. Fix: type the field as Optional[Union[int,str]] so _validate_dow handles it."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [
+      {"flow": "Worker Workday 'Due this week' panel", "issue": "A task with due_day_of_week=Friday (frequency once, no due_at) is listed under 'Open · anytime' and the 'Due this week' panel says '0 · Quiet week ahead'. YOUR WEEK FRI shows 0 and 'This week potential' is $0.00. The task card does show 'Fri' correctly. Optional: count day-of-week tasks as due this week.", "affected_selectors": ["Due this week panel on /worker"]}
+    ],
+    "design_issues": [
+      {"screen": "Admin tasks list / worker cards", "issues": ["Floaters (pointer-events none) sometimes sit on top of action buttons such as 'Mark complete' or the price area. This is only visual and clicks still work."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_theme_dow_iter13.py", "/app/test_reports/pytest/pytest_iter13.xml"],
+  "action_items": [
+    "(minor) Accept non-int due_day_of_week and return 400 instead of a 422 Pydantic error",
+    "(optional) Count tasks with due_day_of_week in the worker's 'Due this week' panel and week strip"
+  ],
+  "critical_code_review_comments": [
+    "PATCH branch: `_validate_dow(x) if x != -1 else None` is redundant because _validate_dow already maps -1 to None.",
+    "_upcoming_windows: the Christmas (Dec 18–Jan 1) and New Year (Dec 25–Jan 8) windows overlap. _auto_theme picks the closest holiday, so Dec 25–28 shows Christmas and Dec 29 onwards shows New Year. That is reasonable, but the schedule list shows overlapping ranges.",
+    "server.py is ~3400 lines; it should be split into routers (themes, tasks, sizes)."
+  ],
+  "updated_files": ["/app/backend/tests/test_theme_dow_iter13.py"],
+  "success_rate": {"backend": "91% (10/11; the only failure is the 'x' → 422 vs 400 check)", "frontend": "100% of requested flows"},
+  "seed_data_creation": "Created TEST_dow_none, TEST_dow_fri, TEST_ui_noday and TEST_ui_friday tasks for lovetest; all deleted. Theme restored to auto.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Theme verified: login page, admin and worker all get data-theme=halloween. Primary colour is rgb(249,115,22) under Halloween and rgb(250,204,21) under default. There are 9 .holiday-floater spans with pointer-events none. Normal (non-force) clicks on the profile theme chips and nav work. Desktop has two notification-bell elements, one hidden, so use :visible. Always PUT /api/theme {mode:'auto'} at the end. lovetest worker id is 2ccdb3b8-6f97-459c-9cc9-ebf49917c90d. Do not assign tasks to zakieraross (a real user). The 401 console errors on /login come from the auth/me probe while logged out and are expected."
+}

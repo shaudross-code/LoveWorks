@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Camera, Loader2, Save, Trash2, User, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
 import { PushSettings } from "@/components/PushPrompt";
+import ThemeSettings from "@/components/ThemeSettings";
 
 export default function Profile() {
   const { user, setUser } = useAuth();
@@ -158,6 +159,8 @@ export default function Profile() {
             <PushSettings />
           </div>
         </div>
+
+        {user?.role === "admin" && <ThemeSettings />}
 
         <div className="mt-8 pt-6 border-t border-red-500/20">
           <div className="text-xs uppercase tracking-widest text-red-400 flex items-center gap-1.5">

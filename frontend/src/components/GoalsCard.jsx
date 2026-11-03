@@ -175,7 +175,7 @@ export default function GoalsCard() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <div className={`font-display text-lg font-semibold ${g.status === "completed" ? "text-zinc-300 line-through" : ""}`}>{g.title}</div>
+                    <div className={`font-display text-lg font-semibold break-words [overflow-wrap:anywhere] ${g.status === "completed" ? "text-zinc-300 line-through" : ""}`}>{g.title}</div>
                     <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs ${status.className}`}>
                       <StatusIcon className="w-3 h-3" /> {status.label}
                     </span>
@@ -207,7 +207,7 @@ export default function GoalsCard() {
                         <div className="h-full bg-gradient-to-r from-yellow-300 to-yellow-500 rounded-full transition-all" style={{ width: `${pct}%` }} />
                       </div>
                     )}
-                    <div className="mt-3 grid grid-cols-4 gap-2 text-[11px]">
+                    <div className="mt-3 grid grid-cols-2 min-[400px]:grid-cols-4 gap-2 text-[11px]">
                       <div className="rounded-lg bg-zinc-900/60 border border-zinc-800 px-2 py-1.5">
                         <div className="uppercase tracking-widest text-zinc-500">Today</div>
                         <div className="font-display text-sm font-semibold text-white tabular-nums">${(g.progress?.today || 0).toFixed(2)}</div>

@@ -121,6 +121,7 @@ export default function AdminTasks() {
     e.preventDefault();
     if (!form.assignee_id) { toast.error("Pick a worker"); return; }
     if (!form.title.trim()) { toast.error("Title is required"); return; }
+    if (!Number.isFinite(parseFloat(form.price)) || parseFloat(form.price) < 0) { toast.error("Enter a price (0 or more)"); return; }
     setBusy(true);
     // Convert daily_hours according to unit toggle
     let dailyHours = null;
@@ -317,22 +318,24 @@ export default function AdminTasks() {
               </div>
             </div>
 
-            {form.frequency === "weekly" && (
-              <div>
-                <label className="text-xs uppercase tracking-widest text-zinc-500">Day of week</label>
-                <Select value={form.due_day_of_week} onValueChange={(v) => setForm({ ...form, due_day_of_week: v })}>
-                  <SelectTrigger data-testid="task-due-dow" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11">
-                    <SelectValue placeholder="Pick a day…" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
-                    {DAYS_OF_WEEK.map(d => (
-                      <SelectItem key={d.value} value={d.value} data-testid={`dow-${d.value}`}>{d.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <div className="text-[10px] text-zinc-500 mt-1">e.g., Friday by 6 PM = pick Friday + set Due time 18:00.</div>
+            <div>
+              <label className="text-xs uppercase tracking-widest text-zinc-500">Due day of the week</label>
+              <Select value={form.due_day_of_week || "none"} onValueChange={(v) => setForm({ ...form, due_day_of_week: v === "none" ? "" : v })}>
+                <SelectTrigger data-testid="task-due-dow" className="mt-2 bg-zinc-900 border-zinc-800 text-white rounded-xl h-11">
+                  <SelectValue placeholder="Pick a day…" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#121214] border-yellow-400/20 text-white">
+                  <SelectItem value="none" data-testid="dow-none">No specific day</SelectItem>
+                  {DAYS_OF_WEEK.map(d => (
+                    <SelectItem key={d.value} value={d.value} data-testid={`dow-${d.value}`}>{d.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="text-[10px] text-zinc-500 mt-1">
+                {form.frequency === "weekly" ? "Repeats every week on this day. " : "Shown on the task card so the crew knows the day. "}
+                e.g., Friday by 6 PM = pick Friday + set Due time 18:00.
               </div>
-            )}
+            </div>
 
             <div>
               <label className="text-xs uppercase tracking-widest text-zinc-500">Total est. hours</label>
@@ -343,11 +346,11 @@ export default function AdminTasks() {
               <div className="text-[10px] text-zinc-500 mt-1">Any decimal — 3.33, 7.5, 0.25, anything.</div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <label className="text-xs uppercase tracking-widest text-zinc-500">Daily required</label>
-                  <div className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full p-0.5">
+                  <div className="inline-flex items-center bg-zinc-900 border border-zinc-800 rounded-full p-0.5 shrink-0">
                     {["hours", "minutes"].map((u) => (
                       <button
                         key={u}

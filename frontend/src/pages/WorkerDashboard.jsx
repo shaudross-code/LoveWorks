@@ -111,11 +111,21 @@ export default function WorkerDashboard() {
     tasks.forEach((t) => {
       if (t.status === "completed") return;
       openTotal += Number(t.price);
-      if (!t.due_at) { anytime.push(t); return; }
-      const due = new Date(t.due_at).getTime();
+      let due = t.due_at ? new Date(t.due_at).getTime() : null;
+      if (due == null && t.due_day_of_week != null) {
+        // Day-of-week only: next occurrence of that weekday (today counts), at its due time or end of day
+        const d = startOfDay();
+        const todayDow = (d.getDay() + 6) % 7; // Mon=0
+        d.setDate(d.getDate() + ((t.due_day_of_week - todayDow + 7) % 7));
+        const [hh, mm] = (t.due_time || "23:59").split(":").map(Number);
+        d.setHours(hh, mm, 59, 999);
+        due = d.getTime();
+      }
+      if (due == null) { anytime.push(t); return; }
       if (due < todayStart) overdue.push(t);
       else if (due <= todayEnd) dueToday.push(t);
       else if (due <= weekEnd) dueThisWeek.push(t);
+      else anytime.push(t);
       if (due >= weekStart && due <= weekEnd) weeklyPotential += Number(t.price);
     });
     return { dueToday, dueThisWeek, overdue, anytime, weeklyPotential, openTotal };
@@ -316,7 +326,7 @@ export default function WorkerDashboard() {
           />
           <DeadlineBucket
             testid="bucket-anytime" tone="zinc" icon={Hourglass}
-            title="Open · anytime" empty="Inbox zero." tasks={dl.anytime} onComplete={(t) => setStatus(t, "completed")}
+            title="Open · later" empty="Inbox zero." tasks={dl.anytime} onComplete={(t) => setStatus(t, "completed")}
           />
         </div>
       </section>

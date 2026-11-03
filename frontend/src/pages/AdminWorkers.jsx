@@ -174,7 +174,7 @@ export default function AdminWorkers() {
             : 0;
           return (
             <div key={w.id} data-testid={`worker-card-${w.id}`}
-              className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-4 sm:p-5 min-w-0 overflow-hidden">
+              className="bg-[#121214] border border-yellow-400/15 rounded-2xl p-4 sm:p-5 min-w-0">
               <div className="flex items-start gap-3 flex-wrap sm:flex-nowrap">
                 <div className="relative">
                   <Avatar url={w.avatar_url} name={w.name || w.email} size={52} />

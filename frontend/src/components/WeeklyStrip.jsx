@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Flame } from "lucide-react";
 
 const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -21,14 +21,24 @@ function fmtHours(h) {
  */
 export default function WeeklyStrip({ days = [], streak = 0, title = "Completed this week", dense = false }) {
   const [hovered, setHovered] = useState(null); // day index
+  const rootRef = useRef(null);
+  const lastPointer = useRef("mouse");
   const todayIdx = (new Date().getDay() + 6) % 7;
+
+  // Tap/click anywhere else closes the day details
+  useEffect(() => {
+    if (hovered == null) return;
+    const onDoc = (e) => { if (!rootRef.current?.contains(e.target)) setHovered(null); };
+    document.addEventListener("pointerdown", onDoc);
+    return () => document.removeEventListener("pointerdown", onDoc);
+  }, [hovered]);
 
   // Determine which days are part of the active streak ending today
   const streakSet = new Set();
   for (let i = 0; i < streak; i += 1) streakSet.add(todayIdx - i);
 
   return (
-    <div className="relative">
+    <div className="relative" ref={rootRef}>
       <div className="flex items-center justify-between mb-2">
         <div className="text-[10px] uppercase tracking-widest text-zinc-500">{title}</div>
         {streak >= 2 && (
@@ -47,9 +57,10 @@ export default function WeeklyStrip({ days = [], streak = 0, title = "Completed 
             <button
               key={d.day || DAY_LABELS[i]}
               type="button"
-              onMouseEnter={() => setHovered(i)}
-              onMouseLeave={() => setHovered(null)}
-              onClick={() => setHovered((cur) => (cur === i ? null : i))}
+              onPointerDown={(e) => { lastPointer.current = e.pointerType; }}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setHovered(i); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setHovered(null); }}
+              onClick={(e) => { if (e.detail === 0 || lastPointer.current !== "mouse") setHovered((cur) => (cur === i ? null : i)); }}
               data-testid={`weekly-day-${d.day || DAY_LABELS[i]}`}
               className={`relative rounded-lg ${dense ? "py-1.5" : "py-2"} text-center border transition outline-none ${
                 has
@@ -70,12 +81,13 @@ export default function WeeklyStrip({ days = [], streak = 0, title = "Completed 
       {hovered != null && (() => {
         const d = days[hovered];
         if (!d) return null;
-        // anchor popover near the hovered tile
-        const left = `${(hovered + 0.5) * (100 / 7)}%`;
+        // anchor popover near the hovered tile, clamped so it never leaves the strip's width
+        const center = (hovered + 0.5) * (100 / 7);
         return (
           <div
-            className="absolute z-30 -translate-x-1/2 mt-2 w-60 bg-[#0f0f12] border border-yellow-400/30 rounded-xl p-3 shadow-2xl pointer-events-none"
-            style={{ left, top: "100%" }}
+            data-testid="weekly-day-popover"
+            className="absolute z-30 mt-2 w-60 max-w-full bg-[#0f0f12] border border-yellow-400/30 rounded-xl p-3 shadow-2xl pointer-events-none"
+            style={{ left: `clamp(0px, calc(${center}% - 7.5rem), calc(100% - 15rem))`, top: "100%" }}
           >
             <div className="flex items-center justify-between">
               <div className="font-display font-semibold">{d.day}</div>

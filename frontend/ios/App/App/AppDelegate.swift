@@ -1,38 +1,25 @@
 import UIKit
 import Capacitor
-import FirebaseCore
-import FirebaseMessaging
+import UserNotifications
 
 @UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
+class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
-    private var firebaseReady = false
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Only configure Firebase when GoogleService-Info.plist is bundled
-        if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
-            FirebaseApp.configure()
-            Messaging.messaging().delegate = self
-            firebaseReady = true
-        }
+        // Push: the Capacitor PushNotifications plugin requests permission and registers with APNs
+        // when the web app calls it (see src/lib/nativePush.js). Firebase/FCM is added later via
+        // File ▸ Add Package Dependencies ▸ firebase-ios-sdk once GoogleService-Info.plist is bundled
+        // (see /PUSH_SETUP_GUIDE.md).
         return true
     }
 
-    func applicationWillResignActive(_ application: UIApplication) {
-    }
-
-    func applicationDidEnterBackground(_ application: UIApplication) {
-    }
-
-    func applicationWillEnterForeground(_ application: UIApplication) {
-    }
-
-    func applicationDidBecomeActive(_ application: UIApplication) {
-    }
-
-    func applicationWillTerminate(_ application: UIApplication) {
-    }
+    func applicationWillResignActive(_ application: UIApplication) {}
+    func applicationDidEnterBackground(_ application: UIApplication) {}
+    func applicationWillEnterForeground(_ application: UIApplication) {}
+    func applicationDidBecomeActive(_ application: UIApplication) {}
+    func applicationWillTerminate(_ application: UIApplication) {}
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
         return ApplicationDelegateProxy.shared.application(app, open: url, options: options)
@@ -42,29 +29,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, MessagingDelegate {
         return ApplicationDelegateProxy.shared.application(application, continue: userActivity, restorationHandler: restorationHandler)
     }
 
-    // MARK: - Push notifications (APNs -> FCM token mapping)
+    // MARK: - APNs registration → forwarded to the Capacitor PushNotifications plugin
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        if firebaseReady {
-            Messaging.messaging().apnsToken = deviceToken
-            Messaging.messaging().token { token, error in
-                if let error = error {
-                    NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
-                } else if let token = token {
-                    NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
-                }
-            }
-        } else {
-            NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
-        }
+        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: deviceToken)
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
         NotificationCenter.default.post(name: .capacitorDidFailToRegisterForRemoteNotifications, object: error)
-    }
-
-    func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let token = fcmToken else { return }
-        NotificationCenter.default.post(name: .capacitorDidRegisterForRemoteNotifications, object: token)
     }
 }

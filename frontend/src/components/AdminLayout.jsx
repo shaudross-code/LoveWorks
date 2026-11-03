@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
+import { HolidayBadge } from "@/components/HolidayDecor";
 import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler } from "lucide-react";
 
 const items = [
@@ -39,6 +40,7 @@ export default function AdminLayout({ children }) {
             </div>
             <NotificationBell align="left" />
           </div>
+          <HolidayBadge className="mt-3" />
         </div>
         <nav className="flex-1 px-3 py-5 space-y-1">
           {items.map(({ to, label, icon: Icon, testid }) => (
@@ -85,6 +87,7 @@ export default function AdminLayout({ children }) {
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-400 to-rose-500 text-white grid place-items-center shadow-md shadow-pink-500/30"><Heart className="w-4 h-4 fill-white" /></div>
           <div className="font-display font-bold text-sm brand-gold">iLoveWorks</div>
+          <HolidayBadge />
         </div>
         <div className="flex items-center gap-2">
           <button data-testid="logout-btn-mobile" onClick={async () => { await logout(); nav("/login"); }} className="text-zinc-300 text-xs flex items-center gap-1 px-2 h-8 rounded-full hover:bg-white/5">
