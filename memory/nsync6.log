@@ -1,0 +1,68 @@
+yarn run v1.22.22
+$ craco build
+(node:8962) [DEP0176] DeprecationWarning: fs.F_OK is deprecated, use fs.constants.F_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Creating an optimized production build...
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+Compiled with warnings.
+
+[eslint] 
+src/components/GoalsCard.jsx
+  Line 62:63:  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/AdminEssentials.jsx
+  Line 50:32:  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+src/pages/AdminTrips.jsx
+  Line 81:32:  React Hook useEffect has a missing dependency: 'load'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+File sizes after gzip:
+
+  212.27 kB  build/static/js/main.95d07194.js
+  15.83 kB   build/static/css/main.27b17c92.css
+  192 B      build/static/js/629.a6fc9f5f.chunk.js
+
+The project was built assuming it is hosted at /.
+You can control this with the homepage field in your package.json.
+
+The build folder is ready to be deployed.
+You may serve it with a static server:
+
+  yarn global add serve
+  serve -s build
+
+Find out more about deployment here:
+
+  https://cra.link/deployment
+
+Done in 17.05s.
+✔ Copying web assets from build to android/app/src/main/assets/public in 108.70ms
+✔ Creating capacitor.config.json in android/app/src/main/assets in 606.64μs
+✔ copy android in 141.19ms
+✔ Updating Android plugins in 9.47ms
+[info] Found 1 Capacitor plugin for android:
+       @capacitor/push-notifications@7.0.7
+✔ update android in 51.88ms
+✔ Copying web assets from build to ios/App/App/public in 100.62ms
+✔ Creating capacitor.config.json in ios/App/App in 255.97μs
+✔ copy ios in 162.77ms
+✔ Updating iOS plugins in 9.94ms
+[info] All Capacitor plugins have a Package.swift file and will be included in Package.swift
+[info] Writing Package.swift
+[info] Found 1 Capacitor plugin for ios:
+       @capacitor/push-notifications@7.0.7
+✔ update ios in 50.92ms
+✔ copy web in 16.12ms
+✔ update web in 15.34ms
+[info] Sync finished in 0.562s
+iOS Package.swift OK (vendored plugin)
+Native shells synced.
+EXIT 0

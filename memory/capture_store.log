@@ -1,0 +1,114 @@
+▶ iphone_6.9 -> /app/appstore_screenshots
+  ✓ 00_login
+  ✓ 01_admin_overview
+  ✓ 02_workers
+  ✓ 02b_worker_sizes_admin
+  ✓ 03_tasks
+  ✓ 04_goals
+  ✓ 05_trips
+  ✓ 06_essentials
+  ✓ 07_payroll
+  ✓ 08_announcements
+  ✓ 09_admin_profile
+  ✓ 10_worker_home
+  ✓ 11_worker_history
+  ✓ 12_worker_awards
+  ✓ 13_worker_trips
+  ✓ 14_worker_essentials
+  ✓ 15_worker_announcements
+  ✓ 16_my_sizes
+  ✓ 17_measure_guide
+  ✓ 18_worker_profile
+▶ ipad_13 -> /app/appstore_screenshots/ipad_13
+  ✓ 00_login
+  ✓ 01_admin_overview
+  ✓ 02_workers
+  ✓ 02b_worker_sizes_admin
+  ✓ 03_tasks
+  ✓ 04_goals
+  ✓ 05_trips
+  ✓ 06_essentials
+  ✓ 07_payroll
+  ✓ 08_announcements
+  ✓ 09_admin_profile
+  ✓ 10_worker_home
+  ✓ 11_worker_history
+  ✓ 12_worker_awards
+  ✓ 13_worker_trips
+  ✓ 14_worker_essentials
+  ✓ 15_worker_announcements
+  ✓ 16_my_sizes
+  ✓ 17_measure_guide
+  ✓ 18_worker_profile
+▶ play_phone -> /app/playstore_assets/phone
+  ✓ 00_login
+  ✓ 01_admin_overview
+  ✓ 02_workers
+  ✓ 02b_worker_sizes_admin
+  ✓ 03_tasks
+  ✓ 04_goals
+  ✓ 05_trips
+  ✓ 06_essentials
+  ✓ 07_payroll
+  ✓ 08_announcements
+  ✓ 09_admin_profile
+  ✓ 10_worker_home
+  ✓ 11_worker_history
+  ✓ 12_worker_awards
+  ✓ 13_worker_trips
+  ✓ 14_worker_essentials
+  ✓ 15_worker_announcements
+  ✓ 16_my_sizes
+  ✓ 17_measure_guide
+  ✓ 18_worker_profile
+▶ tablet_7in -> /app/playstore_assets/tablet_7in
+  ✓ 00_login
+  ✓ 01_admin_overview
+  ✓ 02_workers
+  ✓ 02b_worker_sizes_admin
+  ✓ 03_tasks
+  ✓ 04_goals
+  ✓ 05_trips
+  ✓ 06_essentials
+  ✓ 07_payroll
+  ✓ 08_announcements
+  ✓ 09_admin_profile
+  ✓ 10_worker_home
+  ✓ 11_worker_history
+  ✓ 12_worker_awards
+  ✓ 13_worker_trips
+  ✓ 14_worker_essentials
+  ✓ 15_worker_announcements
+  ✓ 16_my_sizes
+  ✓ 17_measure_guide
+  ✓ 18_worker_profile
+▶ tablet_10in -> /app/playstore_assets/tablet_10in
+  ✓ 00_login
+  ✓ 01_admin_overview
+  ✓ 02_workers
+  ✓ 02b_worker_sizes_admin
+  ✓ 03_tasks
+  ✓ 04_goals
+  ✓ 05_trips
+  ✓ 06_essentials
+  ✓ 07_payroll
+  ✓ 08_announcements
+  ✓ 09_admin_profile
+  ✓ 10_worker_home
+  ✓ 11_worker_history
+  ✓ 12_worker_awards
+  ✓ 13_worker_trips
+  ✓ 14_worker_essentials
+  ✓ 15_worker_announcements
+  ✓ 16_my_sizes
+  ✓ 17_measure_guide
+  ✓ 18_worker_profile
+▶ iphone_6.9 -> /app/appstore_screenshots/seasonal_halloween
+  ✓ 10_worker_home
+  ✓ 16_my_sizes
+▶ play_phone -> /app/playstore_assets/phone/seasonal_halloween
+  ✓ 10_worker_home
+  ✓ 16_my_sizes
+
+✅ All store screenshots regenerated
+EXIT 0
