@@ -6,73 +6,64 @@
 import SwiftUI
 import Combine
 
-enum UserRole: String, Codable {
-    case admin
-    case worker
-}
-
-struct User: Codable, Identifiable {
-    let id: String
-    let email: String
-    let name: String
-    let role: UserRole
-    let avatarUrl: String?
-}
-
-struct LoginResponse: Codable {
-    let user: User
-    let accessToken: String
-    let tokenType: String
-}
-
 class SessionManager: ObservableObject {
     @Published var currentUser: User?
     @Published var isLoading = true
-    
+
     static let shared = SessionManager()
-    
+
     private init() {
         checkSession()
     }
-    
+
     func checkSession() {
         Task {
-            if let _ = KeychainService.shared.read(service: "TUE.iLoveWorks", account: "access_token") {
+            if APIClient.shared.token != nil {
                 do {
                     let user: User = try await APIClient.shared.request("/auth/me")
-                    await MainActor.run {
-                        self.currentUser = user
-                        self.isLoading = false
-                    }
+                    self.currentUser = user
+                    self.didSignIn()
+                } catch APIError.unauthorized {
+                    _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
                 } catch {
                     print("Session check failed: \(error)")
-                    await MainActor.run {
-                        self.isLoading = false
-                    }
-                }
-            } else {
-                await MainActor.run {
-                    self.isLoading = false
                 }
             }
+            self.isLoading = false
         }
     }
-    
+
     func login(email: String, password: String) async throws {
-        let body = try JSONEncoder().encode(["email": email, "password": password])
+        let body = try JSONEncoder().encode(["email": email.trimmingCharacters(in: .whitespaces).lowercased(), "password": password])
         let response: LoginResponse = try await APIClient.shared.request("/auth/login", method: "POST", body: body)
-        
-        // Save token
         if let tokenData = response.accessToken.data(using: .utf8) {
             _ = KeychainService.shared.save(tokenData, service: "TUE.iLoveWorks", account: "access_token")
         }
-        
-        await MainActor.run {
-            self.currentUser = response.user
+        currentUser = response.user
+        didSignIn()
+    }
+
+    func updateUser(_ user: User) {
+        currentUser = user
+    }
+
+    private func didSignIn() {
+        Task { await ThemeStore.shared.refresh() }
+        PushManager.shared.signedIn()
+    }
+
+    func logout() {
+        currentUser = nil
+        Task {
+            await PushManager.shared.signedOut()
+            _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
+            await ThemeStore.shared.refresh()
         }
     }
-    
-    func logout() {
+
+    /// Clears the session without calling the server (account already deleted).
+    func forgetSession() {
+        PushManager.shared.forgetToken()
         _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
         currentUser = nil
     }
