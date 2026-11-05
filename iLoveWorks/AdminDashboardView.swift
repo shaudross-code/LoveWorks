@@ -340,16 +340,16 @@ struct AdminWorkerCard: View {
             }
             
             // Inconsistency Chips
-            if status.inconsistencies.totalIssues > 0 {
+            if (status.inconsistencies?.totalIssues ?? 0) > 0 {
                 HStack(spacing: 8) {
-                    if status.inconsistencies.streakBroken {
+                    if status.inconsistencies?.streakBroken == true {
                         InconsistencyChip(label: "STREAK BROKEN", icon: "exclamationmark.triangle.fill", color: .red)
                     }
-                    if !status.inconsistencies.missedDays.isEmpty {
-                        InconsistencyChip(label: "\(status.inconsistencies.missedDays.count) MISSED DAYS", icon: "zzz", color: .blue)
+                    if !(status.inconsistencies?.missedDays ?? []).isEmpty {
+                        InconsistencyChip(label: "\((status.inconsistencies?.missedDays ?? []).count) MISSED DAYS", icon: "zzz", color: .blue)
                     }
-                    if !status.inconsistencies.lowDays.isEmpty {
-                        InconsistencyChip(label: "\(status.inconsistencies.lowDays.count) LIGHT DAYS", icon: "chart.line.downtrend.xyaxis", color: .orange)
+                    if !(status.inconsistencies?.lowDays ?? []).isEmpty {
+                        InconsistencyChip(label: "\((status.inconsistencies?.lowDays ?? []).count) LIGHT DAYS", icon: "chart.line.downtrend.xyaxis", color: .orange)
                     }
                 }
             }
@@ -630,7 +630,7 @@ struct AddTaskView: View {
                         isSubmitting = true
                         Task {
                             if let p = Double(price) {
-                                try? await viewModel.createTask(title: title, description: description, price: p, assigneeId: selectedWorkerId)
+                                try? await viewModel.createTask(AdminViewModel.TaskCreateRequest(title: title, description: description, price: p, assigneeId: selectedWorkerId, frequency: "one-off", dueDayOfWeek: nil, dueTime: nil))
                                 await MainActor.run {
                                     isSubmitting = false
                                     dismiss()
@@ -1139,7 +1139,7 @@ struct AdminAnnouncementsView: View {
                                 .font(.headline)
                                 .foregroundStyle(Theme.textMain)
                             Spacer()
-                            Text(ann.tag.uppercased())
+                            Text((ann.tag ?? "").uppercased())
                                 .font(.system(size: 8, weight: .black))
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)

@@ -9,27 +9,29 @@ struct Theme {
     static let background = Color(hex: "#09090B")
     static let surface = Color(hex: "#121214")
     static let surfaceHover = Color(hex: "#1A1A1D")
-    static let primary = Color(hex: "#FACC15") // Gold remains as primary accent
-    static let primaryHover = Color(hex: "#FDE047")
     static let secondary = Color(hex: "#27272A")
     static let textMain = Color(hex: "#FFFFFF")
     static let textMuted = Color(hex: "#A1A1AA")
     static let success = Color(hex: "#4ADE80")
     static let danger = Color(hex: "#F87171")
-    static let border = Color(hex: "#FACC15").opacity(0.2)
-    
-    // LoveWorks Rebrand Colors
-    static let lovePink = Color(hex: "#F472B6") // Pink-rose for rebrand
-    static let loveGradient = LinearGradient(
-        gradient: Gradient(colors: [Color(hex: "#F472B6"), Color(hex: "#E11D48")]),
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+
+    // These follow the active holiday theme (gold/pink by default, orange/purple at Halloween, …)
+    static var primary: Color { Color(hex: ThemeStore.shared.palette.primary) }
+    static var primaryHover: Color { Color(hex: ThemeStore.shared.palette.primaryHover) }
+    static var border: Color { primary.opacity(0.2) }
+    static var lovePink: Color { Color(hex: ThemeStore.shared.palette.accent) }
+    static var loveGradient: LinearGradient {
+        LinearGradient(
+            gradient: Gradient(colors: [lovePink, Color(hex: ThemeStore.shared.palette.accentDeep)]),
+            startPoint: .topLeading,
+            endPoint: .bottomTrailing
+        )
+    }
 }
 
 extension Color {
     static let zinc = Color(hex: "#27272A")
-    
+
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0

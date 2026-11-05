@@ -7,46 +7,58 @@ import SwiftUI
 
 struct GoalCard: View {
     let goal: Goal
-    
+    /// When set, shows the reactions row and lets the signed-in user react.
+    var onReactionsChange: (([GoalReaction]) -> Void)? = nil
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text(goal.title)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundStyle(Theme.textMain)
+            HStack(alignment: .firstTextBaseline) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(goal.title)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Theme.textMain)
+                        .lineLimit(2)
+                    if let owner = goal.owner?.name {
+                        Text(owner)
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                }
                 Spacer()
                 if let target = goal.targetAmount {
-                    Text("$\(Int(target))")
+                    Text(Fmt.money(target))
                         .font(.system(size: 14, weight: .bold))
                         .foregroundStyle(Theme.lovePink)
                 }
             }
-            
-            // Progress Bar
+
             VStack(alignment: .leading, spacing: 4) {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Rectangle()
                             .fill(Theme.secondary)
                             .frame(height: 8)
-                        
                         Rectangle()
                             .fill(Theme.loveGradient)
-                            .frame(width: geo.size.width * CGFloat(min(goal.progress.pctOfTarget ?? 0, 100) / 100.0), height: 8)
+                            .frame(width: geo.size.width * CGFloat(min(goal.pct, 100) / 100.0), height: 8)
                     }
                     .cornerRadius(4)
                 }
                 .frame(height: 8)
-                
+
                 HStack {
-                    Text("\(Int(goal.progress.pctOfTarget ?? 0))% reached")
+                    Text("\(Int(goal.pct))% reached")
                         .font(.system(size: 10))
                         .foregroundStyle(Theme.textMuted)
                     Spacer()
-                    Text("$\(Int(goal.progress.week)) this week")
+                    Text("\(Fmt.money(goal.weekAmount)) this week")
                         .font(.system(size: 10))
                         .foregroundStyle(Theme.lovePink)
                 }
+            }
+
+            if let onReactionsChange {
+                ReactionsView(goal: goal, onChange: onReactionsChange)
             }
         }
         .padding()
@@ -62,7 +74,7 @@ struct GoalCard: View {
 struct EssentialCard: View {
     let essential: Essential
     let onToggle: () -> Void
-    
+
     var body: some View {
         HStack(spacing: 16) {
             Button(action: onToggle) {
@@ -76,14 +88,14 @@ struct EssentialCard: View {
                     }
                 }
             }
-            
+
             VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(essential.title)
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(essential.purchased ? Theme.textMuted : Theme.textMain)
                         .strikethrough(essential.purchased)
-                    
+
                     Text(essential.category.uppercased())
                         .font(.system(size: 8, weight: .black))
                         .padding(.horizontal, 6)
@@ -92,7 +104,7 @@ struct EssentialCard: View {
                         .foregroundStyle(categoryColor())
                         .cornerRadius(4)
                 }
-                
+
                 if let note = essential.note, !note.isEmpty {
                     Text(note)
                         .font(.system(size: 12))
@@ -100,9 +112,9 @@ struct EssentialCard: View {
                         .lineLimit(1)
                 }
             }
-            
+
             Spacer()
-            
+
             VStack(alignment: .trailing, spacing: 2) {
                 Text("$\(String(format: "%.2f", essential.price * Double(essential.quantity)))")
                     .font(.system(size: 14, weight: .bold))
@@ -117,7 +129,7 @@ struct EssentialCard: View {
         .cornerRadius(20)
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(Theme.border, lineWidth: 1))
     }
-    
+
     private func categoryColor() -> Color {
         switch essential.category {
         case "household": return .blue
@@ -133,33 +145,53 @@ struct EssentialCard: View {
 struct WeeklyStripView: View {
     let activity: [WeeklyDay]
     let days = ["M", "T", "W", "T", "F", "S", "S"]
-    
+    @State private var selected: Int?
+
     var body: some View {
-        HStack(spacing: 8) {
-            ForEach(0..<7) { index in
-                let dayActivity = index < activity.count ? activity[index] : nil
-                VStack(spacing: 8) {
-                    Text(days[index])
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(Theme.textMuted)
-                    
-                    Circle()
-                        .fill((dayActivity?.count ?? 0) > 0 ? Theme.lovePink : Theme.secondary)
-                        .frame(width: 32, height: 32)
-                        .overlay(
-                            Text("\((dayActivity?.count ?? 0))")
-                                .font(.system(size: 12, weight: .bold))
-                                .foregroundStyle((dayActivity?.count ?? 0) > 0 ? .white : Theme.textMuted)
-                        )
-                    
-                    if (dayActivity?.count ?? 0) >= 3 {
-                        Text("🔥")
-                            .font(.system(size: 10))
-                    } else {
-                        Spacer().frame(height: 10)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 8) {
+                ForEach(0..<7, id: \.self) { index in
+                    let count = index < activity.count ? activity[index].count : 0
+                    Button {
+                        withAnimation(.easeOut(duration: 0.15)) { selected = selected == index ? nil : index }
+                    } label: {
+                        VStack(spacing: 8) {
+                            Text(days[index])
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(selected == index ? Theme.lovePink : Theme.textMuted)
+                            Circle()
+                                .fill(count > 0 ? Theme.lovePink : Theme.secondary)
+                                .frame(width: 32, height: 32)
+                                .overlay(
+                                    Text("\(count)")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundStyle(count > 0 ? .white : Theme.textMuted)
+                                )
+                                .overlay(Circle().stroke(selected == index ? Theme.primary : .clear, lineWidth: 2))
+                            Text(count >= 3 ? "🔥" : " ")
+                                .font(.system(size: 10))
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
+            if let i = selected, i < activity.count {
+                let d = activity[i]
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("\(Weekday.names[i]) · \(d.count) done · \(Fmt.money(d.earned)) · \(String(format: "%.1fh", d.hours))")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Theme.textMain)
+                    ForEach(Array((d.titles ?? []).prefix(5).enumerated()), id: \.offset) { _, title in
+                        Text("• \(title)")
+                            .font(.system(size: 11))
+                            .foregroundStyle(Theme.textMuted)
+                            .lineLimit(1)
                     }
                 }
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .transition(.opacity)
             }
         }
         .padding()
@@ -179,7 +211,7 @@ struct DeadlineBucket: View {
     let tasks: [TaskItem]
     let tone: DeadlineTone
     let icon: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -195,13 +227,13 @@ struct DeadlineBucket: View {
                 .foregroundStyle(toneColor())
                 .cornerRadius(100)
                 .overlay(Capsule().stroke(toneColor().opacity(0.3), lineWidth: 1))
-                
+
                 Spacer()
                 Text("\(tasks.count)")
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.textMuted)
             }
-            
+
             if tasks.isEmpty {
                 Text("Quiet for now.")
                     .font(.system(size: 12))
@@ -227,82 +259,92 @@ struct DeadlineBucket: View {
                 }
             }
         }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
         .padding(16)
         .background(Theme.surface)
         .cornerRadius(20)
         .overlay(RoundedRectangle(cornerRadius: 20).stroke(Theme.border, lineWidth: 1))
     }
-    
+
     private func toneColor() -> Color {
         switch tone {
         case .red: return .red
         case .yellow: return Theme.primary
         case .sky: return .blue
-        case .zinc: return .zinc
+        case .zinc: return Theme.textMuted
         }
     }
 }
 
 struct TaskRow: View {
     let task: TaskItem
+    var showAssignee = false
     let onToggle: () -> Void
     let onStart: () -> Void
     let onSpeak: (String) -> Void
-    
+
     var body: some View {
         HStack(spacing: 16) {
             Button(action: onToggle) {
                 ZStack {
                     Circle()
-                        .stroke(task.status == "completed" ? Color.green.opacity(0.4) : Theme.border, lineWidth: 1)
+                        .stroke(task.isCompleted ? Color.green.opacity(0.4) : Theme.border, lineWidth: 1)
                         .frame(width: 32, height: 32)
-                    if task.status == "completed" {
+                    if task.isCompleted {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundStyle(.green)
                     }
                 }
             }
-            
-            VStack(alignment: .leading, spacing: 4) {
+
+            VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
                     Text(task.title)
                         .font(.system(size: 15, weight: .semibold))
-                        .foregroundStyle(task.status == "completed" ? Theme.textMuted : Theme.textMain)
-                        .strikethrough(task.status == "completed")
-                    
-                    if let desc = task.description {
+                        .foregroundStyle(task.isCompleted ? Theme.textMuted : Theme.textMain)
+                        .strikethrough(task.isCompleted)
+                        .lineLimit(2)
+
+                    if let desc = task.description, !desc.isEmpty {
                         Button(action: { onSpeak(desc) }) {
                             Image(systemName: "speaker.wave.2.fill")
                                 .font(.system(size: 10))
                                 .foregroundStyle(Theme.lovePink)
                         }
                     }
-                    
+                }
+
+                FlowLayout(spacing: 6) {
+                    if let due = TaskSchedule.dueLabel(task) {
+                        MetadataChip(label: due, icon: "calendar", color: Theme.primary)
+                    }
                     if let freq = task.frequency, freq != "once" {
                         MetadataChip(label: freq, icon: "repeat", color: .blue)
                     }
-                    
                     if let payout = task.payoutSchedule, payout != "per_task" {
                         MetadataChip(label: "paid \(payout)", icon: "wallet.pass.fill", color: .green)
                     }
+                    if showAssignee, let name = task.assigneeName {
+                        MetadataChip(label: name, icon: "person.fill", color: Theme.textMuted)
+                    }
                 }
-                
-                if let desc = task.description, task.status != "completed" {
+
+                if let desc = task.description, !desc.isEmpty, !task.isCompleted {
                     Text(desc)
                         .font(.system(size: 13))
                         .foregroundStyle(Theme.textMuted)
                         .lineLimit(2)
                 }
             }
-            
-            Spacer()
-            
+
+            Spacer(minLength: 0)
+
             VStack(alignment: .trailing, spacing: 8) {
                 Text("$\(String(format: "%.2f", task.price))")
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Theme.lovePink)
-                
-                if task.status != "completed" {
+
+                if !task.isCompleted {
                     Button(action: onStart) {
                         Text(task.status == "in_progress" ? "WORKING…" : "START")
                             .font(.system(size: 9, weight: .black))
@@ -327,16 +369,17 @@ struct MetadataChip: View {
     let label: String
     let icon: String
     let color: Color
-    
+
     var body: some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.system(size: 8))
             Text(label.uppercased())
                 .font(.system(size: 8, weight: .black))
+                .lineLimit(1)
         }
         .padding(.horizontal, 6)
-        .padding(.vertical, 2)
+        .padding(.vertical, 3)
         .background(color.opacity(0.15))
         .foregroundStyle(color)
         .cornerRadius(4)
@@ -346,13 +389,14 @@ struct MetadataChip: View {
 
 struct NotificationsView: View {
     let notifications: [NotificationItem]
+    var onAppear: () -> Void = {}
     @Environment(\.dismiss) var dismiss
-    
+
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Theme.background.ignoresSafeArea()
-                
+
                 if notifications.isEmpty {
                     Text("No notifications")
                         .foregroundStyle(Theme.textMuted)
@@ -363,11 +407,14 @@ struct NotificationsView: View {
                                 Text(notif.title)
                                     .font(.system(size: 16, weight: .bold))
                                     .foregroundStyle(notif.read ? Theme.textMuted : Theme.textMain)
-                                if let body = notif.body {
+                                if let body = notif.body, !body.isEmpty {
                                     Text(body)
                                         .font(.system(size: 14))
                                         .foregroundStyle(Theme.textMuted)
                                 }
+                                Text(APIDate.short(notif.createdAt))
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(Theme.textMuted.opacity(0.7))
                             }
                             .listRowBackground(Theme.surface)
                         }
@@ -382,5 +429,100 @@ struct NotificationsView: View {
                 }
             }
         }
+        .onAppear(perform: onAppear)
+    }
+}
+
+/// Wraps children onto new lines (chips, reactions).
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 8
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = arrange(subviews, width: proposal.width ?? .infinity)
+        let height = rows.last.map { $0.y + $0.height } ?? 0
+        let width = rows.map(\.width).max() ?? 0
+        return CGSize(width: proposal.width ?? width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        for row in arrange(subviews, width: bounds.width) {
+            var x = bounds.minX
+            for i in row.items {
+                let size = subviews[i].sizeThatFits(.unspecified)
+                subviews[i].place(at: CGPoint(x: x, y: bounds.minY + row.y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+        }
+    }
+
+    private struct Row { var items: [Int] = []; var y: CGFloat = 0; var width: CGFloat = 0; var height: CGFloat = 0 }
+
+    private func arrange(_ subviews: Subviews, width: CGFloat) -> [Row] {
+        var rows: [Row] = []
+        var current = Row()
+        for (i, view) in subviews.enumerated() {
+            let size = view.sizeThatFits(.unspecified)
+            if !current.items.isEmpty && current.width + spacing + size.width > width {
+                rows.append(current)
+                current = Row(y: current.y + current.height + spacing)
+            }
+            current.width += (current.items.isEmpty ? 0 : spacing) + size.width
+            current.height = max(current.height, size.height)
+            current.items.append(i)
+        }
+        if !current.items.isEmpty { rows.append(current) }
+        return rows
+    }
+}
+
+/// Section label used on forms.
+struct FieldLabel: View {
+    let text: String
+    var body: some View {
+        Text(text.uppercased())
+            .font(.system(size: 10, weight: .bold))
+            .foregroundStyle(Theme.textMuted)
+            .tracking(1)
+    }
+}
+
+extension View {
+    func inlineNavigationTitle() -> some View {
+        #if os(iOS)
+        return self.navigationBarTitleDisplayMode(.inline)
+        #else
+        return self
+        #endif
+    }
+
+    func decimalKeyboard() -> some View {
+        #if os(iOS)
+        return self.keyboardType(.decimalPad)
+        #else
+        return self
+        #endif
+    }
+
+    func numberKeyboard() -> some View {
+        #if os(iOS)
+        return self.keyboardType(.numberPad)
+        #else
+        return self
+        #endif
+    }
+
+    func emailField() -> some View {
+        #if os(iOS)
+        return self.keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled()
+        #else
+        return self.autocorrectionDisabled()
+        #endif
+    }
+
+    func fieldBox() -> some View {
+        self.padding()
+            .background(Theme.surface)
+            .cornerRadius(12)
+            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
     }
 }
