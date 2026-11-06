@@ -665,7 +665,7 @@ struct AdminTasksView: View {
                         .padding(.top, 20)
                         
                         VStack(spacing: 12) {
-                            ForEach(viewModel.tasks) { task in
+                            ForEach(viewModel.tasks.sorted { !$0.isCompleted && $1.isCompleted }) { task in
                                 TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { _ in })
                             }
                         }

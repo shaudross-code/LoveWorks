@@ -395,7 +395,7 @@ struct WorkerDashboardMainView: View {
                             if viewModel.tasks.isEmpty {
                                 EmptyStateView(icon: "sparkles", title: "No tasks yet", message: "Your admin will assign them here.")
                             } else {
-                                ForEach(viewModel.tasks) { task in
+                                ForEach(viewModel.tasks.sorted { !$0.isCompleted && $1.isCompleted }) { task in
                                     TaskRow(task: task, onToggle: {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.isCompleted ? "assigned" : "completed") }
                                     }, onStart: {
