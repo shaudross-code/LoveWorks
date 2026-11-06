@@ -1042,7 +1042,11 @@ struct AdminMoreView: View {
                 
                 List {
                     Section {
-                        NavigationLink(destination: AdminTripsView(viewModel: viewModel)) {
+                        
+                        NavigationLink(destination: AdminGoalsView(viewModel: viewModel)) {
+                            Label("Goals", systemImage: "target")
+                        }
+NavigationLink(destination: AdminTripsView(viewModel: viewModel)) {
                             Label("Trips", systemImage: "airplane")
                         }
                         NavigationLink(destination: AdminPayrollView(viewModel: viewModel)) {
@@ -1050,6 +1054,9 @@ struct AdminMoreView: View {
                         }
                         NavigationLink(destination: AdminAnnouncementsView(viewModel: viewModel)) {
                             Label("Announcements", systemImage: "megaphone.fill")
+                        }
+                        NavigationLink(destination: AdminProfileView()) {
+                            Label("Profile", systemImage: "person.crop.circle.fill")
                         }
                     } header: {
                         Text("Management")
@@ -1298,4 +1305,35 @@ struct AdminPayrollView: View {
 #Preview {
     AdminDashboardView()
         .environmentObject(SessionManager.shared)
+}
+
+
+struct AdminProfileView: View {
+    @EnvironmentObject var session: SessionManager
+    var body: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    PageHeader(eyebrow: "PROFILE", title: "Your account.")
+                    HStack {
+                        Circle().fill(Theme.secondary).frame(width: 80, height: 80)
+                            .overlay(Text(String(session.currentUser?.name.prefix(1) ?? "A")).font(.title).bold().foregroundStyle(.white))
+                        VStack(alignment: .leading) {
+                            Text("Signed in as").font(.caption).foregroundStyle(Theme.textMuted)
+                            Text(session.currentUser?.email ?? "").font(.title3).bold().foregroundStyle(Theme.textMain)
+                            Text(session.currentUser?.role.rawValue.capitalized ?? "Admin").font(.caption).padding(6).background(Theme.primary.opacity(0.2)).foregroundStyle(Theme.primary).cornerRadius(8)
+                        }
+                    }
+                    .padding().frame(maxWidth: .infinity, alignment: .leading).background(Theme.surface).cornerRadius(16)
+                    
+                    Button(action: { session.logout() }) {
+                        Text("Logout").bold().frame(maxWidth: .infinity).padding().background(Theme.surface).foregroundStyle(Theme.danger).cornerRadius(16)
+                    }
+                }
+                .padding()
+            }
+        }
+        .navigationTitle("Profile")
+    }
 }
