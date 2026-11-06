@@ -49,6 +49,11 @@ struct GoalCard: View {
                             .font(.system(size: 11))
                             .foregroundStyle(Theme.textMuted)
                     }
+                    if let period = goal.period {
+                        Text("Due: " + period)
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundStyle(Theme.danger)
+                    }
                 }
 
                 if let link = goal.productLink, let url = URL(string: link) {
