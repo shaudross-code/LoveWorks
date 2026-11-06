@@ -31,6 +31,7 @@ struct ActivityInfo: Identifiable {
 enum WorkerTab: String, CaseIterable, Identifiable {
     case workday = "Workday"
     case history = "History"
+    case goals = "Goals"
     case trips = "Trips"
     case essentials = "Essentials"
     case awards = "Awards"
@@ -45,6 +46,7 @@ enum WorkerTab: String, CaseIterable, Identifiable {
         switch self {
         case .workday: return "clock.fill"
         case .history: return "clock.arrow.circlepath"
+        case .goals: return "target"
         case .trips: return "airplane"
         case .essentials: return "briefcase.fill"
         case .awards: return "trophy.fill"
@@ -163,6 +165,8 @@ struct WorkerDashboardView: View {
                         WorkerDashboardMainView(viewModel: viewModel)
                     case .history:
                         WorkerHistoryView(viewModel: viewModel)
+                    case .goals:
+                        WorkerGoalsView(viewModel: viewModel)
                     case .trips:
                         WorkerTripsView(viewModel: viewModel)
                     case .essentials:
@@ -908,3 +912,38 @@ struct WorkerProfileView: View {
     }
 }
 
+
+
+struct WorkerGoalsView: View {
+    @ObservedObject var viewModel: WorkerViewModel
+
+    var body: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    PageHeader(eyebrow: "WISHLIST", title: "Target Goals.")
+
+                    VStack(spacing: 12) {
+                        if viewModel.goals.isEmpty {
+                            Text("No active goals found.")
+                                .font(.subheadline)
+                                .foregroundStyle(Theme.textMuted)
+                                .padding()
+                        } else {
+                            ForEach(viewModel.goals) { goal in
+                                GoalCard(goal: goal, onReactionsChange: { newReactions in
+                                    viewModel.setReactions(goalId: goal.id, newReactions)
+                                })
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+
+                    Spacer(minLength: 40)
+                }
+            }
+        }
+    }
+}
