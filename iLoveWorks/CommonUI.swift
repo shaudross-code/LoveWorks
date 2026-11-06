@@ -50,6 +50,14 @@ struct GoalCard: View {
                             .foregroundStyle(Theme.textMuted)
                     }
                 }
+
+                if let link = goal.productLink, let url = URL(string: link) {
+                    Link(destination: url) {
+                        Image(systemName: "link.circle.fill")
+                            .font(.system(size: 20))
+                            .foregroundStyle(Theme.primary)
+                    }
+                }
                 Spacer()
                 if let target = goal.targetAmount {
                     Text(Fmt.money(target))
