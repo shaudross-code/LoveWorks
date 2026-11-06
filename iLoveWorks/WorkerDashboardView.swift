@@ -28,7 +28,6 @@ struct ActivityInfo: Identifiable {
     }
 }
 
-
 enum WorkerTab: String, CaseIterable, Identifiable {
     case workday = "Workday"
     case history = "History"
@@ -99,7 +98,7 @@ struct WorkerDashboardView: View {
                         // Notifications & Logout
                         HStack(spacing: 16) {
                             Button(action: {
-                                sessionManager.logout()
+                                Task { await sessionManager.logout() }
                             }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -119,7 +118,7 @@ struct WorkerDashboardView: View {
                     .padding(.horizontal)
                     .padding(.top, 16)
                     .padding(.bottom, 12)
-
+                    
                     Divider().background(Theme.border.opacity(0.5))
 
                     // Horizontal Scrolling Tabs
@@ -815,8 +814,6 @@ struct ProfileRow<Content: View>: View {
     WorkerDashboardView()
         .environmentObject(SessionManager.shared)
 }
-
-
 
 struct WorkerHistoryView: View {
     @ObservedObject var viewModel: WorkerViewModel
