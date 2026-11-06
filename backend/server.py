@@ -64,13 +64,14 @@ try:
     from firebase_admin import credentials as fb_credentials, messaging as fb_messaging
     _fb_cred = None
     if FIREBASE_SERVICE_ACCOUNT_JSON.strip():
-        _fb_cred = fb_credentials.Certificate(_json.loads(FIREBASE_SERVICE_ACCOUNT_JSON))
+        _fb_cred = fb_credentials.Certificate(_json.loads(FIREBASE_SERVICE_ACCOUNT_JSON, strict=False))
     elif FIREBASE_CREDENTIALS_PATH and Path(FIREBASE_CREDENTIALS_PATH).exists():
         _fb_cred = fb_credentials.Certificate(FIREBASE_CREDENTIALS_PATH)
     if _fb_cred:
         firebase_admin.initialize_app(_fb_cred)
         FCM_READY = True
-except Exception:  # pragma: no cover
+except Exception as _fb_err:  # pragma: no cover
+    logging.getLogger(__name__).warning(f"Firebase push disabled: {_fb_err}")
     fb_messaging = None
 
 # Task due-soon reminder window

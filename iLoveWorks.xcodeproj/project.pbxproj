@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CE9F9B82300B846700BB12BB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9F9B81300B846700BB12BB /* FirebaseMessaging */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		CE9F9B59300B846700BB12BB /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -29,9 +33,22 @@
 		CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		CE9F9B83300B846700BB12BB /* Exceptions for "iLoveWorks" folder in "iLoveWorks" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"App-Info.plist",
+			);
+			target = CE9F9B48300B846500BB12BB /* iLoveWorks */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		CE9F9B4B300B846500BB12BB /* iLoveWorks */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE9F9B83300B846700BB12BB /* Exceptions for "iLoveWorks" folder in "iLoveWorks" target */,
+			);
 			path = iLoveWorks;
 			sourceTree = "<group>";
 		};
@@ -52,6 +69,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CE9F9B82300B846700BB12BB /* FirebaseMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +130,7 @@
 			);
 			name = iLoveWorks;
 			packageProductDependencies = (
+				CE9F9B81300B846700BB12BB /* FirebaseMessaging */,
 			);
 			productName = iLoveWorks;
 			productReference = CE9F9B49300B846500BB12BB /* iLoveWorks.app */;
@@ -195,6 +214,9 @@
 			);
 			mainGroup = CE9F9B40300B846400BB12BB;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				CE9F9B80300B846700BB12BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = CE9F9B4A300B846500BB12BB /* Products */;
 			projectDirPath = "";
@@ -395,6 +417,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iLoveWorks/iLoveWorks.entitlements;
+				INFOPLIST_FILE = "iLoveWorks/App-Info.plist";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -452,6 +475,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = iLoveWorks/iLoveWorks.entitlements;
+				INFOPLIST_FILE = "iLoveWorks/App-Info.plist";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
@@ -649,6 +673,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		CE9F9B80300B846700BB12BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		CE9F9B81300B846700BB12BB /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = CE9F9B80300B846700BB12BB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = CE9F9B41300B846400BB12BB /* Project object */;
 }
