@@ -11,7 +11,33 @@ struct GoalCard: View {
     var onReactionsChange: (([GoalReaction]) -> Void)? = nil
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
+                VStack(alignment: .leading, spacing: 12) {
+            if let imageUrlStr = goal.imageUrl, let url = URL(string: APIClient.shared.fullURL(for: imageUrlStr)) {
+                AsyncImage(url: url) { phase in
+                    if let image = phase.image {
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(maxWidth: .infinity, maxHeight: 180)
+                            .clipped()
+                            .cornerRadius(12)
+                    } else if phase.error != nil {
+                        Rectangle()
+                            .fill(Theme.secondary.opacity(0.3))
+                            .frame(maxWidth: .infinity, minHeight: 180)
+                            .cornerRadius(12)
+                            .overlay(Image(systemName: "photo").foregroundStyle(.gray.opacity(0.5)))
+                    } else {
+                        Rectangle()
+                            .fill(Theme.secondary.opacity(0.3))
+                            .frame(maxWidth: .infinity, minHeight: 180)
+                            .cornerRadius(12)
+                            .overlay(ProgressView())
+                    }
+                }
+                .padding(.bottom, 4)
+            }
+            
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text(goal.title)
