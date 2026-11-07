@@ -359,6 +359,7 @@ struct StatusPillView: View {
 struct AdminWorkersView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAddWorker = false
+    @State private var editingWorker: User? = nil
     
     var body: some View {
         NavigationView {
@@ -368,15 +369,9 @@ struct AdminWorkersView: View {
                 ScrollView {
                     VStack(alignment: .leading, spacing: 24) {
                         HStack {
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("CREW · LIVE")
-                                    .font(.system(size: 10, weight: .black))
-                                    .foregroundStyle(Theme.lovePink)
-                                    .tracking(1.5)
-                                Text("Your workers.")
-                                    .font(.system(size: 32, weight: .bold))
-                                    .foregroundStyle(Theme.textMain)
-                            }
+                            PageHeader(eyebrow: "CREW · LIVE", title: "Your workers.")
+                                .padding(.horizontal, 0)
+                                .padding(.top, 0)
                             Spacer()
                             Button(action: { showingAddWorker = true }) {
                                 Image(systemName: "person.badge.plus.fill")
@@ -390,6 +385,8 @@ struct AdminWorkersView: View {
                         VStack(spacing: 12) {
                             ForEach(viewModel.workerStatuses) { status in
                                 AdminWorkerCard(status: status)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture { editingWorker = status.worker }
                             }
                         }
                         .padding(.horizontal)
@@ -401,6 +398,9 @@ struct AdminWorkersView: View {
 #if os(iOS)
             .navigationBarHidden(true)
 #endif
+            .sheet(item: $editingWorker) { worker in
+                EditWorkerModal(worker: worker, viewModel: viewModel)
+            }
             .sheet(isPresented: $showingAddWorker) {
                 AddWorkerView(viewModel: viewModel)
             }
@@ -638,6 +638,7 @@ struct AddWorkerView: View {
 struct AdminTasksView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAddTask = false
+    @State private var editingTask: TaskItem? = nil
     
     var body: some View {
         NavigationView {
@@ -669,6 +670,8 @@ struct AdminTasksView: View {
                         VStack(spacing: 12) {
                             ForEach(viewModel.tasks.sorted { !$0.isCompleted && $1.isCompleted }) { task in
                                 TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { _ in })
+                                    .contentShape(Rectangle())
+                                    .onTapGesture { editingTask = task }
                             }
                         }
                         .padding(.horizontal)
@@ -680,6 +683,9 @@ struct AdminTasksView: View {
 #if os(iOS)
             .navigationBarHidden(true)
 #endif
+            .sheet(item: $editingTask) { task in
+                EditTaskModal(task: task, viewModel: viewModel)
+            }
             .sheet(isPresented: $showingAddTask) {
                 AddTaskView(viewModel: viewModel)
             }
@@ -826,6 +832,7 @@ struct AddTaskView: View {
 struct AdminGoalsView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAddGoal = false
+    @State private var editingGoal: Goal? = nil
     
     var body: some View {
         NavigationView {
@@ -857,6 +864,9 @@ struct AdminGoalsView: View {
                         VStack(spacing: 12) {
                             ForEach(viewModel.goals) { goal in
                                 GoalCard(goal: goal)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture { editingGoal = goal }
+                                        .onTapGesture { editingGoal = goal }
                             }
                         }
                         .padding(.horizontal)
@@ -868,6 +878,9 @@ struct AdminGoalsView: View {
 #if os(iOS)
             .navigationBarHidden(true)
 #endif
+            .sheet(item: $editingGoal) { goal in
+                EditGoalModal(goal: goal, isTrip: false, viewModel: viewModel)
+            }
             .sheet(isPresented: $showingAddGoal) {
                 AddGoalView(viewModel: viewModel, kind: "goal")
             }
@@ -1194,6 +1207,7 @@ struct AddGoalView: View {
 struct AdminTripsView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAdd = false
+    @State private var editingTrip: Goal? = nil
     
     var body: some View {
         ZStack {
@@ -1419,6 +1433,53 @@ struct AdminPayrollView: View {
 }
 
 
+
+struct AdminSettingsView: View {
+    @AppStorage("useMetric") private var useMetric = false
+    
+    var body: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    PageHeader(eyebrow: "COMPANY OPTIONS", title: "Settings.")
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Regional Options")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Theme.textMuted)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Global Measurement System")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundStyle(Theme.textMain)
+                                    Text(useMetric ? "Metric" : "Imperial / U.S.")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Theme.lovePink)
+                                }
+                                Spacer()
+                                Toggle("", isOn: $useMetric)
+                                    .tint(Theme.lovePink)
+                            }
+                            .padding(.vertical, 16)
+                            .padding(.horizontal)
+                        }
+                        .background(Theme.surface)
+                        .cornerRadius(16)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+        }
+        .navigationBarHidden(true)
+    }
+}
+
 struct AdminProfileView: View {
     @EnvironmentObject var session: SessionManager
     var body: some View {
@@ -1448,3 +1509,566 @@ struct AdminProfileView: View {
         .navigationTitle("Profile")
     }
 }
+
+struct EditWorkerModal: View {
+    let worker: User
+    @ObservedObject var viewModel: AdminViewModel
+    @Environment(\.presentationMode) var presentationMode
+    @State private var name: String
+    @State private var email: String
+    @State private var isSubmitting = false
+    
+    init(worker: User, viewModel: AdminViewModel) {
+        self.worker = worker
+        self.viewModel = viewModel
+        _name = State(initialValue: worker.name)
+        _email = State(initialValue: worker.email)
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        if let urlString = worker.avatarUrl, let url = URL(string: APIClient.shared.fullURL(for: urlString)) {
+                            AsyncImage(url: url) { image in
+                                image.resizable().aspectRatio(contentMode: .fill)
+                            } placeholder: {
+                                Circle().fill(Theme.secondary)
+                            }
+                            .frame(width: 80, height: 80)
+                            .clipShape(Circle())
+                            .padding(.top, 40)
+                        } else {
+                            Circle()
+                                .fill(Theme.secondary)
+                                .frame(width: 80, height: 80)
+                                .overlay(Text(String(worker.name.prefix(1))).font(.title).bold())
+                                .padding(.top, 40)
+                        }
+                            
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("NAME")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("Name", text: $name)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("EMAIL")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("Email", text: $email)
+                                .textInputAutocapitalization(.never)
+                                .keyboardType(.emailAddress)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                                .padding(.bottom, 20)
+                        }
+
+                        Button(action: saveChanges) {
+                            HStack {
+                                if isSubmitting {
+                                    ProgressView()
+                                } else {
+                                    Text("SAVE EDITS")
+                                        .font(.system(size: 14, weight: .black))
+                                        .tracking(1)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.loveGradient)
+                            .foregroundStyle(.white)
+                            .cornerRadius(100)
+                        }
+                        .disabled(isSubmitting || name.isEmpty || email.isEmpty)
+                        
+                        Button(action: deleteWorker) {
+                            HStack {
+                                if isSubmitting {
+                                    ProgressView()
+                                } else {
+                                    Text("REMOVE WORKER PERMANENTLY")
+                                        .font(.system(size: 14, weight: .black))
+                                        .tracking(1)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.red)
+                            .foregroundStyle(.white)
+                            .cornerRadius(100)
+                        }
+                        .disabled(isSubmitting)
+                        .padding(.top, 40)
+                        
+                        Spacer()
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationTitle("Manage Worker")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { presentationMode.wrappedValue.dismiss() }
+                        .foregroundStyle(Theme.textMuted)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        isSubmitting = true
+        let req = AdminViewModel.WorkerUpdateRequest(
+            name: name,
+            email: email
+        )
+        Task {
+            try? await viewModel.updateWorker(workerId: worker.id, req: req)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+    
+    private func deleteWorker() {
+        isSubmitting = true
+        Task {
+            try? await viewModel.deleteWorker(workerId: worker.id)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+struct EditTaskModal: View {
+    let task: TaskItem
+    @ObservedObject var viewModel: AdminViewModel
+    @Environment(\.presentationMode) var presentationMode
+    
+    @State private var title: String
+    @State private var description: String
+    @State private var price: String
+    @State private var selectedWorkerId: String
+    @State private var adminAlarm: String?
+    @State private var setMandatoryAlarm: Bool
+    @State private var mandatoryAlarmTime: Date
+    @State private var frequency: String
+    @State private var payoutSchedule: String
+    @State private var isSubmitting = false
+    
+    init(task: TaskItem, viewModel: AdminViewModel) {
+        self.task = task
+        self.viewModel = viewModel
+        _title = State(initialValue: task.title)
+        _description = State(initialValue: task.description ?? "")
+        _price = State(initialValue: String(format: "%.2f", task.price))
+        _selectedWorkerId = State(initialValue: task.assigneeId)
+        _frequency = State(initialValue: task.frequency ?? "once")
+        _payoutSchedule = State(initialValue: task.payoutSchedule ?? "per_task")
+        
+        let hasAlarm = task.adminAlarm != nil
+        _setMandatoryAlarm = State(initialValue: hasAlarm)
+        _adminAlarm = State(initialValue: task.adminAlarm)
+        
+        if let alarmStr = task.adminAlarm, let hr = Int(alarmStr.prefix(2)), let min = Int(alarmStr.suffix(2)) {
+            var comps = DateComponents()
+            comps.hour = hr
+            comps.minute = min
+            let d = Calendar.current.date(from: comps) ?? Date()
+            _mandatoryAlarmTime = State(initialValue: d)
+        } else {
+            _mandatoryAlarmTime = State(initialValue: Date())
+        }
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("TITLE")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("Task Name", text: $title)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("DESCRIPTION (OPTIONAL)")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("Details", text: $description)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("BOUNTY PRICE")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("0.00", text: $price)
+                                .keyboardType(.decimalPad)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("FREQUENCY")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Theme.textMuted)
+                                Picker("Frequency", selection: $frequency) {
+                                    ForEach(["once", "daily", "weekly", "monthly"], id: \.self) { f in Text(f.capitalized).tag(f) }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                            }
+                            
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("PAYOUT")
+                                    .font(.system(size: 10, weight: .bold))
+                                    .foregroundStyle(Theme.textMuted)
+                                Picker("Payout Schedule", selection: $payoutSchedule) {
+                                    ForEach(["per_task", "daily", "weekly", "monthly"], id: \.self) { p in Text(p.replacingOccurrences(of: "_", with: " ").capitalized).tag(p) }
+                                }
+                                .pickerStyle(.menu)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 10)
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("ASSIGN TO WORKER")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            Menu {
+                                Button("Any / Open Pool") { selectedWorkerId = "" }
+                                ForEach(viewModel.workers) { w in
+                                    Button(w.name) { selectedWorkerId = w.id }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(selectedWorkerId.isEmpty ? "Select Worker" : (viewModel.workers.first(where: { $0.id == selectedWorkerId })?.name ?? "Unknown"))
+                                        .foregroundStyle(selectedWorkerId.isEmpty ? Theme.textMuted : Theme.textMain)
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .foregroundStyle(Theme.textMuted)
+                                }
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 16) {
+                            Toggle("SET MANDATORY ALARM", isOn: $setMandatoryAlarm)
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                                .tint(Theme.lovePink)
+                            
+                            if setMandatoryAlarm {
+                                DatePicker("Alarm Time", selection: $mandatoryAlarmTime, displayedComponents: .hourAndMinute)
+                                    .datePickerStyle(.graphical)
+                                    .padding()
+                                    .background(Theme.surface)
+                                    .cornerRadius(12)
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                            }
+                        }
+                        
+                        Button(action: saveChanges) {
+                            HStack {
+                                if isSubmitting {
+                                    ProgressView()
+                                } else {
+                                    Text("SAVE EDITS")
+                                        .font(.system(size: 14, weight: .black))
+                                        .tracking(1)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.loveGradient)
+                            .foregroundStyle(.white)
+                            .cornerRadius(100)
+                        }
+                        .disabled(isSubmitting || title.isEmpty)
+                        
+                        Button(action: deleteTask) {
+                            Text("DELETE TASK")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(.red)
+                                .padding()
+                        }
+                        .disabled(isSubmitting)
+                        
+                        Spacer()
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationTitle("Edit Task")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { presentationMode.wrappedValue.dismiss() }
+                        .foregroundStyle(Theme.textMuted)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        isSubmitting = true
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        let alarmStr = setMandatoryAlarm ? formatter.string(from: mandatoryAlarmTime) : nil
+        
+        let req = AdminViewModel.TaskUpdateRequest(
+            title: title.isEmpty ? nil : title,
+            description: description,
+            price: Double(price),
+            assigneeId: selectedWorkerId.isEmpty ? nil : selectedWorkerId,
+            frequency: frequency,
+            payoutSchedule: payoutSchedule,
+            adminAlarm: alarmStr
+        )
+        
+        Task {
+            try? await viewModel.updateTask(taskId: task.id, req: req)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+    
+    private func deleteTask() {
+        isSubmitting = true
+        Task {
+            try? await viewModel.deleteTask(taskId: task.id)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+struct EditGoalModal: View {
+    let goal: Goal
+    let isTrip: Bool
+    @ObservedObject var viewModel: AdminViewModel
+    @Environment(\.presentationMode) var presentationMode
+    
+    @State private var title: String
+    @State private var targetAmount: String
+    @State private var period: String
+    @State private var ownerId: String
+    @State private var productLink: String
+    @State private var imageUrl: String
+    @State private var isSubmitting = false
+    
+    init(goal: Goal, isTrip: Bool, viewModel: AdminViewModel) {
+        self.goal = goal
+        self.isTrip = isTrip
+        self.viewModel = viewModel
+        _title = State(initialValue: goal.title)
+        _targetAmount = State(initialValue: String(format: "%.2f", goal.targetAmount ?? 0.0))
+        _period = State(initialValue: goal.period ?? "")
+        _ownerId = State(initialValue: goal.ownerId)
+        _productLink = State(initialValue: goal.productLink ?? "")
+        _imageUrl = State(initialValue: goal.imageUrl ?? "")
+    }
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 24) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("TITLE")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("What is it?", text: $title)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("TARGET AMOUNT")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("0.00", text: $targetAmount)
+                                .keyboardType(.decimalPad)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("PRODUCT LINK URL")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("https://...", text: $productLink)
+                                .textInputAutocapitalization(.never)
+                                .keyboardType(.URL)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("IMAGE URL (HDPI)")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("https://...", text: $imageUrl)
+                                .textInputAutocapitalization(.never)
+                                .keyboardType(.URL)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("ASSIGN TO WORKER")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            Menu {
+                                Button("Any / Open Pool") { ownerId = "" }
+                                ForEach(viewModel.workers) { w in
+                                    Button(w.name) { ownerId = w.id }
+                                }
+                            } label: {
+                                HStack {
+                                    Text(ownerId.isEmpty ? "Select Worker" : (viewModel.workers.first(where: { $0.id == ownerId })?.name ?? "Unknown"))
+                                        .foregroundStyle(ownerId.isEmpty ? Theme.textMuted : Theme.textMain)
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .foregroundStyle(Theme.textMuted)
+                                }
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("DUE DATE / NOTE")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            TextField("e.g. Next Friday", text: $period)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        Button(action: saveChanges) {
+                            HStack {
+                                if isSubmitting {
+                                    ProgressView()
+                                } else {
+                                    Text("SAVE EDITS")
+                                        .font(.system(size: 14, weight: .black))
+                                        .tracking(1)
+                                }
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.loveGradient)
+                            .foregroundStyle(.white)
+                            .cornerRadius(100)
+                        }
+                        .disabled(isSubmitting || title.isEmpty)
+                        
+                        Button(action: deleteGoal) {
+                            Text(isTrip ? "DELETE TRIP" : "DELETE GOAL")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(.red)
+                                .padding()
+                        }
+                        .disabled(isSubmitting)
+                        
+                        Spacer()
+                    }
+                    .padding(24)
+                }
+            }
+            .navigationTitle(isTrip ? "Edit Trip" : "Edit Goal")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { presentationMode.wrappedValue.dismiss() }
+                        .foregroundStyle(Theme.textMuted)
+                }
+            }
+        }
+    }
+    
+    private func saveChanges() {
+        isSubmitting = true
+        let req = AdminViewModel.GoalUpdateRequest(
+            title: title.isEmpty ? nil : title,
+            targetAmount: Double(targetAmount),
+            period: period.isEmpty ? nil : period,
+            ownerId: ownerId.isEmpty ? nil : ownerId,
+            productLink: productLink.isEmpty ? nil : productLink,
+            imageUrl: imageUrl.isEmpty ? nil : imageUrl
+        )
+        Task {
+            try? await viewModel.updateGoal(goalId: goal.id, req: req)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+    
+    private func deleteGoal() {
+        isSubmitting = true
+        Task {
+            try? await viewModel.deleteGoal(goalId: goal.id)
+            isSubmitting = false
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+

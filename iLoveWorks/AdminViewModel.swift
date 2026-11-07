@@ -93,10 +93,68 @@ class AdminViewModel: ObservableObject {
         loadEssentials()
     }
 
+        struct WorkerUpdateRequest: Encodable {
+        let name: String?
+        let email: String?
+    }
+
+    func updateWorker(workerId: String, req: WorkerUpdateRequest) async throws {
+        let _: User = try await APIClient.shared.send("/workers/\(workerId)", method: "PATCH", json: req)
+        await refreshDashboard()
+    }
+
+    func deleteWorker(workerId: String) async throws {
+        let _: EmptyResponse = try await APIClient.shared.request("/workers/\(workerId)", method: "DELETE")
+        await refreshDashboard()
+    }
+
     func createWorker(name: String, email: String, password: String) async throws {
         let _: User = try await APIClient.shared.send("/workers", json: ["name": name, "email": email, "password": password])
         await refreshDashboard()
     }
+    
+    struct TaskUpdateRequest: Encodable {
+        let title: String?
+        let description: String?
+        let price: Double?
+        let assigneeId: String?
+        let frequency: String?
+        let payoutSchedule: String?
+        let adminAlarm: String?
+    }
+    
+    func updateTask(taskId: String, req: TaskUpdateRequest) async throws {
+        let _: TaskItem = try await APIClient.shared.send("/tasks/\(taskId)", method: "PATCH", json: req)
+        await refreshDashboard()
+    }
+    
+    struct GoalUpdateRequest: Encodable {
+        let title: String?
+        let targetAmount: Double?
+        let period: String?
+        let ownerId: String?
+        let productLink: String?
+        let imageUrl: String?
+    }
+    
+    func updateGoal(goalId: String, req: GoalUpdateRequest) async throws {
+        let _: Goal = try await APIClient.shared.send("/goals/\(goalId)", method: "PATCH", json: req)
+        // Also refresh goals/trips as they use the same endpoint
+        loadGoals()
+        loadTrips()
+    }
+    
+    func deleteGoal(goalId: String) async throws {
+        let _: EmptyResponse = try await APIClient.shared.request("/goals/\(goalId)", method: "DELETE")
+        loadGoals()
+        loadTrips()
+    }
+    
+    func deleteTask(taskId: String) async throws {
+        let _: EmptyResponse = try await APIClient.shared.request("/tasks/\(taskId)", method: "DELETE")
+        await refreshDashboard()
+    }
+
 
     func createTask(_ req: TaskCreateRequest) async throws {
         let _: TaskItem = try await APIClient.shared.send("/tasks", json: req)

@@ -884,6 +884,61 @@ struct WorkerAnnouncementsView: View {
 }
 
 
+
+struct WorkerSettingsView: View {
+    @AppStorage("useMetric") private var useMetric = false
+    
+    var body: some View {
+        ZStack {
+            Theme.background.ignoresSafeArea()
+            ScrollView {
+                VStack(alignment: .leading, spacing: 32) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("PREFERENCES")
+                            .font(.system(size: 10, weight: .black))
+                            .foregroundStyle(Theme.lovePink)
+                            .tracking(1.5)
+                        Text("Settings.")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundStyle(Theme.textMain)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Regional Options")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Theme.textMuted)
+                            .padding(.horizontal)
+                        
+                        VStack(spacing: 0) {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Global Measurement System")
+                                        .font(.system(size: 18, weight: .bold))
+                                        .foregroundStyle(Theme.textMain)
+                                    Text(useMetric ? "Metric" : "Imperial / U.S.")
+                                        .font(.system(size: 14))
+                                        .foregroundStyle(Theme.lovePink)
+                                }
+                                Spacer()
+                                Toggle("", isOn: $useMetric)
+                                    .tint(Theme.lovePink)
+                            }
+                            .padding(.vertical, 16)
+                            .padding(.horizontal)
+                        }
+                        .background(Theme.surface)
+                        .cornerRadius(16)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+        }
+    }
+}
+
 struct WorkerProfileView: View {
     @EnvironmentObject var session: SessionManager
     var body: some View {
