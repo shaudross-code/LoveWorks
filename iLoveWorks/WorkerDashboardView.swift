@@ -401,7 +401,7 @@ struct WorkerDashboardMainView: View {
                                     }, onStart: {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.status == "in_progress" ? "assigned" : "in_progress") }
                                     }, onSpeak: { speak($0) }, onSaveAlarm: { alarm in 
-                                        run { try await viewModel.updateTaskAlarm(taskId: task.id, alarmTime: alarm) }
+                                        run { try await viewModel.updateTaskAlarm(taskId: task.id, alarmTime: alarm, taskTitle: task.title) }
                                     })
                                 }
                             }
