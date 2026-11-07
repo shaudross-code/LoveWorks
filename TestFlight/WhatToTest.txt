@@ -1,8 +1,11 @@
-Version Update: Halloween Theme & Native iOS Dashboard 🎃  
-Welcome to the latest build of iLoveWorks! This update brings our dynamic holiday theme system to iOS, syncing the spooky Halloween colors straight from our web platform. We've also finalized the migration to native SwiftUI screens for the Admin and Worker dashboards, removing outdated layouts and significantly improving performance and navigation.  
+iLoveWorks: Native UI Parity & Advanced Admin Features 🚀
+
+Welcome to the latest build of iLoveWorks! This massive update brings our native iOS app perfectly in line with the web experience. We have finalized the custom horizontal tab navigation across the entire app and rewritten all of the Admin & Worker modals natively in SwiftUI for blazing-fast performance.
 
 What to Test:
-1. Holiday Theme: Verify that the Halloween colors (orange, pink, etc.) and holiday badges load seamlessly across the app on startup. 
-2. Native Dashboards: Test navigating between the tabs (Workday, Essentials, Trips, Profile) to ensure the native SwiftUI views load smoothly without any crashing. 
-3. Role Validation: Log in as an Admin and confirm you see the correct overview. Then verify standard workers see their specific goals and activities. 
-4. Data Sync: Check that the live worker statuses, task scheduling, and payroll endpoints properly fetch from the production database.
+1. Dashboard Tabs: Test the new horizontally scrolling custom tab bar. Verify it matches the website's layout and cleanly switches between sections (Overview, Workers, Tasks, Goals, Announcements, Sizes, Profile).
+2. Advanced Editing Modals: In the Admin view, tap on any active Worker, Task, Goal, or Trip card. A custom-themed sheet should appear. Verify all matching web fields are present (Task Frequency, Payout Schedules, Image URLs, Target amounts, etc.).
+3. Worker Sizes: Check out the new native "Sizes" tab! Admins can tap on a worker, hit "VIEW & EDIT SIZES", and manage apparel fits and preferences natively while pushing update notifications.
+4. Passwords & Profiles: Test editing a worker's profile (name & email) and verify you can securely set a new optional password for them directly from the Admin console.
+5. Task Alarms & Push Notifications: Test creating tasks with mandatory Admin alarms. Verify local Push Notifications arrive reliably for scheduled task alarms.
+6. Overall UI & Theming: Ensure cards, grid layouts, and padding correctly mirror the website experience across all views.
