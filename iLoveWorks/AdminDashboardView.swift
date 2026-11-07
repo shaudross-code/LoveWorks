@@ -549,8 +549,8 @@ struct AdminWorkerCard: View {
             
             // Progress Bars for Hours
             HStack(spacing: 12) {
-                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, left: status.todayLeftHours, color: Theme.lovePink)
-                HourProgressView(label: "THIS WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, left: status.weekLeftHours, color: Theme.primary)
+                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, left: status.todayLeftHours, color: Theme.primary)
+                HourProgressView(label: "THIS WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, left: status.weekLeftHours, color: Theme.success)
             }
             
             HStack(spacing: 4) {
@@ -670,9 +670,9 @@ struct HourProgressView: View {
             if let left = left, left > 0 {
                 Text("\(String(format: "%.1fh", left)) left")
                     .font(.system(size: 10))
-                    .foregroundStyle(color)
+                    .foregroundStyle(Theme.primaryHover)
             } else {
-                Text("Target hit")
+                Text(label == "THIS WEEK" ? "Weekly target hit" : "Hit daily target")
                     .font(.system(size: 10))
                     .foregroundStyle(Theme.success)
             }
