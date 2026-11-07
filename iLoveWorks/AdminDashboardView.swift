@@ -488,8 +488,8 @@ struct AdminWorkerCard: View {
             
             // Progress Bars for Hours
             HStack(spacing: 12) {
-                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, left: status.todayLeftHours, color: .yellow)
-                HourProgressView(label: "THIS WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, left: status.weekLeftHours, color: Theme.success)
+                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, left: status.todayLeftHours, color: Theme.lovePink)
+                HourProgressView(label: "THIS WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, left: status.weekLeftHours, color: Theme.primary)
             }
             
             HStack(spacing: 4) {
@@ -534,10 +534,10 @@ struct AdminWorkerCard: View {
                         .tracking(1)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.yellow.opacity(0.15))
-                        .foregroundStyle(Color.yellow)
+                        .background(Color.orange.opacity(0.15))
+                        .foregroundStyle(Color.orange)
                         .cornerRadius(100)
-                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.yellow.opacity(0.3), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.orange.opacity(0.3), lineWidth: 1))
                 }
                 if !(status.inconsistencies?.missedDays ?? []).isEmpty {
                     Text("💤 \((status.inconsistencies?.missedDays ?? []).count) MISSED DAY\((status.inconsistencies?.missedDays ?? []).count == 1 ? "" : "S")")
@@ -609,7 +609,7 @@ struct HourProgressView: View {
             if let left = left, left > 0 {
                 Text("\(String(format: "%.1fh", left)) left")
                     .font(.system(size: 10))
-                    .foregroundStyle(.yellow)
+                    .foregroundStyle(color)
             } else {
                 Text("Target hit")
                     .font(.system(size: 10))
