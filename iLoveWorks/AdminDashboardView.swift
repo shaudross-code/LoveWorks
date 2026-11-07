@@ -553,6 +553,7 @@ struct AddWorkerView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     @State private var setMandatoryAlarm = false
     @State private var mandatoryAlarmTime = Date()
     
@@ -704,6 +705,7 @@ struct AddTaskView: View {
     @State private var price = ""
     @State private var selectedWorkerId = ""
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     @State private var setMandatoryAlarm = false
     @State private var mandatoryAlarmTime = Date()
     
@@ -958,6 +960,7 @@ struct AddEssentialView: View {
     @State private var category = "household"
     @State private var ownerId = ""
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     @State private var setMandatoryAlarm = false
     @State private var mandatoryAlarmTime = Date()
     
@@ -1091,6 +1094,7 @@ struct AddGoalView: View {
     @State private var period = "weekly"
     @State private var ownerId = ""
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     @State private var setMandatoryAlarm = false
     @State private var mandatoryAlarmTime = Date()
     
@@ -1518,6 +1522,7 @@ struct EditWorkerModal: View {
     @State private var email: String
     @State private var password = ""
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     
     init(worker: User, viewModel: AdminViewModel) {
         self.worker = worker
@@ -1587,6 +1592,24 @@ struct EditWorkerModal: View {
                                 .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
                                 .foregroundStyle(Theme.textMain)
                                 .padding(.bottom, 20)
+                        }
+                        
+                        Button(action: { showingSizes = true }) {
+                            HStack {
+                                Image(systemName: "ruler.fill")
+                                Text("VIEW & EDIT SIZES")
+                                    .font(.system(size: 14, weight: .black))
+                                    .tracking(1)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Theme.surface)
+                            .foregroundStyle(Theme.textMain)
+                            .cornerRadius(100)
+                            .overlay(RoundedRectangle(cornerRadius: 100).stroke(Theme.border, lineWidth: 1))
+                        }
+                        .sheet(isPresented: $showingSizes) {
+                            WorkerSizesView(worker: worker)
                         }
 
                         Button(action: saveChanges) {
@@ -1680,6 +1703,7 @@ struct EditTaskModal: View {
     @State private var frequency: String
     @State private var payoutSchedule: String
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     
     init(task: TaskItem, viewModel: AdminViewModel) {
         self.task = task
@@ -1909,6 +1933,7 @@ struct EditGoalModal: View {
     @State private var productLink: String
     @State private var imageUrl: String
     @State private var isSubmitting = false
+    @State private var showingSizes = false
     
     init(goal: Goal, isTrip: Bool, viewModel: AdminViewModel) {
         self.goal = goal
