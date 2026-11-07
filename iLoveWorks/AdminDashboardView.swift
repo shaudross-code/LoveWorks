@@ -431,7 +431,7 @@ struct AdminWorkerCard: View {
     var onDelete: () -> Void = {}
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 16) {
             HStack(spacing: 16) {
                 ZStack(alignment: .bottomTrailing) {
                     if let urlString = status.worker.avatarUrl, let url = URL(string: APIClient.shared.fullURL(for: urlString)) {
@@ -456,12 +456,66 @@ struct AdminWorkerCard: View {
                 }
                 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(status.worker.name)
-                        .font(.system(size: 18, weight: .bold))
-                        .foregroundStyle(Theme.textMain)
-                    Text(status.currentlyClockedIn ? "Clocked in — \(status.activeActivity ?? "Working")" : "Off the clock")
-                        .font(.system(size: 13))
-                        .foregroundStyle(status.currentlyClockedIn ? Theme.lovePink : Theme.textMuted)
+                    HStack(spacing: 8) {
+                        Text(status.worker.name)
+                            .font(.custom("Outfit-SemiBold", size: 18))
+                            .foregroundStyle(Theme.textMain)
+                        
+                        if status.online {
+                            HStack(spacing: 4) {
+                                Image(systemName: "wifi")
+                                    .font(.system(size: 10))
+                                Text("ONLINE")
+                                    .font(.system(size: 10, weight: .black))
+                                    .tracking(1)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Theme.success.opacity(0.15))
+                            .foregroundStyle(Theme.success)
+                            .cornerRadius(100)
+                        } else {
+                            HStack(spacing: 4) {
+                                Image(systemName: "wifi.slash")
+                                    .font(.system(size: 10))
+                                Text("OFFLINE")
+                                    .font(.system(size: 10, weight: .black))
+                                    .tracking(1)
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Theme.secondary)
+                            .foregroundStyle(Theme.textMuted)
+                            .cornerRadius(100)
+                        }
+                    }
+                    
+                    HStack(spacing: 4) {
+                        Image(systemName: "envelope.fill")
+                            .font(.system(size: 10))
+                        Text(status.worker.email)
+                            .font(.system(size: 12))
+                    }
+                    .foregroundStyle(Theme.textMuted)
+                    
+                    if status.currentlyClockedIn {
+                        HStack(spacing: 6) {
+                            Text("● \(status.activeActivity ?? "Working")")
+                                .font(.system(size: 10, weight: .bold))
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 2)
+                                .background(Theme.surfaceHover)
+                                .foregroundStyle(Theme.lovePink)
+                                .cornerRadius(100)
+                        }
+                        .padding(.top, 4)
+                    } else {
+                        Text("OFF THE CLOCK")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundStyle(Theme.textMuted)
+                            .tracking(1)
+                            .padding(.top, 4)
+                    }
                 }
                 
                 Spacer()
@@ -469,9 +523,16 @@ struct AdminWorkerCard: View {
                 // Actions exactly like web format
                 HStack(spacing: 12) {
                     Button(action: onSizes) {
-                        Image(systemName: "ruler.fill")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Theme.textMuted)
+                        HStack(spacing: 4) {
+                            Image(systemName: "ruler.fill")
+                                .font(.system(size: 12))
+                            Text("Sizes")
+                                .font(.system(size: 11))
+                        }
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(Theme.textMuted)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Theme.border, lineWidth: 1))
                     }
                     Button(action: onEdit) {
                         Image(systemName: "pencil")
@@ -479,7 +540,7 @@ struct AdminWorkerCard: View {
                             .foregroundStyle(Theme.textMuted)
                     }
                     Button(action: onDelete) {
-                        Image(systemName: "trash.fill")
+                        Image(systemName: "trash")
                             .font(.system(size: 14))
                             .foregroundStyle(Theme.textMuted)
                     }
