@@ -1,0 +1,269 @@
+INFO:     Will watch for changes in these directories: ['/Users/user/Desktop/iLoveWorks/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [45379] using StatReload
+/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [45382]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 175, in __aenter__
+    return await self.gen.__anext__()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 203, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 228, in __aenter__
+    await self._router._startup()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 4562, in _startup
+    await handler()
+  File "/Users/user/Desktop/iLoveWorks/backend/server.py", line 3252, in startup
+    await db.users.create_index("email", unique=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2369, in create_index
+    return (self._create_indexes([index], session, **cmd_options))[0]
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2251, in _create_indexes
+    return self.database.client._retryable_write(False, inner, session, _Op.CREATE_INDEXES)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2099, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1969, in _retry_with_session
+    return self._retry_internal(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 126, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2009, in _retry_internal
+    return _ClientConnectionRetryable(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2890, in run
+    res = self._read() if self._is_read else self._write()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3087, in _write
+    self._server = self._get_server()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3063, in _get_server
+    return self._client._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1862, in _select_server
+    server = topology.select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 357, in select_server
+    server = self._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 331, in _select_server
+    servers = self.select_servers(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 249, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 297, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.886823291s, Topology Description: <TopologyDescription id: 6aebd44be76524f4a7dc66f8, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
+
+ERROR:    Application startup failed. Exiting.
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [99491]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 175, in __aenter__
+    return await self.gen.__anext__()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 203, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 228, in __aenter__
+    await self._router._startup()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 4562, in _startup
+    await handler()
+  File "/Users/user/Desktop/iLoveWorks/backend/server.py", line 3249, in startup
+    await db.users.create_index("email", unique=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2369, in create_index
+    return (self._create_indexes([index], session, **cmd_options))[0]
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2251, in _create_indexes
+    return self.database.client._retryable_write(False, inner, session, _Op.CREATE_INDEXES)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2099, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1969, in _retry_with_session
+    return self._retry_internal(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 126, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2009, in _retry_internal
+    return _ClientConnectionRetryable(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2890, in run
+    res = self._read() if self._is_read else self._write()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3087, in _write
+    self._server = self._get_server()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3063, in _get_server
+    return self._client._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1862, in _select_server
+    server = topology.select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 357, in select_server
+    server = self._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 331, in _select_server
+    servers = self.select_servers(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 249, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 297, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.748507083s, Topology Description: <TopologyDescription id: 6aed5277d92a2c7fd404ee1a, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
+
+ERROR:    Application startup failed. Exiting.
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Firebase push disabled: No module named 'firebase_admin'
+INFO:     Started server process [39304]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 175, in __aenter__
+    return await self.gen.__anext__()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 203, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 228, in __aenter__
+    await self._router._startup()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 4562, in _startup
+    await handler()
+  File "/Users/user/Desktop/iLoveWorks/backend/server.py", line 3250, in startup
+    await db.users.create_index("email", unique=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2369, in create_index
+    return (self._create_indexes([index], session, **cmd_options))[0]
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2251, in _create_indexes
+    return self.database.client._retryable_write(False, inner, session, _Op.CREATE_INDEXES)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2099, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1969, in _retry_with_session
+    return self._retry_internal(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 126, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2009, in _retry_internal
+    return _ClientConnectionRetryable(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2890, in run
+    res = self._read() if self._is_read else self._write()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3087, in _write
+    self._server = self._get_server()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3063, in _get_server
+    return self._client._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1862, in _select_server
+    server = topology.select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 357, in select_server
+    server = self._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 331, in _select_server
+    servers = self.select_servers(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 249, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 297, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.792250042s, Topology Description: <TopologyDescription id: 6aedec80e3b3f398a43cfe16, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
+
+ERROR:    Application startup failed. Exiting.
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+INFO:     Started server process [40913]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 175, in __aenter__
+    return await self.gen.__anext__()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 203, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 228, in __aenter__
+    await self._router._startup()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 4562, in _startup
+    await handler()
+  File "/Users/user/Desktop/iLoveWorks/backend/server.py", line 3249, in startup
+    async def startup():
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2369, in create_index
+    return (self._create_indexes([index], session, **cmd_options))[0]
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2251, in _create_indexes
+    return self.database.client._retryable_write(False, inner, session, _Op.CREATE_INDEXES)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2099, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1969, in _retry_with_session
+    return self._retry_internal(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 126, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2009, in _retry_internal
+    return _ClientConnectionRetryable(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2890, in run
+    res = self._read() if self._is_read else self._write()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3087, in _write
+    self._server = self._get_server()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3063, in _get_server
+    return self._client._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1862, in _select_server
+    server = topology.select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 357, in select_server
+    server = self._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 331, in _select_server
+    servers = self.select_servers(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 249, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 297, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.758979708s, Topology Description: <TopologyDescription id: 6aedee3192425d3490ff4e11, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
+
+ERROR:    Application startup failed. Exiting.
+WARNING:  StatReload detected changes in 'server.py'. Reloading...
+/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+Firebase push disabled: No module named 'firebase_admin'
+INFO:     Started server process [40953]
+INFO:     Waiting for application startup.
+ERROR:    Traceback (most recent call last):
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/starlette/routing.py", line 694, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/contextlib.py", line 175, in __aenter__
+    return await self.gen.__anext__()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 203, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 228, in __aenter__
+    await self._router._startup()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/fastapi/routing.py", line 4562, in _startup
+    await handler()
+  File "/Users/user/Desktop/iLoveWorks/backend/server.py", line 3250, in startup
+    await db.users.create_index("email", unique=True)
+  File "/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/concurrent/futures/thread.py", line 52, in run
+    result = self.fn(*self.args, **self.kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2369, in create_index
+    return (self._create_indexes([index], session, **cmd_options))[0]
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 125, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/collection.py", line 2251, in _create_indexes
+    return self.database.client._retryable_write(False, inner, session, _Op.CREATE_INDEXES)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2099, in _retryable_write
+    return self._retry_with_session(retryable, func, s, bulk, operation, operation_id)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1969, in _retry_with_session
+    return self._retry_internal(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/_csot.py", line 126, in csot_wrapper
+    return func(self, *args, **kwargs)
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2009, in _retry_internal
+    return _ClientConnectionRetryable(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 2890, in run
+    res = self._read() if self._is_read else self._write()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3087, in _write
+    self._server = self._get_server()
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 3063, in _get_server
+    return self._client._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/mongo_client.py", line 1862, in _select_server
+    server = topology.select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 357, in select_server
+    server = self._select_server(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 331, in _select_server
+    servers = self.select_servers(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 249, in select_servers
+    server_descriptions = self._select_servers_loop(
+  File "/Users/user/Desktop/iLoveWorks/backend/venv/lib/python3.9/site-packages/pymongo/synchronous/topology.py", line 297, in _select_servers_loop
+    raise ServerSelectionTimeoutError(
+pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.899020666s, Topology Description: <TopologyDescription id: 6aedee3ce101f3bad3076583, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
+
+ERROR:    Application startup failed. Exiting.

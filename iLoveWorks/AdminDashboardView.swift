@@ -1516,6 +1516,7 @@ struct EditWorkerModal: View {
     @Environment(\.presentationMode) var presentationMode
     @State private var name: String
     @State private var email: String
+    @State private var password = ""
     @State private var isSubmitting = false
     
     init(worker: User, viewModel: AdminViewModel) {
@@ -1568,6 +1569,18 @@ struct EditWorkerModal: View {
                             TextField("Email", text: $email)
                                 .textInputAutocapitalization(.never)
                                 .keyboardType(.emailAddress)
+                                .padding()
+                                .background(Theme.surface)
+                                .cornerRadius(12)
+                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("NEW PASSWORD (OPTIONAL)")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            SecureField("Enter new password", text: $password)
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)
@@ -1632,7 +1645,8 @@ struct EditWorkerModal: View {
         isSubmitting = true
         let req = AdminViewModel.WorkerUpdateRequest(
             name: name,
-            email: email
+            email: email,
+            password: password.isEmpty ? nil : password
         )
         Task {
             try? await viewModel.updateWorker(workerId: worker.id, req: req)

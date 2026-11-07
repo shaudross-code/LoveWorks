@@ -1,0 +1,18 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -project iLoveWorks.xcodeproj -scheme iLoveWorks -destination id=9FD64C8F-49B1-4D67-B209-C2EAB8E05F0F
+
+2026-10-31 12:05:39.585 xcodebuild[86058:6309455] Writing error result bundle to /var/folders/90/m97jxq8x7sgf2v7hrv4bty7w0000gn/T/ResultBundle_2026-31-10_12-05-0039.xcresult
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ id:9FD64C8F-49B1-4D67-B209-C2EAB8E05F0F }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Destinations compatible with the "iLoveWorks" scheme:
+		{ platform:macOS, arch:arm64, id:00006000-001C60800EE2801E, name:My Mac }
+		{ platform:macOS, arch:x86_64, id:00006000-001C60800EE2801E, name:My Mac }
+		{ platform:iOS, arch:arm64, id:00008160-001109EA0E200036, name:Wick’s iPhone 🍏 }
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+		{ platform:macOS, name:Any Mac }
+		{ platform:visionOS, id:dvtdevice-DVTiOSDevicePlaceholder-xros:placeholder, name:Any visionOS Device }
+		{ platform:visionOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-xrsimulator:placeholder, name:Any visionOS Simulator Device }

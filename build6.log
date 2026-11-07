@@ -1,0 +1,460 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -project iLoveWorks.xcodeproj -scheme iLoveWorks -destination id=9FD64C8F-49B1-4D67-B209-C2EAB8E05F0F
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (1 target)
+    Target 'iLoveWorks' in project 'iLoveWorks' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 479f73a1102555d77b204737b71a6207
+Build description path: /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/XCBuildData/479f73a1102555d77b204737b71a6207.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator27.0-24A430-8dc58220667be655e1bcc261a7455254.sdkstatcache
+    cd /Users/user/Desktop/iLoveWorks/iLoveWorks.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -o /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator27.0-24A430-8dc58220667be655e1bcc261a7455254.sdkstatcache
+
+CreateBuildDirectory /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator
+    cd /Users/user/Desktop/iLoveWorks/iLoveWorks.xcodeproj
+    builtin-create-build-directory /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator
+
+CreateBuildDirectory /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+    cd /Users/user/Desktop/iLoveWorks/iLoveWorks.xcodeproj
+    builtin-create-build-directory /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks-00d41910fc8637c9ea723a80fbb3baff-VFS-iphonesimulator/all-product-headers.yaml
+    cd /Users/user/Desktop/iLoveWorks/iLoveWorks.xcodeproj
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks-00d41910fc8637c9ea723a80fbb3baff-VFS-iphonesimulator/all-product-headers.yaml
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-generated-files.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-generated-files.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-own-target-headers.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-own-target-headers.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-project-headers.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-project-headers.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyStaticMetadataFileList (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyMetadataFileList (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-target-headers.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-target-headers.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibPath-normal-arm64.txt (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibPath-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-non-framework-target-headers.hmap (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-non-framework-target-headers.hmap
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibInstallName-normal-arm64.txt (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibInstallName-normal-arm64.txt
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/empty-iLoveWorks.plist (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/empty-iLoveWorks.plist
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-OutputFileMap.json (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.LinkFileList (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.LinkFileList
+
+MkDir /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /bin/mkdir -p /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_const_extract_protocols.json (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/Entitlements-Simulated.plist (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/Entitlements-Simulated.plist
+
+WriteAuxiliaryFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftConstValuesFileList (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    write-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftConstValuesFileList
+
+ProcessProductPackaging /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorks.entitlements /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+    Entitlements:
+    
+    {
+}
+    
+    builtin-productPackagingUtility /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorks.entitlements -entitlements -format xml -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent
+
+ProcessProductPackaging /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorks.entitlements /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+    Entitlements:
+    
+    {
+    "application-identifier" = "3TKQ757JMH.TUE.iLoveWorks";
+    "aps-environment" = production;
+    "com.apple.developer.aps-environment" = production;
+}
+    
+    builtin-productPackagingUtility /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorks.entitlements -entitlements -format xml -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent
+
+ProcessProductPackagingDER /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent.der (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /usr/bin/derq query -f xml -i /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent.der --raw
+
+ProcessProductPackagingDER /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent.der (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /usr/bin/derq query -f xml -i /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent.der --raw
+
+Ld /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/__preview.dylib normal (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.5-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -install_name @rpath/iLoveWorks.debug.dylib -Xlinker -dead_strip -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -debug_variant -Xlinker -dependency_info -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_dependency_info.dat -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent.der -Xlinker -no_adhoc_codesign -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/__preview.dylib
+
+GenerateAssetSymbols /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets --compile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_dependencies --output-partial-info-plist /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.5 --platform iphonesimulator --bundle-identifier TUE.iLoveWorks --generate-swift-asset-symbols /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+MkDir /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /bin/mkdir -p /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned
+
+MkDir /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/unthinned (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /bin/mkdir -p /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/unthinned
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Outfit-VariableFont_wght.ttf /Users/user/Desktop/iLoveWorks/iLoveWorks/Fonts/Outfit-VariableFont_wght.ttf (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Desktop/iLoveWorks/iLoveWorks/Fonts/Outfit-VariableFont_wght.ttf /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Manrope-VariableFont_wght.ttf /Users/user/Desktop/iLoveWorks/iLoveWorks/Fonts/Manrope-VariableFont_wght.ttf (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Desktop/iLoveWorks/iLoveWorks/Fonts/Manrope-VariableFont_wght.ttf /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+CopyPlistFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/GoogleService-Info.plist /Users/user/Desktop/iLoveWorks/iLoveWorks/GoogleService-Info.plist (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copyPlist --convert binary1 --outdir /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app -- /Users/user/Desktop/iLoveWorks/iLoveWorks/GoogleService-Info.plist
+
+CopyPlistFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/App-Info.plist /Users/user/Desktop/iLoveWorks/iLoveWorks/App-Info.plist (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copyPlist --convert binary1 --outdir /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app -- /Users/user/Desktop/iLoveWorks/iLoveWorks/App-Info.plist
+
+CompileAssetCatalogVariant thinned /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets --compile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned --output-format human-readable-text --notices --warnings --export-dependency-info /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_dependencies_thinned --output-partial-info-plist /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist_thinned --app-icon AppIcon --accent-color AccentColor --compress-pngs --enable-on-demand-resources YES --filter-for-thinning-device-configuration iPhone18,1 --filter-for-device-os-version 26.5 --development-region en --target-device iphone --target-device ipad --minimum-deployment-target 26.5 --platform iphonesimulator
+/* com.apple.actool.compilation-results */
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist_thinned
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned/AppIcon60x60@2x.png
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned/AppIcon76x76@2x~ipad.png
+/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned/Assets.car
+
+
+SwiftDriver iLoveWorks normal arm64 com.apple.xcode.tools.swift.compiler (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name iLoveWorks -Onone @/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.5-simulator -g -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64 -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator27.0-24A430-8dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_const_extract_protocols.json -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-generated-files.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-own-target-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-target-headers.hmap -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-project-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources-normal/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-Swift.h -working-directory /Users/user/Desktop/iLoveWorks -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ ContentView.swift,\ FontStyles.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/ContentView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/FontStyles.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/ContentView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile ContentView.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/FontStyles.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile FontStyles.swift
+
+SwiftCompile normal arm64 Compiling\ MySizesView.swift,\ SizesFormState.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/MySizesView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesFormState.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/MySizesView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile MySizesView.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesFormState.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile SizesFormState.swift
+
+SwiftCompile normal arm64 Compiling\ AdminDashboardView.swift,\ AdminViewModel.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/AdminDashboardView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/AdminViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/AdminDashboardView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile AdminDashboardView.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/AdminViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile AdminViewModel.swift
+
+SwiftCompile normal arm64 Compiling\ SizesFormView.swift,\ SizesService.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesFormView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesFormView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile SizesFormView.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/Sizes/SizesService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile SizesService.swift
+
+SwiftCompile normal arm64 Compiling\ APIClient.swift,\ CommonUI.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/APIClient.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/CommonUI.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/APIClient.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile APIClient.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/CommonUI.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile CommonUI.swift
+
+SwiftCompile normal arm64 Compiling\ iLoveWorksApp.swift,\ KeychainService.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorksApp.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/KeychainService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/iLoveWorksApp.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile iLoveWorksApp.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/KeychainService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile KeychainService.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ iLoveWorks (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+
+SwiftCompile normal arm64 Compiling\ GeneratedAssetSymbols.swift /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/GeneratedAssetSymbols.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile GeneratedAssetSymbols.swift
+
+SwiftCompile normal arm64 Compiling\ WorkerViewModel.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+/Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerViewModel.swift:213:93: warning: main actor-isolated conformance of 'NotificationsResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+211 |                 async let fetchedEssentials: [Essential] = try await APIClient.shared.request("/essentials")
+212 |                 async let fetchedAnnouncements: [Announcement] = try await APIClient.shared.request("/announcements")
+213 |                 async let fetchedNotifs: NotificationsResponse = try await APIClient.shared.request("/notifications")
+    |                                                                                             `- warning: main actor-isolated conformance of 'NotificationsResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+214 |                 async let fetchedActivity: WeeklyActivityResponse = try await APIClient.shared.request("/me/weekly-activity")
+215 |                 async let fetchedAwardsResponse: AwardResponse = try await APIClient.shared.request("/awards")
+
+/Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerViewModel.swift:214:96: warning: main actor-isolated conformance of 'WeeklyActivityResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+212 |                 async let fetchedAnnouncements: [Announcement] = try await APIClient.shared.request("/announcements")
+213 |                 async let fetchedNotifs: NotificationsResponse = try await APIClient.shared.request("/notifications")
+214 |                 async let fetchedActivity: WeeklyActivityResponse = try await APIClient.shared.request("/me/weekly-activity")
+    |                                                                                                `- warning: main actor-isolated conformance of 'WeeklyActivityResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+215 |                 async let fetchedAwardsResponse: AwardResponse = try await APIClient.shared.request("/awards")
+216 |                 
+
+/Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerViewModel.swift:215:93: warning: main actor-isolated conformance of 'WorkerViewModel.AwardResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+213 |                 async let fetchedNotifs: NotificationsResponse = try await APIClient.shared.request("/notifications")
+214 |                 async let fetchedActivity: WeeklyActivityResponse = try await APIClient.shared.request("/me/weekly-activity")
+215 |                 async let fetchedAwardsResponse: AwardResponse = try await APIClient.shared.request("/awards")
+    |                                                                                             `- warning: main actor-isolated conformance of 'WorkerViewModel.AwardResponse' to 'Decodable' cannot be used in @concurrent context; this is an error in the Swift 6 language mode [#IsolatedConformances]
+216 |                 
+217 |                 let resActive = try await active
+
+[#IsolatedConformances]: <https://docs.swift.org/compiler/documentation/diagnostics/isolated-conformances>
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile WorkerViewModel.swift
+
+SwiftCompile normal arm64 Compiling\ LoginView.swift,\ SessionManager.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/LoginView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/SessionManager.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/LoginView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile LoginView.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/SessionManager.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile SessionManager.swift
+
+LinkAssetCatalog /Users/user/Desktop/iLoveWorks/iLoveWorks/Assets.xcassets (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-linkAssetCatalog --thinned /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/thinned --thinned-dependencies /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist_unthinned --output /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app --plist-output /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/AppIcon60x60@2x.png (in target 'iLoveWorks' from project 'iLoveWorks')
+note: Emplaced /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/AppIcon76x76@2x~ipad.png (in target 'iLoveWorks' from project 'iLoveWorks')
+note: Emplaced /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Assets.car (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling GeneratedAssetSymbols.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 Compiling\ Theme.swift,\ WorkerDashboardView.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/Theme.swift /Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerDashboardView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/Theme.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile Theme.swift
+
+SwiftCompile normal arm64 /Users/user/Desktop/iLoveWorks/iLoveWorks/WorkerDashboardView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-SwiftPerFileCompile WorkerDashboardView.swift
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Info.plist /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/empty-iLoveWorks.plist (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-infoPlistUtility /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/empty-iLoveWorks.plist -producttype com.apple.product-type.application -genpkginfo /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/PkgInfo -expandbuildsettings -format binary -platform iphonesimulator -additionalcontentfile /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/assetcatalog_generated_info.plist -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Info.plist
+
+SwiftDriverJobDiscovery normal arm64 Compiling ContentView.swift, FontStyles.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling iLoveWorksApp.swift, KeychainService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling MySizesView.swift, SizesFormState.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling APIClient.swift, CommonUI.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Emitting module for iLoveWorks (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriver\ Compilation\ Requirements iLoveWorks normal arm64 com.apple.xcode.tools.swift.compiler (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name iLoveWorks -Onone @/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.5-simulator -g -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64 -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator27.0-24A430-8dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_const_extract_protocols.json -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-generated-files.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-own-target-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-target-headers.hmap -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-project-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources-normal/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-Swift.h -working-directory /Users/user/Desktop/iLoveWorks -experimental-emit-module-separately -disable-cmo
+
+SwiftDriverJobDiscovery normal arm64 Compiling SizesFormView.swift, SizesService.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftMergeGeneratedHeaders /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/iLoveWorks-Swift.h /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-Swift.h (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-swiftHeaderTool -arch arm64 /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-Swift.h -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/iLoveWorks-Swift.h
+
+Copy /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.swiftdoc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftdoc (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftdoc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.swiftdoc
+
+Copy /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.swiftmodule /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.swiftmodule
+
+Copy /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.abi.json /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.abi.json (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.abi.json /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/arm64-apple-ios-simulator.abi.json
+
+Copy /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftsourceinfo (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -rename /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftsourceinfo /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.swiftmodule/Project/arm64-apple-ios-simulator.swiftsourceinfo
+
+SwiftDriverJobDiscovery normal arm64 Compiling LoginView.swift, SessionManager.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling WorkerViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling Theme.swift, WorkerDashboardView.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriverJobDiscovery normal arm64 Compiling AdminDashboardView.swift, AdminViewModel.swift (in target 'iLoveWorks' from project 'iLoveWorks')
+
+SwiftDriver\ Compilation iLoveWorks normal arm64 com.apple.xcode.tools.swift.compiler (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name iLoveWorks -Onone @/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-bare-slash-regex -enable-upcoming-feature DisableOutwardActorInference -enable-upcoming-feature InferSendableFromCaptures -enable-upcoming-feature GlobalActorIsolatedTypesUsability -enable-upcoming-feature MemberImportVisibility -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -target arm64-apple-ios26.5-simulator -g -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -emit-localized-strings -emit-localized-strings-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64 -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphonesimulator27.0-24A430-8dc58220667be655e1bcc261a7455254.sdkstatcache -output-file-map /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_const_extract_protocols.json -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-generated-files.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-own-target-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-all-target-headers.hmap -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-project-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/include -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources-normal/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks-Swift.h -working-directory /Users/user/Desktop/iLoveWorks -experimental-emit-module-separately -disable-cmo
+
+Ld /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib normal (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.5-simulator -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -L/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphonesimulator -F/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -filelist /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.LinkFileList -install_name @rpath/iLoveWorks.debug.dylib -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -debug_variant -Xlinker -dependency_info -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_dependency_info.dat -fobjc-link-runtime -fprofile-instr-generate -L/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/iphonesimulator -L/usr/lib/swift -Xlinker -add_ast_path -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.swiftmodule -Xlinker -alias -Xlinker _main -Xlinker ___debug_main_executable_dylib_entry_point -Xlinker -no_adhoc_codesign -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib
+
+ConstructStubExecutorLinkFileList /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-ExecutorLinkFileList-normal-arm64.txt (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    construct-stub-executor-link-file-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor_no_swift_entry_point.a /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/usr/lib/libPreviewsJITStubExecutor.a --output /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-ExecutorLinkFileList-normal-arm64.txt
+note: Using stub executor library with Swift entry point. (in target 'iLoveWorks' from project 'iLoveWorks')
+
+Ld /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks normal (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios26.5-simulator -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -F/Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator -Xlinker -rpath -Xlinker @executable_path -Xlinker -rpath -Xlinker @executable_path/Frameworks -rdynamic -Xlinker -no_deduplicate -Xlinker -objc_abi_version -Xlinker 2 -Xlinker -debug_variant -e ___debug_blank_executor_main -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_dylib -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibPath-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __debug_instlnm -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-DebugDylibInstallName-normal-arm64.txt -Xlinker -filelist -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks-ExecutorLinkFileList-normal-arm64.txt -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __entitlements -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent -Xlinker -sectcreate -Xlinker __TEXT -Xlinker __ents_der -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app-Simulated.xcent.der /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib -Xlinker -no_adhoc_codesign -o /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks
+
+CopySwiftLibs /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-swiftStdLibTool --copy --verbose --sign - --scan-executable /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib --scan-folder /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Frameworks --scan-folder /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/PlugIns --scan-folder /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/SystemExtensions --scan-folder /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Extensions --platform iphonesimulator --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+
+ExtractAppIntentsMetadata (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name iLoveWorks --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk --xcode-version 27A266a --platform-family iOS --deployment-target 26.5 --bundle-identifier TUE.iLoveWorks --output /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app --target-triple arm64-apple-ios26.5-simulator --binary-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks --dependency-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks_dependency_info.dat --stringsdata-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftFileList --metadata-file-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyMetadataFileList --static-metadata-file-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyStaticMetadataFileList --swift-const-vals-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/Objects-normal/arm64/iLoveWorks.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-10-30 23:44:51.358 appintentsmetadataprocessor[74638:6125718] Starting appintentsmetadataprocessor export
+2026-10-30 23:44:51.363 appintentsmetadataprocessor[74638:6125718] warning: Metadata extraction skipped, no AppIntents.framework dependency found
+
+AppIntentsSSUTraining (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsnltrainingprocessor --infoplist-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Info.plist --temp-dir-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/ssu --bundle-id TUE.iLoveWorks --product-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app --extracted-metadata-path /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Metadata.appintents --metadata-file-list /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.DependencyMetadataFileList --source-file /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/Info.plist --archive-ssu-assets
+2026-10-30 23:44:51.395 appintentsnltrainingprocessor[74639:6125720] Parsing options for appintentsnltrainingprocessor
+2026-10-30 23:44:51.396 appintentsnltrainingprocessor[74639:6125720] Starting AppIntents SSU YAML Generation
+2026-10-30 23:44:51.397 appintentsnltrainingprocessor[74639:6125720] No AppShortcuts found - Skipping.
+
+CodeSign /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/iLoveWorks.debug.dylib
+
+CodeSign /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/__preview.dylib (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app/__preview.dylib
+
+CodeSign /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --entitlements /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/iLoveWorks.build/Debug-iphonesimulator/iLoveWorks.build/iLoveWorks.app.xcent --timestamp\=none --generate-entitlement-der /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+RegisterExecutionPolicyException /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-RegisterExecutionPolicyException /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+Validate /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    builtin-validationUtility /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app -shallow-bundle -infoplist-subpath Info.plist
+
+Touch /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app (in target 'iLoveWorks' from project 'iLoveWorks')
+    cd /Users/user/Desktop/iLoveWorks
+    /usr/bin/touch -c /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Products/Debug-iphonesimulator/iLoveWorks.app
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/iLoveWorks-gemmsfamfwojdudshekmuujumqcv/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+note: Disabling hardened runtime with ad-hoc codesigning. (in target 'iLoveWorks' from project 'iLoveWorks')
+** BUILD SUCCEEDED **
+

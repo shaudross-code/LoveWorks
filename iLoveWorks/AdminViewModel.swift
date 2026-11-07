@@ -96,6 +96,7 @@ class AdminViewModel: ObservableObject {
         struct WorkerUpdateRequest: Encodable {
         let name: String?
         let email: String?
+        let password: String?
     }
 
     func updateWorker(workerId: String, req: WorkerUpdateRequest) async throws {

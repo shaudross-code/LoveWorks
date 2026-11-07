@@ -1,0 +1,518 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-03 18:08:16.673169-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Request received for uninstallation of TUE.iLoveWorks with options: {
+    SimulatorRootPath = "/Library/Developer/CoreSimulator/Volumes/iOS_24A434/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot";
+    SimulatorUserPath = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data";
+}
+2026-11-03 18:08:16.723627-0500 0x39ec2e   Default     0x0                  7870   7    installcoordinationd: [com.apple.installcoordination:daemon] -[IXSClientConnection _remote_uninstallAppWithIdentity:options:completion:]: Uninstall of [TUE.iLoveWorks/Invalid/[system-defined]] requested by client CoreSimulatorBridge (pid 64257) with uninstall options <confirmation:N wait:N archive:N demote:N notAllowed:N ignoreRemovability:N ignoreRestrictions:N ignoreAppProtection:N>
+2026-11-03 18:08:16.735360-0500 0x3a27c9   Default     0x18ae1e7            64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:connection] Received termination request from [osservice<com.apple.installcoordinationd>:7870] on <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "TUE.iLoveWorks">> with context <RBSTerminateContext| explanation:IX terminating bundleIDs for uninstallation: {(
+    "TUE.iLoveWorks"
+)} reportType:None maxTerminationResistance:Absolute attrs:[
+	<RBSPreventLaunchLimitation| <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "TUE.iLoveWorks">> allow:(null)>
+	]>
+2026-11-03 18:08:16.735628-0500 0x3a27c9   Default     0x18ae1e7            64229  0    runningboardd: (RunningBoardServices) [com.apple.runningboard:general] Found 0 extensions contained in TUE.iLoveWorks
+2026-11-03 18:08:16.738468-0500 0x3a2aac   Default     0x0                  64420  7    appstored: (InstallCoordination) [com.apple.installcoordination:framework] -[IXAppInstallObserver _client_mayUninstallAppWithIdentity:]_block_invoke: Calling mayUninstallAppWithIdentity: on delegate for identity [TUE.iLoveWorks/Invalid/[system-defined]]
+2026-11-03 18:08:16.740520-0500 0x3a27c9   Default     0x18ae1e7            64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting system from originator [osservice<com.apple.installcoordinationd>:7870] with description <RBSAssertionDescriptor| "IX terminating bundleIDs for uninstallation: {(
+    "TUE.iLoveWorks"
+)}" ID:64229-7870-10945 target:system attributes:[
+	<RBSPreventLaunchLimitation| <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "TUE.iLoveWorks">> allow:(null)>
+	]>
+2026-11-03 18:08:16.740753-0500 0x3a27c9   Default     0x18ae1e7            64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Executing termination request for: <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "TUE.iLoveWorks">>
+2026-11-03 18:08:16.744952-0500 0x39f8a7   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] connection from 7870 sending notification 5 for TUE.iLoveWorks
+2026-11-03 18:08:16.745652-0500 0x39f2e7   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppInstall] Received app may be uninstalled notification for bundleID: TUE.iLoveWorks
+2026-11-03 18:08:16.748252-0500 0x3a2abe   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sending applicationsWillUninstall: for (
+    "<LSApplicationProxy: 0x106330000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:16.749811-0500 0x39f2e7   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/D4AEE7B7] [TUE.iLoveWorks] May be uninstalled
+2026-11-03 18:08:16.750518-0500 0x15fc47   Default     0x18ad228            64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] termination assertion acquired for TUE.iLoveWorks
+2026-11-03 18:08:16.751628-0500 0x15fc47   Default     0x18ad228            64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] 0x10f210f00-SBApplicationIcon Data source did change: <SBApplication: 0x121495400; TUE.iLoveWorks> {
+} (SBApplication)
+2026-11-03 18:08:16.759516-0500 0x3a2aa9   Default     0x0                  7870   7    installcoordinationd: [com.apple.installcoordination:daemon] IXUninstallIdentityWithOptions: Uninstallation reason: Uninstalling [TUE.iLoveWorks/Invalid/[system-defined]] for CoreSimulatorBridge (pid 64257) (flags: 0x4)
+2026-11-03 18:08:17.020781-0500 0x3a2a65   Default     0x0                  64253  5    dasd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x105f78600> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.020803-0500 0x3a252f   Default     0x0                  64294  5    chronod: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1081a6580> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.020815-0500 0x3a1f6f   Default     0x0                  64250  5    locationd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x107af5140> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.020919-0500 0x3a2a2f   Default     0x0                  7971   5    mobiletimerd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1019a4d80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.021007-0500 0x3a2acb   Default     0x0                  91425  5    sleepd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x106208540> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.021012-0500 0x39e473   Default     0x0                  64340  5    webbookmarksd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1041dc000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.021067-0500 0x3a2acc   Default     0x0                  3156   5    liveactivitiesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x106258300> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.021699-0500 0x39f72a   Default     0x0                  64366  5    PosterBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x107f71080> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.022164-0500 0x3a0651   Default     0x0                  7577   5    routined: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10a1adc80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.022279-0500 0x39ec9a   Default     0x0                  7589   5    profiled: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x105450000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.022586-0500 0x3a2ac6   Default     0x0                  7578   5    callservicesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1069da040> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.023021-0500 0x39e0b0   Default     0x0                  7884   5    clipserviced: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x102158000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.023615-0500 0x3a2ad1   Default     0x0                  7967   5    privacyaccountingd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1060e00c0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.023857-0500 0x3a2ad2   Default     0x0                  7587   5    gamed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x101b14180> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.023887-0500 0x39f2e7   Default     0x0                  64420  5    appstored: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x104ee4000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.024443-0500 0x3a27c9   Default     0x0                  64229  5    runningboardd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1061a4000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.024945-0500 0x3a2a4c   Default     0x0                  64275  5    nsurlsessiond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10468c0c0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.026174-0500 0x3a2ad3   Default     0x0                  64256  5    passd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x108a0cc00> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.040885-0500 0x3a2ac0   Default     0x0                  64226  5    SpringBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10f212b80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.051067-0500 0x3a2ad4   Default     0x0                  7894   5    deviceaccessd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x101d64600> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.096978-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MIClientConnection _uninstallIdentities:withOptions:completion:]: Uninstall requested by installcoordinationd (pid 7870 (501/20)) for identity [TUE.iLoveWorks/PersonalPersonaPlaceholderString/[system-defined]] with options: {
+    UninstallReasonString = "Uninstalling [TUE.iLoveWorks/Invalid/[system-defined]] for CoreSimulatorBridge (pid 64257) (flags: 0x4)";
+    WaitForStorageDeletion = 0;
+}
+2026-11-03 18:08:17.101179-0500 0x39ec30   Default     0x189c875            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.102237-0500 0x3a2ac0   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:observer] -[FBSApplicationLibrary applicationsWillUninstall:] TUE.iLoveWorks
+2026-11-03 18:08:17.102565-0500 0x39e484   Default     0x189c875            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.122608-0500 0x39ec30   Default     0x189c877            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.122846-0500 0x39e484   Default     0x189c877            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.151588-0500 0x39ec30   Default     0x189c879            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.151830-0500 0x39e484   Default     0x189c879            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.152727-0500 0x39ec30   Default     0x189c87b            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.152898-0500 0x39e484   Default     0x189c87b            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.170592-0500 0x39ec30   Default     0x0                  7871   14   installd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/com.apple.containermanager.primary-persona:7:11:1:1:Start : Uninstall (Application)
+2026-11-03 18:08:17.190982-0500 0x39ec30   Default     0x189c87d            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 14, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.191492-0500 0x39e485   Default     0x189c87d            64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051780; userIdentity = <501/20/501/2/501>, identifier = TUE.iLoveWorks, class = (14)perUserApp, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.191828-0500 0x39ec30   Default     0x189c87e            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.192004-0500 0x39e484   Default     0x189c87e            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.193003-0500 0x39ec30   Default     0x18aedc0            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.193130-0500 0x39e484   Default     0x18aedc0            64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c55d40; userIdentity = <501/20/501/3/501>, identifier = TUE.iLoveWorks, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.195800-0500 0x39ec30   Default     0x18aedc2            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 2, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000000
+2026-11-03 18:08:17.195982-0500 0x39e485   Default     0x18aedc2            64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051780; userIdentity = <501/20/501/2/501>, identifier = TUE.iLoveWorks, class = (2)appData, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.197121-0500 0x39ec30   Default     0x18aedc4            7871   7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 2, identifier = [TUE.iLoveWorks](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-03 18:08:17.197264-0500 0x39e485   Default     0x18aedc4            64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051780; userIdentity = <501/20/501/2/501>, identifier = TUE.iLoveWorks, class = (2)appData, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-03 18:08:17.198126-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Uninstalling identifier TUE.iLoveWorks
+2026-11-03 18:08:17.198270-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Destroying container TUE.iLoveWorks with persona com.apple.containermanager.primary-persona at /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2
+2026-11-03 18:08:17.198685-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Destroying container TUE.iLoveWorks with persona com.apple.containermanager.primary-persona at /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/501293FC-47C2-4502-AFF3-E070A338B91C
+2026-11-03 18:08:17.250066-0500 0x39e485   Default     0x18aedc6            64286  30   containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:longterm] DELETED: [/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/501293FC-47C2-4502-AFF3-E070A338B91C] <TUE.iLoveWorks((2)appData);<501/20/501/2/501>;O{501:20:u+rwx,g+rx,o+rx};u4D69A292-C401-4FA5-B680-1CAC060AC9BB;p501293FC-47C2-4502-AFF3-E070A338B91C;pf0;E>
+2026-11-03 18:08:17.250118-0500 0x39e485   Default     0x18aedc6            64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:codesignmapping] Removing codesign info for [{(
+    "TUE.iLoveWorks"
+)}]
+2026-11-03 18:08:17.250251-0500 0x39e485   Default     0x18aedc6            64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:codesignmapping] Reconciled [TUE.iLoveWorks]; old app groups: (null), new app groups: (null), old system groups: (null), new system groups: (null)
+2026-11-03 18:08:17.254627-0500 0x39e484   Default     0x18aedc6            64276  30   containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:longterm] DELETED: [/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2] <TUE.iLoveWorks((1)app);<501/20/501/3/501>;O{501:20:u+rwx,g+rx,o+rx};u3676D0B3-CBC1-48C5-BA91-8E6167EA2274;p1F3ACE4C-7453-4072-A630-AE44B3ACD5E2;pf0;E>
+2026-11-03 18:08:17.255491-0500 0x39ec30   Default     0x0                  7871   14   installd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/com.apple.containermanager.primary-persona:7:11:2:1:Success (End) : Uninstall (Application)
+2026-11-03 18:08:17.262974-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MILaunchServicesOperationManager _onQueue_addPendingLaunchServicesOperation:error:]: Added pending LS operation <MILaunchServicesUnregisterOperation: 3F7AFFC5-6EE8-49F3-9F74-BB025722B316:6 TUE.iLoveWorks/MIInstallationDomainSystemShared>
+2026-11-03 18:08:17.277688-0500 0x3a2abe   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Post uninstallation unregistration: request to unregister TUE.iLoveWorks, operation 3F7AFFC5-6EE8-49F3-9F74-BB025722B316, type 3 from pid 7871
+2026-11-03 18:08:17.281390-0500 0x3a2abe   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/Unknown Persona:5:6:1:1:Unregister bundles via unregistrant - Start
+2026-11-03 18:08:17.281928-0500 0x3a2abe   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/Unknown Persona:5:6:1:1:Beginning _LSUnregisterAppWithBundleID
+2026-11-03 18:08:17.281981-0500 0x3a2abe   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] No placeholder to remove for TUE.iLoveWorks
+2026-11-03 18:08:17.282003-0500 0x3a2abe   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Found app to remove for TUE.iLoveWorks
+2026-11-03 18:08:17.282082-0500 0x3a2abe   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:default] LSDefaultApplicationQueryServerDatastore: clearing entries for TUE.iLoveWorks
+2026-11-03 18:08:17.295050-0500 0x3a2abe   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] _LSUnregisterBundle(TUE.iLoveWorks) returned 1 for app
+2026-11-03 18:08:17.295094-0500 0x3a2abe   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Clearing icon cache entries for TUE.iLoveWorks
+2026-11-03 18:08:17.296239-0500 0x39f8a7   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:default] Asking to clear identifiers for vendor BundleID:TUE/bundle TUE.iLoveWorks
+2026-11-03 18:08:17.302037-0500 0x3a2abe   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:icons] clearAlternateNameForBundleIdentifier: will clear for TUE.iLoveWorks
+2026-11-03 18:08:17.302087-0500 0x3a2abe   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/Unknown Persona:5:6:2:1:Finished _LSUnregisterAppWithBundleID
+2026-11-03 18:08:17.302164-0500 0x3a2abe   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/Unknown Persona:5:6:2:1:Unregister bundles - End
+2026-11-03 18:08:17.302233-0500 0x39f8a7   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sending applicationsDidUninstall: for (
+    "<LSApplicationProxy: 0x106330000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.302257-0500 0x3a2ade   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Failed to remove all handler prefs for bundle ID TUE.iLoveWorks: NO Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSPrefs.mm, _LSLine=1271, _LSFunction=_LSHandlerPrefRemoveAllWithBundleID_block_invoke}
+2026-11-03 18:08:17.303293-0500 0x3a2a4c   Default     0x0                  64275  5    nsurlsessiond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10468c0c0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.303340-0500 0x3a2872   Default     0x0                  64226  5    SpringBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10f212b80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.303378-0500 0x3a2872   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:observer] -[FBSApplicationLibrary applicationsDidUninstall:] TUE.iLoveWorks
+2026-11-03 18:08:17.303591-0500 0x3a2aae   Default     0x0                  64229  5    runningboardd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1061a4000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.304063-0500 0x39ec43   Default     0x0                  3156   5    liveactivitiesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x106258300> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.304088-0500 0x3a080b   Default     0x0                  7578   5    callservicesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1069d9ec0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.304371-0500 0x39f2e7   Default     0x0                  64420  5    appstored: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x104ee4000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.304478-0500 0x39ec9a   Default     0x0                  7589   5    profiled: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x105450000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.304801-0500 0x39f5dc   Default     0x0                  91425  5    sleepd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x106208540> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.305009-0500 0x3a1361   Default     0x0                  64294  5    chronod: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1081a6580> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.305356-0500 0x39f6a9   Default     0x0                  7587   5    gamed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x101b14180> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.305414-0500 0x3a2aa9   Default     0x0                  7870   7    installcoordinationd: (InstallCoordination) [com.apple.installcoordination:framework] IXSyncLSDatabase: Uninstall of [TUE.iLoveWorks/Invalid/[system-defined]]; re-fetching local LS database
+2026-11-03 18:08:17.305559-0500 0x3a2aa9   Default     0x0                  7870   7    installcoordinationd: [com.apple.installcoordination:daemon] -[IXSAppUninstaller _performUninstallOfAppWithIdentity:clientName:withFlags:record:completion:]_block_invoke: Uninstall succeeded with disposition:UninstallDispositionUninstalled for bundleID:TUE.iLoveWorks
+2026-11-03 18:08:17.305656-0500 0x39e473   Default     0x0                  64340  5    webbookmarksd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1041dc000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.306059-0500 0x15fc47   Default     0x18ad22d            64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] termination assertion released for TUE.iLoveWorks
+2026-11-03 18:08:17.306068-0500 0x39ec62   Default     0x0                  7894   5    deviceaccessd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x101d64600> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.306136-0500 0x15fc47   Default     0x18ad22d            64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] 0x10f210f00-SBApplicationIcon Data source did change: <SBApplication: 0x121495400; TUE.iLoveWorks> {
+} (SBApplication)
+2026-11-03 18:08:17.306429-0500 0x3a2a2f   Default     0x0                  7971   5    mobiletimerd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1019a4d80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.307038-0500 0x3a064e   Default     0x0                  7577   5    routined: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10a1adc80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.307211-0500 0x39e0b0   Default     0x0                  7884   5    clipserviced: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x102158000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.307311-0500 0x39ecc3   Default     0x0                  7967   5    privacyaccountingd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1060e00c0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.307648-0500 0x3a1f6f   Default     0x0                  64250  5    locationd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x107af5140> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.307746-0500 0x39f8a7   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sent distributed notification com.apple.LaunchServices.applicationUnregistered with payload {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}
+2026-11-03 18:08:17.307857-0500 0x3a1f6f   Default     0x0                  64250  0    locationd: (LocationAuthorizationFramework) [com.apple.locationd.Core:Core] {"msg":"#Warning #ClientResolution the passed keyPath is not registered. Resolving to #nullCKP", "InputCKP":iTUE.iLoveWorks:}
+2026-11-03 18:08:17.307896-0500 0x3a1f6f   Default     0x0                  64250  0    locationd: [com.apple.locationd.Core:Core] {"msg":"AppMonitor - application (un)installation notification", "notification":Uninstallation, "BundleId":TUE.iLoveWorks, "BundlePath":, "ExecutablePath":}
+2026-11-03 18:08:17.307954-0500 0x3a2a65   Default     0x0                  64253  5    dasd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x105f78600> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.308606-0500 0x3a2ad3   Default     0x0                  64256  5    passd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x108a0cc00> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.328017-0500 0x39e0b5   Default     0x0                  7884   14   clipserviced: (ClipServices) [com.apple.ClipServices:ClipServices] CPSClipCleanupManager: Post notification with name: com.apple.LaunchServices.applicationUnregistered, userInfo: {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}
+2026-11-03 18:08:17.337855-0500 0x3a2acf   Default     0x0                  64366  5    PosterBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x107f71080> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.339496-0500 0x3a2aa9   Default     0x0                  7870   0    installcoordinationd: (InstallProgress) [com.apple.installprogress:default] No record found for identity [TUE.iLoveWorks/Invalid/[system-defined]]; manually creating one from constituent values
+2026-11-03 18:08:17.340594-0500 0x3a2ae4   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Received disposition UninstallDispositionUninstalled from installcoordinationd for [TUE.iLoveWorks/Invalid/[system-defined]]
+2026-11-03 18:08:17.340904-0500 0x3a2ae4   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Resyncing local LS database to ensure it knows about uninstall of [TUE.iLoveWorks/Invalid/[system-defined]]
+2026-11-03 18:08:17.340932-0500 0x3a2ae4   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Resync of local LS database complete after uninstall of [TUE.iLoveWorks/Invalid/[system-defined]]
+2026-11-03 18:08:17.368783-0500 0x3a2afb   Default     0x0                  64367  5    homed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1046b7d80> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.369286-0500 0x39ecd2   Default     0x0                  64367  5    homed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1046b5440> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.371124-0500 0x39f2e7   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Handling application un-installation: {bundleID = TUE.iLoveWorks; version = (null); shortVersion = (null); variantID = (null)}
+2026-11-03 18:08:17.373741-0500 0x3a2872   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:default] Removed application: <SBApplicationInfo: 0x11b445b00; TUE.iLoveWorks (iLoveWorks)>
+2026-11-03 18:08:17.375729-0500 0x3a2ac2   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Handling application un-installation: {bundleID = TUE.iLoveWorks; version = (null); shortVersion = (null); variantID = (null)}
+2026-11-03 18:08:17.389817-0500 0x39d271   Default     0x0                  6340   2    appprotectiond: (AppProtection) [com.apple.appprotection:server] received note: name = com.apple.LaunchServices.applicationUnregistered, object = Optional(AppProtection.DistnotedXPCEventStreamTranslator), userInfo = Optional([AnyHashable("bundleIDs"): <__NSCFArray 0x104147880>(
+TUE.iLoveWorks
+)
+, AnyHashable("isPlaceholder"): 0])
+2026-11-03 18:08:17.394260-0500 0x3a2b0e   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Cancelled download requests for: TUE.iLoveWorks
+2026-11-03 18:08:17.397869-0500 0x3a2b0d   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Received request to cancel download requests for TUE.iLoveWorks - (null)
+2026-11-03 18:08:17.412399-0500 0x3a2ae1   Default     0x0                  97993  5    healthd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x103ee1380> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.417190-0500 0x3a2afc   Default     0x0                  7578   0    callservicesd: [com.apple.calls.callservicesd:Default] Handling NSConcreteNotification 0x105a54e80 {name = com.apple.LaunchServices.applicationUnregistered; userInfo = {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}}
+2026-11-03 18:08:17.425330-0500 0x3a2b21   Default     0x0                  6340   2    appprotectiond: (AppProtection) [com.apple.appprotection:server] processing settings authority event: SettingsAuthorityEvent.purgeSettingsForUninstalledApplication(TUE.iLoveWorks)
+2026-11-03 18:08:17.432097-0500 0x3a2b1e   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Cancelled download requests for: TUE.iLoveWorks
+2026-11-03 18:08:17.448791-0500 0x3a2ad4   Default     0x0                  7894   0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### applicationsDidUninstall [
+    <LSApplicationProxy: 0x101d64600> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>
+]
+2026-11-03 18:08:17.449175-0500 0x3a2ad4   Default     0x0                  7894   0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### removeAppsAccess [
+    "TUE.iLoveWorks"
+]
+2026-11-03 18:08:17.452235-0500 0x39f712   Default     0x0                  8298   5    donotdisturbd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1019b6040> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.452739-0500 0x39f712   Default     0x0                  8298   5    donotdisturbd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1019b6100> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.460840-0500 0x39f26b   Default     0x0                  64365  0    linkd: [com.apple.appintents:IndexCoordinator] Auditing metadata, received XPC event com.apple.LaunchServices.applicationUnregistered ["bundleIDs": <__NSSingleObjectArrayI 0x1039d1180>(
+TUE.iLoveWorks
+)
+, "isPlaceholder": 0]
+2026-11-03 18:08:17.485399-0500 0x15fc47   Default     0x0                  64226  14   SpringBoard: (MobileInstallation) [com.apple.appinstallation:TransactionLog] TUE.iLoveWorks/Unknown Persona:10:12:3:1:Application removed for reason: Removed from the system.
+2026-11-03 18:08:17.489881-0500 0x3a2b0d   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Received request to cancel download requests for TUE.iLoveWorks - (null)
+2026-11-03 18:08:17.510879-0500 0x3a080b   Default     0x0                  7578   0    callservicesd: (CopresenceCore) [com.apple.calls.copresencecore:Default] Invalidating cached value for bundle identifier: TUE.iLoveWorks
+2026-11-03 18:08:17.520051-0500 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Widgets] handleRemovedDataSource:<SBApplication: 0x121495400; TUE.iLoveWorks> {
+} ofIcon:<SBApplicationIcon: 0x10f210f00; uniqueIdentifier: TUE.iLoveWorks; bundleID: TUE.iLoveWorks>
+2026-11-03 18:08:17.557420-0500 0x3a2afc   Default     0x0                  7578   0    callservicesd: [com.apple.calls.callservicesd:Default] Unregistering application <CSDVoIPApplication 0x109003a00 bundleIdentifier=TUE.iLoveWorks environment=(null) pushKitClient=(null) networkExtensionClient=(null) token=(null) pendingPKMessageContextCount=0 pendingNetworkExtensionContextsCount=0> from PushKit voip in environment (null)
+2026-11-03 18:08:17.557507-0500 0x3a2afc   Default     0x0                  7578   0    callservicesd: [com.apple.calls.callservicesd:Default] Disabling topic TUE.iLoveWorks.voip and invalidating its token for all connections
+2026-11-03 18:08:17.557982-0500 0x3a080b   Default     0x0                  7578   0    callservicesd: (CopresenceCore) [com.apple.calls.copresencecore:Default] Invalidating cached value for bundle identifier: TUE.iLoveWorks
+2026-11-03 18:08:17.561520-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsServer) [com.apple.UserNotifications:DataProviderFactory] [TUE.iLoveWorks] Application uninstalled using default data provider
+2026-11-03 18:08:17.561551-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsServer) [com.apple.UserNotifications:DataProviderFactory] [TUE.iLoveWorks] Remove data provider
+2026-11-03 18:08:17.582396-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsCore) [com.apple.UserNotifications:AttachmentsRepository] Removing all attachments for bundle 'TUE.iLoveWorks'
+2026-11-03 18:08:17.582932-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsCore) [com.apple.UserNotifications:DataStore] No unique identifier for bundleID TUE.iLoveWorks found; adding a mapping to ABA88228-422A-4F5D-AD77-F9BF8C848BCB
+2026-11-03 18:08:17.583415-0500 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] Reload icon image of TUE.iLoveWorks for reason 'active data source did change'
+2026-11-03 18:08:17.586553-0500 0x3a2ae1   Default     0x0                  97993  5    healthd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x103ee0240> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:17.591065-0500 0x3a2afc   Default     0x0                  7578   0    callservicesd: (ApplePushService) [com.apple.apsd:connection] <APSConnection: 0x10582ca00> invalidateTokenForTopic: TUE.iLoveWorks.voip identifier
+2026-11-03 18:08:17.591160-0500 0x3a2afc   Default     0x0                  7578   0    callservicesd: (ApplePushService) [com.apple.apsd:connection] <APSConnection: 0x10582c700> invalidateTokenForTopic: TUE.iLoveWorks.voip identifier
+2026-11-03 18:08:17.592916-0500 0x3a2872   Error       0x0                  64226  2    SpringBoard: (UserNotificationsCore) [com.apple.UserNotifications:RemoteNotifications] [TUE.iLoveWorks] Push registration with a nil environment was encountered, will not invalidate token
+2026-11-03 18:08:17.603264-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsCore) [com.apple.UserNotifications:LocalNotifications] [TUE.iLoveWorks] Remove all pending notification dictionaries
+2026-11-03 18:08:17.604054-0500 0x3a2872   Default     0x0                  64226  2    SpringBoard: (UserNotificationsCore) [com.apple.UserNotifications:DataStore] Removing library mapping for TUE.iLoveWorks
+2026-11-03 18:08:17.607403-0500 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] SBWorkspaceTerminateApplication: TUE.iLoveWorks: "uninstalling app"
+2026-11-03 18:08:17.611553-0500 0x3a2b1b   Default     0x0                  3156   0    liveactivitiesd: (SessionCore) [com.apple.activitykit:pushToken] Launching process to deliver push token for: TUE.iLoveWorks
+2026-11-03 18:08:17.627337-0500 0x160042   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Received a notification for name:"com.apple.LaunchServices.applicationUnregistered", userInfo:{
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}, bundleIDs:(
+    "TUE.iLoveWorks"
+)
+2026-11-03 18:08:17.628129-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Deleting all the items for bundleIDs:(
+    "TUE.iLoveWorks"
+), pcs:{(
+)}
+2026-11-03 18:08:17.628711-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Deleting all items for bundleID:TUE.iLoveWorks
+2026-11-03 18:08:17.644636-0500 0x2e42c6   Default     0x0                  48299  3    appleaccountd: [com.apple.appleaccount:daemon] Dataclass App Install Observer - Ignoring ["TUE.iLoveWorks"]
+2026-11-03 18:08:17.646064-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:index] (TUE.iLoveWorks) deleteAllSearchableItemsWithBundleID, protectionClass:Default, shouldGC:YES, options:0x0, qos:0x11 conn:(0)
+2026-11-03 18:08:17.648038-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUserCourier 0x1051aa9b0 development 0> asked by <APSConnectionServer: 0x1059c6e80; development/com.apple.telephonyutilities.callservicesdaemon.voip.push/callservicesd 0> to invalidate extended app token for info <APSAppTokenInfo 0x105b32af0>: Topic TUE.iLoveWorks.voip Identifier  Expiration (null) type 0 base token (null)
+2026-11-03 18:08:17.650655-0500 0x15fdd0   Default     0x0                  64238  0    tccd: [com.apple.TCC:access] Handling Application Uninstalled event for {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}.
+2026-11-03 18:08:17.672196-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:index] deleteAllSearchableItemsForBundleID, bundleID:TUE.iLoveWorks, protectionClass:Default, shouldGC:YES
+2026-11-03 18:08:17.686167-0500 0x3a2b1b   Default     0x0                  3156   0    liveactivitiesd: (SessionCore) [com.apple.activitykit:process] Launching TUE.iLoveWorks
+2026-11-03 18:08:17.686271-0500 0x3a2b1b   Error       0x0                  3156   0    liveactivitiesd: (SessionCore) [com.apple.activitykit:pushToken] Did not launch process for push token delivery: TUE.iLoveWorks
+2026-11-03 18:08:17.717348-0500 0x3a2af5   Default     0x0                  94443  0    contactsd: [com.apple.contacts.provider:ContactProviderService] ContactProviderService received application unregistered notification, bundle ids (
+    "TUE.iLoveWorks"
+)
+2026-11-03 18:08:17.744582-0500 0x15fdd0   Default     0x0                  64238  0    tccd: [com.apple.TCC:access] Deleted entries for TUE.iLoveWorks
+2026-11-03 18:08:17.754808-0500 0x39ebc7   Default     0x0                  7970   0    assetsd: (PhotoLibraryServices) [com.apple.photos.backend:Backend] Handling 'Application Uninstalled' event for {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}.
+2026-11-03 18:08:17.758503-0500 0x3a2ad4   Default     0x0                  7894   0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### removeAppsAccess TUE.iLoveWorks
+2026-11-03 18:08:17.987835-0500 0x39ebc7   Default     0x0                  7970   0    assetsd: (PhotoLibraryServices) [com.apple.photos.backend:Backend] Handling application uninstall event with {
+    bundleIDs =     (
+        "TUE.iLoveWorks"
+    );
+    isPlaceholder = 0;
+}
+2026-11-03 18:08:18.002364-0500 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] TUE.iLoveWorks: Updating app shortcut store...
+2026-11-03 18:08:18.002404-0500 0x3a2872   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] TUE.iLoveWorks: Saving...
+2026-11-03 18:08:18.026451-0500 0x3a2872   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] TUE.iLoveWorks: SBApplicationShortcutStore doesn't need truncation (truncation reason: _saveQueue_save); there are 0 application shortcut items.
+2026-11-03 18:08:18.058110-0500 0x3a2ac2   Default     0x0                  64420  14   appstored: [com.apple.appstored:Updates] [533FF57D] Cleaning up following removal of apps: TUE.iLoveWorks
+2026-11-03 18:08:18.058110-0500 0x39f2e7   Default     0x0                  64420  14   appstored: [com.apple.appstored:Updates] [648ACA91] Cleaning up following removal of apps: TUE.iLoveWorks
+2026-11-03 18:08:18.058610-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/1CA0992F] Recording uninstalled apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.058629-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/1CA0992F] Preparing with apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.063035-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/1CA0992F] Recording events for apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.063099-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/1CA0992F] [Uninstall] [TUE.iLoveWorks] Removed metadata following deletion
+2026-11-03 18:08:18.063164-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/1CA0992F] Recorded uninstalled apps: [TUE.iLoveWorks] for types: []
+2026-11-03 18:08:18.063249-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/C34B28F7] Recording uninstalled apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.063260-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/C34B28F7] Preparing with apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.066586-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/C34B28F7] Recording events for apps: [TUE.iLoveWorks] sourceType: Uninstall
+2026-11-03 18:08:18.066645-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/C34B28F7] [Uninstall] [TUE.iLoveWorks] Removed metadata following deletion
+2026-11-03 18:08:18.066665-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/C34B28F7] Recorded uninstalled apps: [TUE.iLoveWorks] for types: []
+2026-11-03 18:08:18.121317-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:General] [AppLedger] [CBC628C0] Removing: TUE.iLoveWorks
+2026-11-03 18:08:18.121412-0500 0x3a2ac2   Error       0x0                  64420  14   appstored: [com.apple.appstored:Progress] Canceling untracked progress for bundleID: TUE.iLoveWorks
+2026-11-03 18:08:18.121501-0500 0x39f2e7   Error       0x0                  64420  14   appstored: [com.apple.appstored:Progress] Canceling untracked progress for bundleID: TUE.iLoveWorks
+2026-11-03 18:08:18.121637-0500 0x3a2b1a   Default     0x0                  64420  14   appstored: [com.apple.appstored:General] [AppLedger] [882E0794] Removing: TUE.iLoveWorks
+2026-11-03 18:08:18.127388-0500 0x3a2b4b   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Deleted all items for bundleID:TUE.iLoveWorks, protectionClass:Default
+2026-11-03 18:08:18.127518-0500 0x3a2b4b   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:default] (TUE.iLoveWorks) deleteAllInteractionsWithBundleID, protectionClass:Default, options:0x0
+2026-11-03 18:08:18.127951-0500 0x3a2af1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:default] SpotlightSender: deleteAllInteractionsWithBundleID, bundleID: TUE.iLoveWorks, protectionClass: Default, client: com.apple.corespotlight.receiver.suggestions
+2026-11-03 18:08:18.128245-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:index] (TUE.iLoveWorks) deleteAllSearchableItemsWithBundleID, protectionClass:Priority, shouldGC:YES, options:0x0, qos:0x11 conn:(0)
+2026-11-03 18:08:18.128786-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:index] deleteAllSearchableItemsForBundleID, bundleID:TUE.iLoveWorks, protectionClass:Priority, shouldGC:YES
+2026-11-03 18:08:18.161157-0500 0x3a2b4d   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Deleted all items for bundleID:TUE.iLoveWorks, protectionClass:Priority
+2026-11-03 18:08:18.161228-0500 0x3a2b4d   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:default] (TUE.iLoveWorks) deleteAllInteractionsWithBundleID, protectionClass:Priority, options:0x0
+2026-11-03 18:08:18.161750-0500 0x3a2af1   Default     0x0                  64369  0    searchd: (SpotlightDaemon) [com.apple.corespotlight:default] SpotlightSender: deleteAllInteractionsWithBundleID, bundleID: TUE.iLoveWorks, protectionClass: Priority, client: com.apple.corespotlight.receiver.suggestions
+2026-11-03 18:08:18.164096-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Finished deleting all items for bundleIDs:(
+    "TUE.iLoveWorks"
+), hasFailedDeletes:NO, purge:YES, pcs:{(
+    Default,
+    Priority
+)}
+2026-11-03 18:08:18.164372-0500 0x3a20b1   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] _deleteAllItemsForBundleIDs:(
+    "TUE.iLoveWorks"
+)
+2026-11-03 18:08:18.178890-0500 0x3a2af6   Default     0x0                  3147   0    siriactionsd: (VoiceShortcuts) [com.apple.shortcuts:Daemon] Dispatching XPC event: <distributed notification: com.apple.LaunchServices.applicationUnregistered, userInfo: [AnyHashable("isPlaceholder"): 0, AnyHashable("bundleIDs"): <__NSSingleObjectArrayI 0x102de30e0>(
+TUE.iLoveWorks
+)
+]>
+2026-11-03 18:08:18.421932-0500 0x39f8a7   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Save after unregistration for TUE.iLoveWorks attempted: 1 save error: (null)
+2026-11-03 18:08:18.430007-0500 0x39ec30   Default     0x0                  7871   0    installd: (MobileSystemServices) 0x16b717000 -[MILaunchServicesOperationManager _onQueue_removePendingLaunchServicesOperationForUUID:dueToLSSave:]: Removing operation after LS save: <MILaunchServicesUnregisterOperation: 3F7AFFC5-6EE8-49F3-9F74-BB025722B316:6 TUE.iLoveWorks/MIInstallationDomainSystemShared>
+2026-11-03 18:08:18.568958-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com TUE.iLoveWorks.voip ,PerAppToken.v0
+2026-11-03 18:08:18.752559-0500 0x3a2af6   Default     0x0                  3147   0    siriactionsd: (VoiceShortcuts) [com.apple.shortcuts:Daemon] Firing event: <distributed notification: com.apple.LaunchServices.applicationUnregistered, userInfo: [AnyHashable("isPlaceholder"): 0, AnyHashable("bundleIDs"): <__NSSingleObjectArrayI 0x102de30e0>(
+TUE.iLoveWorks
+)
+]>
+2026-11-03 18:08:18.795254-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting entire bundle identifier TUE.iLoveWorks
+2026-11-03 18:08:19.000326-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (ProactiveHarvesting) [com.apple.proactive.ProactiveHarvesting:Default] HVQueues: deleteContentWithRequest: TUE.iLoveWorks
+2026-11-03 18:08:19.020032-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com TUE.iLoveWorks.voip ,ExtendedAppToken.v1
+2026-11-03 18:08:19.020546-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] No tokens use salt anymore. Clearing salt for topic TUE.iLoveWorks.voip
+2026-11-03 18:08:19.023135-0500 0x15fcde   Error       0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUser: 0x10519c260; name: 0> saveSalt failed (null) TUE.iLoveWorks.voip
+2026-11-03 18:08:19.023309-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUserCourier 0x1051aa9b0 development 0> asked by <APSConnectionServer: 0x1059c7480; development/com.apple.telephonyutilities.callservicesdaemon.voip.push.development/callservicesd 0> to invalidate extended app token for info <APSAppTokenInfo 0x105b31410>: Topic TUE.iLoveWorks.voip Identifier  Expiration (null) type 0 base token (null)
+2026-11-03 18:08:19.023696-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com TUE.iLoveWorks.voip ,PerAppToken.v0
+2026-11-03 18:08:19.024195-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com TUE.iLoveWorks.voip ,ExtendedAppToken.v1
+2026-11-03 18:08:19.024493-0500 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] No tokens use salt anymore. Clearing salt for topic TUE.iLoveWorks.voip
+2026-11-03 18:08:19.024754-0500 0x15fcde   Error       0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUser: 0x10519c260; name: 0> saveSalt failed (null) TUE.iLoveWorks.voip
+2026-11-03 18:08:19.116502-0500 0x3a2b37   Default     0x0                  94443  0    contactsd: [com.apple.contacts.provider:ContactProviderService] ContactProviderService handling unregistered applications: (
+    "TUE.iLoveWorks"
+)
+2026-11-03 18:08:19.136497-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting all interactions from TUE.iLoveWorks
+2026-11-03 18:08:19.378629-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting 1 domain identifiers (1 after removing overlaps) for TUE.iLoveWorks: _PASImmutableDomainSelection (count=1: __ProactiveHarvesting__.HVInteraction)
+2026-11-03 18:08:19.378751-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (ProactiveHarvesting) [com.apple.proactive.ProactiveHarvesting:Default] HVQueues: deleteContentWithRequest: TUE.iLoveWorks
+2026-11-03 18:08:19.379546-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting entire bundle identifier TUE.iLoveWorks
+2026-11-03 18:08:19.379581-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (ProactiveHarvesting) [com.apple.proactive.ProactiveHarvesting:Default] HVQueues: deleteContentWithRequest: TUE.iLoveWorks
+2026-11-03 18:08:19.380152-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting all interactions from TUE.iLoveWorks
+2026-11-03 18:08:19.404071-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] SGDSpotlightReceiver: deleting 1 domain identifiers (1 after removing overlaps) for TUE.iLoveWorks: _PASImmutableDomainSelection (count=1: __ProactiveHarvesting__.HVInteraction)
+2026-11-03 18:08:19.404126-0500 0x3a1e7f   Default     0x0                  3220   0    suggestd: (ProactiveHarvesting) [com.apple.proactive.ProactiveHarvesting:Default] HVQueues: deleteContentWithRequest: TUE.iLoveWorks
+2026-11-03 18:08:19.515906-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.545636-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.546232-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.573298-0500 0x3a2b00   Default     0x189a067            64494  0    storekitd: [com.apple.storekit:Default] [5f0509ec] Clearing app transactions for ["TUE.iLoveWorks"]
+2026-11-03 18:08:19.578863-0500 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Installed apps did change.
+Added: {(
+)}
+Removed: {(
+    "TUE.iLoveWorks"
+)}
+Replaced: {(
+)}
+Updated: (null)
+2026-11-03 18:08:19.580104-0500 0x15fc47   Default     0x18aeddd            64226  0    SpringBoard: (SpringBoard) [com.apple.SplashBoard:FileManifest] FBSApplicationLibrary removed applications. Removing launch images for (
+    "TUE.iLoveWorks"
+)
+2026-11-03 18:08:19.580231-0500 0x15fc47   Default     0x18aeddd            64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:FileManifest] [<XBApplicationSnapshotManifestImpl: 0x121ae8680> [TUE.iLoveWorks]] endTrackingImageDeletions
+2026-11-03 18:08:19.603765-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.605499-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.606287-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.704219-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.704808-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.705183-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from from TUE.iLoveWorks
+2026-11-03 18:08:19.705612-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.706298-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.706681-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (PersonalizationPortraitInternals) [com.apple.PersonalizationPortrait:Harvesting] Consumer: beginning deletion from 1 group Ids from TUE.iLoveWorks
+2026-11-03 18:08:19.738717-0500 0x3a2b00   Default     0x189a067            64494  0    storekitd: [com.apple.storekit:Default] Clearing transactions and subscription statuses for ["TUE.iLoveWorks"] and account type nil
+2026-11-03 18:08:19.758951-0500 0x3a2b55   Default     0x0                  64517  5    nanotimekitcompaniond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1046c4000> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:19.759176-0500 0x3a2b55   Default     0x0                  64517  5    nanotimekitcompaniond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1046c40c0> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:19.760550-0500 0x39ecaa   Default     0x189a067            64494  0    storekitd: [com.apple.storekit:Default] Clearing legacy transactions for ["TUE.iLoveWorks"]
+2026-11-03 18:08:19.952988-0500 0x3a1361   Default     0x0                  64294  5    chronod: (ChronoCore) [com.apple.chrono:authorizations] [appAuth:TUE.iLoveWorks] healthkit authorization changed
+2026-11-03 18:08:20.001636-0500 0x3a2b4a   Error       0x189f2ef            64238  0    tccd: [com.apple.TCC:access] bundleRecordWithBundleIdentifier failed for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSLine=159, _LSFunction=+[LSBundleRecord bundleRecordWithBundleIdentifier:allowPlaceholder:error:], _LSFile=LSBundleRecord.mm, NSUnderlyingError=0x101449170 {Error Domain=NSOSStatusErrorDomain Code=-10814 "Unable to find this application extension record in the Launch Services database." UserInfo={_LSLine=659, _LSFunction=_LSPluginFindWithPlatformInfo, _LSFile=LSPluginBundle.mm, NSDebugDescription=Unable to find this application extension record in the Launch Services database., SK=TUE.iLoveWorks, IS=false}}}
+2026-11-03 18:08:20.001730-0500 0x3a2b4a   Error       0x189f2ef            64238  0    tccd: [com.apple.TCC:access] -[TCCDAccessIdentity initWithMessage:]: self.bundle=0x0, bundle:(null); for: TUE.iLoveWorks with url: (null)
+2026-11-03 18:08:20.006273-0500 0x3a2ae7   Default     0x0                  7965   5    healthappd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10dcf9a40> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:20.006679-0500 0x3a2ae7   Default     0x0                  7965   5    healthappd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10dcf9980> TUE.iLoveWorks file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/1F3ACE4C-7453-4072-A630-AE44B3ACD5E2/App.app/ <TUE.iLoveWorks <installed >:0>"
+)
+2026-11-03 18:08:20.059106-0500 0x3a2b52   Default     0x0                  97993  0    healthd: (HealthDaemon) [com.apple.HealthKit:auth] Reset authorization records for uninstalled application TUE.iLoveWorks
+2026-11-03 18:08:20.090299-0500 0x3a2bb5   Error       0x18aefba            64238  0    tccd: [com.apple.TCC:access] bundleRecordWithBundleIdentifier failed for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSLine=159, _LSFunction=+[LSBundleRecord bundleRecordWithBundleIdentifier:allowPlaceholder:error:], _LSFile=LSBundleRecord.mm, NSUnderlyingError=0x10144aa90 {Error Domain=NSOSStatusErrorDomain Code=-10814 "Unable to find this application extension record in the Launch Services database." UserInfo={_LSLine=659, _LSFunction=_LSPluginFindWithPlatformInfo, _LSFile=LSPluginBundle.mm, NSDebugDescription=Unable to find this application extension record in the Launch Services database., SK=TUE.iLoveWorks, IS=false}}}
+2026-11-03 18:08:20.090385-0500 0x3a2bb5   Error       0x18aefba            64238  0    tccd: [com.apple.TCC:access] -[TCCDAccessIdentity initWithMessage:]: self.bundle=0x0, bundle:(null); for: TUE.iLoveWorks with url: (null)
+2026-11-03 18:08:20.134099-0500 0x3a2bb4   Default     0x0                  7972   0    WorkoutKitXPCService: [com.apple.SessionTrackerApp:xpcService] WorkoutKitXPCService: removing provider for bundleId: TUE.iLoveWorks
+2026-11-03 18:08:20.196092-0500 0x3a2b9b   Default     0x0                  64294  5    chronod: (ChronoCore) [com.apple.chrono:authorizations] [appAuth:TUE.iLoveWorks] healthkit authorization changed
+2026-11-03 18:08:20.400799-0500 0x3a2b3e   Default     0x0                  3220   0    suggestd: (CoreSuggestionsInternals) [com.apple.suggestions:suggestions] Deleting all Interactions from TUE.iLoveWorks.
+2026-11-03 18:08:20.464356-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Requesting launch of TUE.iLoveWorks with options: {
+    environment =     {
+    };
+}
+2026-11-03 18:08:20.478362-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Beginning launch sequence for bundle 'TUE.iLoveWorks'
+	retryTimeout: 120.000000 (default write com.apple.CoreSimulatorBridge LaunchRetryTimeout <value>)
+	bootTimeout: 300.000000 (default write com.apple.CoreSimulatorBridge BootRetryTimeout <value>)
+	bootLeeway: 120.000000 (default write com.apple.CoreSimulatorBridge BootLeeway <value>)
+	Note: Use 'xcrun simctl spawn booted defaults write <domain> <key> <value>' to modify defaults in the booted Simulator device.
+Simulator booted at: Sun Nov  1 21:25:17 2026
+Current time: Tue Nov  3 18:08:20 2026
+Within boot leeway: NO
+2026-11-03 18:08:20.478538-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Launch attempt #0 for bundle 'TUE.iLoveWorks', have been trying to launch for 0 seconds.
+2026-11-03 18:08:20.478720-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Failed to get LSBundleProxy for 'TUE.iLoveWorks'
+2026-11-03 18:08:20.480283-0500 0x3a2b4a   Error       0x18af093            64238  0    tccd: [com.apple.TCC:access] bundleRecordWithBundleIdentifier failed for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSLine=159, _LSFunction=+[LSBundleRecord bundleRecordWithBundleIdentifier:allowPlaceholder:error:], _LSFile=LSBundleRecord.mm, NSUnderlyingError=0x101449860 {Error Domain=NSOSStatusErrorDomain Code=-10814 "Unable to find this application extension record in the Launch Services database." UserInfo={_LSLine=659, _LSFunction=_LSPluginFindWithPlatformInfo, _LSFile=LSPluginBundle.mm, NSDebugDescription=Unable to find this application extension record in the Launch Services database., SK=TUE.iLoveWorks, IS=false}}}
+2026-11-03 18:08:20.480489-0500 0x3a2b4a   Error       0x18af093            64238  0    tccd: [com.apple.TCC:access] -[TCCDAccessIdentity initWithMessage:]: self.bundle=0x0, bundle:(null); for: TUE.iLoveWorks with url: (null)
+2026-11-03 18:08:20.480852-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x9c21] Sending request to open "TUE.iLoveWorks"
+2026-11-03 18:08:20.578101-0500 0x3a29f1   Default     0x0                  97993  4    healthd: (WorkoutHealthPlugin) [com.apple.HealthKit:workouts] [WorkoutQueryServer] fetching external_configuration_provider of state WOPersistenceObjectStateActive (limit=250) for id: TUE.iLoveWorks
+2026-11-03 18:08:20.585381-0500 0x3a2bb4   Default     0x0                  7972   0    WorkoutKitXPCService: [com.apple.SessionTrackerApp:xpcService] WorkoutKitXPCService: successfully removed provider for bundleId: TUE.iLoveWorks
+2026-11-03 18:08:20.587757-0500 0x3a2bae   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x9c21] Received request to open "TUE.iLoveWorks" from CoreSimulatorBr:64257.
+2026-11-03 18:08:20.596363-0500 0x3a2b52   Default     0x0                  97993  0    healthd: (HealthDaemon) [com.apple.HealthKit:auth] Reset authorization records for uninstalled application TUE.iLoveWorks
+2026-11-03 18:08:20.606036-0500 0x3a2b4a   Error       0x18af09c            64238  0    tccd: [com.apple.TCC:access] bundleRecordWithBundleIdentifier failed for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSLine=159, _LSFunction=+[LSBundleRecord bundleRecordWithBundleIdentifier:allowPlaceholder:error:], _LSFile=LSBundleRecord.mm, NSUnderlyingError=0x1014482d0 {Error Domain=NSOSStatusErrorDomain Code=-10814 "Unable to find this application extension record in the Launch Services database." UserInfo={_LSLine=659, _LSFunction=_LSPluginFindWithPlatformInfo, _LSFile=LSPluginBundle.mm, NSDebugDescription=Unable to find this application extension record in the Launch Services database., SK=TUE.iLoveWorks, IS=false}}}
+2026-11-03 18:08:20.606126-0500 0x3a2b4a   Error       0x18af09c            64238  0    tccd: [com.apple.TCC:access] -[TCCDAccessIdentity initWithMessage:]: self.bundle=0x0, bundle:(null); for: TUE.iLoveWorks with url: (null)
+2026-11-03 18:08:21.510448-0500 0x3a2beb   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x9c21] Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"
+2026-11-03 18:08:21.510665-0500 0x3a2beb   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x9c21] Open "TUE.iLoveWorks" request from CoreSimulatorBr:64257 failed with error: <NSError: 0x11be48a20; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x9c21;
+    NSLocalizedDescription = The request to open "TUE.iLoveWorks" failed.;
+    NSUnderlyingError = <NSError: 0x11be48960; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"">;
+}
+2026-11-03 18:08:21.511033-0500 0x3a2b6c   Error       0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x9c21] Error handling open request for TUE.iLoveWorks: <NSError: 0x10444e280; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x9c21;
+    NSLocalizedDescription = The request to open "TUE.iLoveWorks" failed.;
+    NSUnderlyingError = <NSError: 0x10444e8b0; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"">;
+}
+2026-11-03 18:08:21.511212-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Error Launching: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "TUE.iLoveWorks" failed." UserInfo={NSUnderlyingError=0x10444e8b0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x9c21, NSLocalizedDescription=The request to open "TUE.iLoveWorks" failed.}
+2026-11-03 18:08:21.511384-0500 0x3a2ae4   Default     0x0                  64257  0    CoreSimulatorBridge: Non-FBS error launching 'TUE.iLoveWorks'. Error was: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "TUE.iLoveWorks" failed." UserInfo={NSUnderlyingError=0x10444e8b0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x9c21, NSLocalizedDescription=The request to open "TUE.iLoveWorks" failed.}
+2026-11-03 18:08:21.511988-0500 0x3a2bae   Error       0x0                  64226  2    SpringBoard: (CoreServices) [com.apple.launchservices:default] *** ERROR *** Presenting restoration prompt for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSBindingEvaluator.mm, _LSLine=1975, _LSFunction=runEvaluator}
+2026-11-03 18:08:28.051327-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Requesting launch of TUE.iLoveWorks with options: {
+    environment =     {
+    };
+}
+2026-11-03 18:08:28.051600-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Beginning launch sequence for bundle 'TUE.iLoveWorks'
+	retryTimeout: 120.000000 (default write com.apple.CoreSimulatorBridge LaunchRetryTimeout <value>)
+	bootTimeout: 300.000000 (default write com.apple.CoreSimulatorBridge BootRetryTimeout <value>)
+	bootLeeway: 120.000000 (default write com.apple.CoreSimulatorBridge BootLeeway <value>)
+	Note: Use 'xcrun simctl spawn booted defaults write <domain> <key> <value>' to modify defaults in the booted Simulator device.
+Simulator booted at: Sun Nov  1 21:25:17 2026
+Current time: Tue Nov  3 18:08:28 2026
+Within boot leeway: NO
+2026-11-03 18:08:28.051719-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Launch attempt #0 for bundle 'TUE.iLoveWorks', have been trying to launch for 0 seconds.
+2026-11-03 18:08:28.053714-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Failed to get LSBundleProxy for 'TUE.iLoveWorks'
+2026-11-03 18:08:28.054093-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0xacd7] Sending request to open "TUE.iLoveWorks"
+2026-11-03 18:08:28.054401-0500 0x3a2bed   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0xacd7] Received request to open "TUE.iLoveWorks" from CoreSimulatorBr:64257.
+2026-11-03 18:08:28.054482-0500 0x3a2bed   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0xacd7] Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"
+2026-11-03 18:08:28.054587-0500 0x3a2bed   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0xacd7] Open "TUE.iLoveWorks" request from CoreSimulatorBr:64257 failed with error: <NSError: 0x11b433f30; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0xacd7;
+    NSLocalizedDescription = The request to open "TUE.iLoveWorks" failed.;
+    NSUnderlyingError = <NSError: 0x11b4329a0; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"">;
+}
+2026-11-03 18:08:28.054793-0500 0x3a2872   Error       0x0                  64226  2    SpringBoard: (CoreServices) [com.apple.launchservices:default] *** ERROR *** Presenting restoration prompt for TUE.iLoveWorks: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSBindingEvaluator.mm, _LSLine=1975, _LSFunction=runEvaluator}
+2026-11-03 18:08:28.054820-0500 0x3a2d1f   Error       0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0xacd7] Error handling open request for TUE.iLoveWorks: <NSError: 0x10444e910; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0xacd7;
+    NSLocalizedDescription = The request to open "TUE.iLoveWorks" failed.;
+    NSUnderlyingError = <NSError: 0x10444c7e0; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"">;
+}
+2026-11-03 18:08:28.054876-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Error Launching: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "TUE.iLoveWorks" failed." UserInfo={NSUnderlyingError=0x10444c7e0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0xacd7, NSLocalizedDescription=The request to open "TUE.iLoveWorks" failed.}
+2026-11-03 18:08:28.055002-0500 0x39e48a   Default     0x0                  64257  0    CoreSimulatorBridge: Non-FBS error launching 'TUE.iLoveWorks'. Error was: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "TUE.iLoveWorks" failed." UserInfo={NSUnderlyingError=0x10444c7e0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "TUE.iLoveWorks"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0xacd7, NSLocalizedDescription=The request to open "TUE.iLoveWorks" failed.}
+2026-11-03 18:08:29.036465-0500 0x3a2d26   Default     0x0                  9685   0    BackgroundShortcutRunner: [com.apple.shortcuts:ToolKitIndexing] Indexing for request: <WFToolKitIndexingRequest: 0x1064500c0>, changeset: .partial(updatedCount: 2 removedCount: 1 updated: ["com.loveworks.app", "com.apple.siri.SiriCrisisAppIntentsExtension"], removed: ["TUE.iLoveWorks"], provenance: [VoiceShortcutClient.ToolKitIndexingReason.Changeset.Provenance.launchServicesSnapshot(<LaunchServicesSnapshot uuid=689BFA7C-8FD5-4343-8B8C-067DC5B179CF, v=880)> ["com.apple.AppProtectionUIHost", "com.apple.RemoteiCloudQuotaUI", "com.apple.CarPlaySplashScreen", "com.apple.assistivetouchd", "com.apple.coreidv.CoreIDVUIService", "com.apple.UIKit.FontPickerUIService", "com.apple.findmy.FindMyIntents", "com.apple.TVRemoteApp.TVRemoteSettingsAppIntents", "com.apple.Health", "com.apple.chrono.WidgetRenderer-StandBy", "com.apple.AirDropSettingsIntents", "com.apple.FamilyExtensionHost", "com.apple.Bridge", "com.apple.AppDistributionLaunchAngel", "com.apple.ScreenTimeAppIntentsExtension", "com.apple.PassbookSecureUIService", "com.apple.SOS.SettingsSOSAppIntentsExtension", "com.apple.ClockAngel", "com.appl<…>, priority: <decode: missing data>
+2026-11-03 18:08:29.877416-0500 0x3a2bb1   Default     0x0                  3147   0    siriactionsd: (WorkflowKit) [com.apple.shortcuts:ToolKitScheduler] retriable indexing: decoded result from BGSR: changeset=.partial(updatedCount: 2 removedCount: 1 updated: ["com.apple.siri.SiriCrisisAppIntentsExtension", "com.loveworks.app"], removed: ["TUE.iLoveWorks"], provenance: [VoiceShortcutClient.ToolKitIndexingReason.Changeset.Provenance.launchServicesSnapshot(<LaunchServicesSnapshot uuid=689BFA7C-8FD5-4343-8B8C-067DC5B179CF, v=880)> ["com.apple.PassbookUIService", "com.apple.MobileSMS", "com.apple.PASViewService", "com.apple.InputUI", "com.apple.HomeAppIntentsExtension", "com.apple.commandandcontrol", "com.apple.PreviewShell", "com.apple.icloud.apps.messages.business", "com.apple.ServicesPaymentAngel", "com.apple.BrowserKitViewService", "com.apple.Maps.MapsSettingsAppIntents", "com.apple.GuestUserHandoverSetup", "com.apple.GameTrampoline", "com.apple.Preferences.KeyboardSettingsExtension", "com.apple.news", "com.apple.avkit.AVKitRoutingService", "com.apple.AppStoreSettingsAppIntents", "com.apple.iMessageAppsViewService", "com.apple.UIKit.OverlayUI", "com.apple.FinanceUIService", "com.apple.family", "com.apple.B<…> removedTools=<decode: missing data>
+2026-11-03 18:08:33.142931-0500 0x0        Default     0x0                  9720   0    log: [com.apple.log:] log run noninteractively, parent: 64220 (launchd_sim), args: 'log' 'show' '--predicate' 'eventMessage contains "TUE.iLoveWorks"' '--last' '1m'

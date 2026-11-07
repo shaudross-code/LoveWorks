@@ -1,0 +1,17 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination "platform=iOS Simulator,name=iPhone 17"
+
+2026-11-01 20:34:13.105 xcodebuild[69375:1477654] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+2026-11-01 20:35:13.209 xcodebuild[69375:1477654] Writing error result bundle to /var/folders/90/m97jxq8x7sgf2v7hrv4bty7w0000gn/T/ResultBundle_2026-01-11_20-35-0013.xcresult
+xcodebuild: error: Unable to find a device matching the provided destination specifier:
+		{ platform:iOS Simulator, OS:latest, name:iPhone 17 }
+
+	The requested device could not be found because no available devices matched the request.
+
+	Destinations compatible with the "App" scheme:
+		{ platform:macOS, arch:arm64, variant:Designed for [iPad,iPhone], id:00006000-001C60800EE2801E, name:My Mac }
+		{ platform:iOS, id:dvtdevice-DVTiPhonePlaceholder-iphoneos:placeholder, name:Any iOS Device }
+		{ platform:iOS Simulator, id:dvtdevice-DVTiOSDeviceSimulatorPlaceholder-iphonesimulator:placeholder, name:Any iOS Simulator Device }
+
+	Destinations incompatible with the "App" scheme:
+		{ platform:macOS, arch:arm64e, id:00006000-001C60800EE2801E, name:My Mac, error:My Mac’s macOS platform doesn’t match App.app’s supported platforms. You can change App.app’s Base SDK or Supported Platforms to support My Mac. }

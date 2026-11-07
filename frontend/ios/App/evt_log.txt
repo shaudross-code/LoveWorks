@@ -1,0 +1,2 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-03 17:41:44.790291-0500 0x0        Default     0x0                  5318   0    log: [com.apple.log:] log run noninteractively, parent: 64220 (launchd_sim), args: 'log' 'show' '--last' '5m' '--predicate' 'eventMessage contains "EvaluateRuntimeIssue"'

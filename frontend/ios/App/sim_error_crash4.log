@@ -1,0 +1,2 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-03 12:04:24.761524-0500 0x0        Default     0x0                  53973  0    log: [com.apple.log:] log run noninteractively, parent: 64220 (launchd_sim), args: 'log' 'show' '--predicate' 'eventMessage contains "EXC_BREAKPOINT"' '--last' '1m'

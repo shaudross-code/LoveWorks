@@ -1,0 +1,2 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-03 12:50:29.534771-0500 0x0        Default     0x0                  69348  0    log: [com.apple.log:] log run noninteractively, parent: 75624 (launchd_sim), args: 'log' 'show' '--predicate' 'eventMessage contains "TUE.iLoveWorks"' '--last' '1m'

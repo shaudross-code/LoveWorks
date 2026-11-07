@@ -1,0 +1,487 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -workspace App.xcworkspace -scheme App -destination generic/platform=iOS
+
+2026-11-03 13:27:36.609 xcodebuild[80671:3394001] [MT] IDERunDestination: Supported platforms for the buildables in the current scheme is empty.
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (21 targets)
+    Target 'App' in project 'App'
+        ➜ Implicit dependency on target 'Pods-App' in project 'Pods' via file 'Pods_App.framework' in build phase 'Link Binary'
+        ➜ Implicit dependency on target 'Capacitor' in project 'Pods' via options '-framework Capacitor' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'CapacitorPushNotifications' in project 'Pods' via options '-framework CapacitorPushNotifications' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'CapacitorCordova' in project 'Pods' via options '-framework Cordova' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseMessaging' in project 'Pods' via options '-framework FirebaseMessaging' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'Pods-App' in project 'Pods'
+        ➜ Explicit dependency on target 'Capacitor' in project 'Pods'
+        ➜ Explicit dependency on target 'CapacitorCordova' in project 'Pods'
+        ➜ Explicit dependency on target 'CapacitorPushNotifications' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseMessaging' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseMessaging' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseMessaging-FirebaseMessaging_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'FirebaseMessaging-FirebaseMessaging_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseInstallations' in project 'Pods' via options '-framework FirebaseInstallations' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleDataTransport' in project 'Pods' via options '-framework GoogleDataTransport' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleDataTransport' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb' in project 'Pods'
+    Target 'GoogleDataTransport-GoogleDataTransport_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'nanopb' in project 'Pods' via options '-framework nanopb' in build setting 'OTHER_LDFLAGS'
+    Target 'nanopb' in project 'Pods'
+        ➜ Explicit dependency on target 'nanopb-nanopb_Privacy' in project 'Pods'
+    Target 'nanopb-nanopb_Privacy' in project 'Pods' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC' in project 'Pods'
+    Target 'FirebaseInstallations-FirebaseInstallations_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'PromisesObjC' in project 'Pods' via options '-framework FBLPromises' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'FirebaseCore' in project 'Pods' via options '-framework FirebaseCore' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'PromisesObjC' in project 'Pods'
+        ➜ Explicit dependency on target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods'
+    Target 'PromisesObjC-FBLPromises_Privacy' in project 'Pods' (no dependencies)
+    Target 'FirebaseCore' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCore-FirebaseCore_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCore-FirebaseCore_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'FirebaseCoreInternal' in project 'Pods' via options '-framework FirebaseCoreInternal' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'FirebaseCoreInternal' in project 'Pods'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities' in project 'Pods'
+    Target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' in project 'Pods'
+        ➜ Implicit dependency on target 'GoogleUtilities' in project 'Pods' via options '-framework GoogleUtilities' in build setting 'OTHER_LDFLAGS'
+    Target 'GoogleUtilities' in project 'Pods'
+        ➜ Explicit dependency on target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods'
+    Target 'GoogleUtilities-GoogleUtilities_Privacy' in project 'Pods' (no dependencies)
+    Target 'CapacitorPushNotifications' in project 'Pods'
+        ➜ Explicit dependency on target 'Capacitor' in project 'Pods'
+    Target 'Capacitor' in project 'Pods'
+        ➜ Explicit dependency on target 'CapacitorCordova' in project 'Pods'
+    Target 'CapacitorCordova' in project 'Pods' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/ibtool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/user/Desktop/iLoveWorks/frontend/ios/App/App/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: bfe030ca1fdc9f41f5f807d2dad89cfc
+Build description path: /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/XCBuildData/bfe030ca1fdc9f41f5f807d2dad89cfc.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -o /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova/Cordova.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/CapacitorCordova/CapacitorCordova-Info.plist (in target 'CapacitorCordova' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/CapacitorCordova/CapacitorCordova-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova/Cordova.framework/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises_Privacy.bundle/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist (in target 'PromisesObjC-FBLPromises_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/PromisesObjC/ResourceBundle-FBLPromises_Privacy-PromisesObjC-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities_Privacy.bundle/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleUtilities/ResourceBundle-GoogleUtilities_Privacy-GoogleUtilities-Info.plist (in target 'GoogleUtilities-GoogleUtilities_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleUtilities/ResourceBundle-GoogleUtilities_Privacy-GoogleUtilities-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb_Privacy.bundle/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/nanopb/ResourceBundle-nanopb_Privacy-nanopb-Info.plist (in target 'nanopb-nanopb_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/nanopb/ResourceBundle-nanopb_Privacy-nanopb-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb_Privacy.bundle/Info.plist
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities.framework/GoogleUtilities_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities_Privacy.bundle (in target 'GoogleUtilities' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities.framework
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises.framework/FBLPromises_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises_Privacy.bundle (in target 'PromisesObjC' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises.framework
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb.framework/nanopb_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb_Privacy.bundle (in target 'nanopb' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb.framework
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleUtilities/GoogleUtilities-Info.plist (in target 'GoogleUtilities' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleUtilities/GoogleUtilities-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities/GoogleUtilities.framework/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist (in target 'nanopb' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/nanopb/nanopb-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb.framework/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist (in target 'PromisesObjC' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/PromisesObjC/PromisesObjC-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises.framework/Info.plist
+
+Ld /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova/Cordova.framework/Cordova normal (in target 'CapacitorCordova' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -Xlinker -reproducible -target arm64-apple-ios15.0 -dynamiclib -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -O0 -Xlinker -no_warn_duplicate_libraries -L/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -L/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova -F/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/EagerLinkingTBDs/Debug-iphoneos -F/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova -filelist /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/Cordova.LinkFileList -install_name @rpath/Cordova.framework/Cordova -Xlinker -rpath -Xlinker @executable_path/Frameworks -Xlinker -rpath -Xlinker @loader_path/Frameworks -Xlinker -dead_strip -Xlinker -object_path_lto -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/Cordova_lto.o -rdynamic -Xlinker -no_deduplicate -Xlinker -dependency_info -Xlinker /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/Cordova_dependency_info.dat -fobjc-arc -fobjc-link-runtime -framework WebKit -framework Foundation -framework WebKit -compatibility_version 1 -current_version 1 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova/Cordova.framework/Cordova
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl.urlTransformer' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._webView' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._commandDelegate' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_messageFromMultipart' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_SWIFT_CDVCommandStatus_NO_RESULT' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_CLASS_$_CDVViewController' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin.hasPendingOperation' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_CDVViewWillDisappearNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVInvokedUrlCommand._callbackId' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_CDVPageDidLoadNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVViewController._settings' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl._callbackIdPattern' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginResult.associatedObject' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_IVAR_$_CDVConfigParser.startupPluginNames' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_messageFromArrayBuffer' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_CDVViewDidLayoutSubviewsNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_SWIFT_CDVCommandStatus_ILLEGAL_ACCESS_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_SWIFT_CDVCommandStatus_OK' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_IVAR_$_CDVConfigParser.settings' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_OBJC_CLASS_$_CDVInvokedUrlCommand' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_OBJC_IVAR_$_CDVConfigParser.pluginsDict' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginResult.message' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._viewController' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_CDVViewWillTransitionToSizeNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_CLASS_$_CDVPluginResult' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_SWIFT_CDVCommandStatus_MALFORMED_URL_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_kCDVAssetsLibraryPrefixes' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol.o
+duplicate symbol '_SWIFT_CDVCommandStatus_ERROR' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_CLASS_$_CDVConfigParser' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_SWIFT_CDVCommandStatus_INSTANTIATION_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginResult.status' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_CLASS_$_CDVWebViewProcessPoolFactory' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginResult.keepCallback' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_CDVViewDidAppearNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_METACLASS_$_AppDelegate' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate 2.o
+duplicate symbol '_CDVViewWillLayoutSubviewsNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_CDVPluginResetNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl._manager' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_SWIFT_CDVCommandStatus_IO_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_CDVViewWillAppearNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_METACLASS_$_CDVInvokedUrlCommand' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_OBJC_IVAR_$_CDVViewController._webView' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController 2.o
+duplicate symbol '_CDVPluginHandleOpenURLNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl._delayResponses' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_CLASS_$_AppDelegate' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate 2.o
+duplicate symbol '_OBJC_IVAR_$_AppDelegate._viewController' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/AppDelegate 2.o
+duplicate symbol '_OBJC_METACLASS_$_CDVPlugin' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin.webView' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVConfigParser.featureName' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl._commandQueue' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_massageMessage' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_IVAR_$_CDVInvokedUrlCommand._arguments' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_CDVRemoteNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVCommandDelegateImpl._webView' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_METACLASS_$_CDVWebViewProcessPoolFactory' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVInvokedUrlCommand._className' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_CDVPluginHandleOpenURLWithAppSourceAndAnnotationNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin.webViewEngine' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVViewController._pluginObjects' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController 2.o
+duplicate symbol '_CDVLocalNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_CDVViewDidDisappearNotification' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVConfigParser.startPage' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_OBJC_METACLASS_$_CDVURLProtocol' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol.o
+duplicate symbol '_OBJC_CLASS_$_CDVPlugin' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVWebViewProcessPoolFactory._sharedPool' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVWebViewProcessPoolFactory 2.o
+duplicate symbol '_SWIFT_CDVCommandStatus_CLASS_NOT_FOUND_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_CDVRemoteNotificationError' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_CLASS_$_CDVCommandDelegateImpl' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._pluginObjects' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_OBJC_METACLASS_$_CDVPluginManager' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_OBJC_CLASS_$_CDVPluginManager' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._pluginsMap' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_SWIFT_CDVCommandStatus_JSON_EXCEPTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_OBJC_METACLASS_$_CDVCommandDelegateImpl' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVCommandDelegateImpl 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin.viewController' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_METACLASS_$_CDVConfigParser' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVConfigParser.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin.commandDelegate' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_CLASS_$_CDVURLProtocol' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVURLProtocol.o
+duplicate symbol '_OBJC_IVAR_$_CDVPlugin._className' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPlugin 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVPluginManager._settings' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginManager.o
+duplicate symbol '_OBJC_METACLASS_$_CDVViewController' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVViewController 2.o
+duplicate symbol '_OBJC_IVAR_$_CDVInvokedUrlCommand._methodName' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVInvokedUrlCommand.o
+duplicate symbol '_OBJC_METACLASS_$_CDVPluginResult' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+duplicate symbol '_SWIFT_CDVCommandStatus_INVALID_ACTION' in:
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult 2.o
+    /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/CapacitorCordova.build/Objects-normal/arm64/CDVPluginResult.o
+ld: 84 duplicate symbols
+/Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Pods.xcodeproj: CapacitorCordova: clang: error: linker command failed with exit code 1 (use -v to see invocation)
+
+SwiftDriver FirebaseCoreInternal normal arm64 com.apple.xcode.tools.swift.compiler (in target 'FirebaseCoreInternal' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name FirebaseCoreInternal -Onone @/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal.SwiftFileList -DDEBUG -D COCOAPODS -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleUtilities -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache -output-file-map /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal_const_extract_protocols.json -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/FirebaseCoreInternal-generated-files.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/FirebaseCoreInternal-own-target-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/FirebaseCoreInternal-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Pods-8699adb1dd336b26511df848a716bd42-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/FirebaseCoreInternal-project-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/include -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/DerivedSources-normal/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/DerivedSources/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/DerivedSources -Xcc -DPOD_CONFIGURATION_DEBUG\=1 -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -emit-objc-header -emit-objc-header-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/Objects-normal/arm64/FirebaseCoreInternal-Swift.h -import-underlying-module -Xcc -ivfsoverlay -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/FirebaseCoreInternal.build/unextended-module-overlay.yaml -working-directory /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver Capacitor normal arm64 com.apple.xcode.tools.swift.compiler (in target 'Capacitor' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name Capacitor -Onone @/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor.SwiftFileList -DDEBUG -D COCOAPODS -enable-bare-slash-regex -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -target arm64-apple-ios15.0 -g -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -enable-testing -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 5 -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/Capacitor -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/Capacitor -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova -c -j10 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache -output-file-map /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor_const_extract_protocols.json -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Capacitor-generated-files.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Capacitor-own-target-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Capacitor-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Pods-8699adb1dd336b26511df848a716bd42-VFS-iphoneos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Capacitor-project-headers.hmap -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/Capacitor/include -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/DerivedSources-normal/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/DerivedSources/arm64 -Xcc -I/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/DerivedSources -Xcc -DPOD_CONFIGURATION_DEBUG\=1 -Xcc -DDEBUG\=1 -Xcc -DCOCOAPODS\=1 -emit-objc-header -emit-objc-header-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/Objects-normal/arm64/Capacitor-Swift.h -import-underlying-module -Xcc -ivfsoverlay -Xcc /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Capacitor.build/unextended-module-overlay.yaml -working-directory /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods -experimental-emit-module-separately -disable-cmo
+
+CompileC /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.o /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/GoogleDataTransport/GoogleDataTransport/GDTCCTLibrary/GDTCCTUploadOperation.m normal arm64 objective-c com.apple.compilers.llvm.clang.1_0.compiler (in target 'GoogleDataTransport' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    
+    Using response file: /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp
+    
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -x objective-c -ivfsstatcache /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache -target arm64-apple-ios15.0 -fmessage-length\=0 -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -fno-color-diagnostics -fmodules-prune-interval\=86400 -fmodules-prune-after\=345600 -fbuild-session-file\=/Users/user/Library/Developer/Xcode/DerivedData/ModuleCache.noindex/Session.modulevalidation -fmodules-validate-once-per-build-session -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -fstrict-aliasing -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Index.noindex/DataStore @/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/e6072d4f65d7061329687fe24e3d63a7-common-args.resp -MMD -MT dependencies -MF /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.d --serialize-diagnostics /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.dia -c /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/GoogleDataTransport/GoogleDataTransport/GDTCCTLibrary/GDTCCTUploadOperation.m -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.o -index-unit-output-path /Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.o
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -cc1 -Wundef-prefix\=TARGET_OS_ -fdiagnostics-show-note-include-stack -fmacro-backtrace-limit\=0 -ferror-limit 19 -serialize-diagnostic-file /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.dia -Wdeprecated-objc-isa-usage -Werror\=deprecated-objc-isa-usage -Werror\=implicit-function-declaration -Wnon-modular-include-in-framework-module -Werror\=non-modular-include-in-framework-module -Wno-trigraphs -Wno-missing-field-initializers -Wno-missing-prototypes -Werror\=return-type -Wdocumentation -Wunreachable-code -Wno-implicit-atomic-properties -Werror\=deprecated-objc-isa-usage -Wno-objc-interface-ivars -Werror\=objc-root-class -Wno-arc-repeated-use-of-weak -Wimplicit-retain-self -Wduplicate-method-match -Wno-missing-braces -Wparentheses -Wswitch -Wunused-function -Wno-unused-label -Wno-unused-parameter -Wunused-variable -Wunused-value -Wempty-body -Wuninitialized -Wconditional-uninitialized -Wno-unknown-pragmas -Wno-shadow -Wno-four-char-constants -Wno-conversion -Wconstant-conversion -Wint-conversion -Wbool-conversion -Wenum-conversion -Wno-float-conversion -Wnon-literal-null-conversion -Wobjc-literal-conversion -Wshorten-64-to-32 -Wpointer-sign -Wno-newline-eof -Wno-selector -Wno-strict-selector-match -Wundeclared-selector -Wdeprecated-implementations -Wno-implicit-fallthrough -Wprotocol -Wdeprecated-declarations -Wno-sign-conversion -Winfinite-recursion -Wcomma -Wblock-capture-autoreleasing -Wstrict-prototypes -Wno-semicolon-before-method-body -Wunguarded-availability -Wno-elaborated-enum-base -Wno-error\=allocator-wrappers -index-store-path /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Index.noindex/DataStore -index-unit-output-path /Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.o -fmodule-map-file\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework/Modules/module.modulemap -fmodule-map-file\=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap -fmodule-map-file\=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/SystemConfiguration.framework/Modules/module.modulemap -fmodule-map-file\=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap -fmodule-map-file\=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreTelephony.framework/Modules/module.modulemap -fmodule-map-file\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC/FBLPromises.framework/Modules/module.modulemap -fmodule-map-file\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb/nanopb.framework/Modules/module.modulemap -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.o -disable-free -emit-obj -x objective-c /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/GoogleDataTransport/GoogleDataTransport/GDTCCTLibrary/GDTCCTUploadOperation.m -target-abi darwinpcs -target-cpu apple-a7 -target-feature +v8a -target-feature +aes -target-feature +fp-armv8 -target-feature +neon -target-feature +perfmon -target-feature +sha2 -triple arm64-apple-ios15.0.0 -target-linker-version 1166.2 -target-sdk-version\=27.0 -fmodules-validate-system-headers -fno-modulemap-allow-subdirectory-search -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk -resource-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21 -fmodule-format\=obj -fmodule-file\=CoreTelephony\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/CoreTelephony-DZC9N3ZSQN1LBCQJ4GKL8U09R.pcm -fmodule-file\=FBLPromises\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/FBLPromises-EC5OIE11984YZGC4B011POVRB.pcm -fmodule-file\=Foundation\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/Foundation-3RL4H6L2WN23YYGQ7ICB4LWC3.pcm -fmodule-file\=SystemConfiguration\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/SystemConfiguration-47N2OXDHJ34GREIS24JUC61JV.pcm -fmodule-file\=UIKit\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/UIKit-Z2DTNLVOVO420OI9UHX1POA4.pcm -fmodule-file\=nanopb\=/Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules/nanopb-ZG6ZDZ4NN6FS8PJ8PMKCU0GG.pcm -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/GoogleDataTransport-own-target-headers.hmap -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/GoogleDataTransport-all-non-framework-target-headers.hmap -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/include -I /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/GoogleDataTransport -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/DerivedSources-normal/arm64 -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/DerivedSources/arm64 -I /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/DerivedSources -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/PromisesObjC -F /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/nanopb -iquote /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/GoogleDataTransport-generated-files.hmap -iquote /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/GoogleDataTransport-project-headers.hmap -isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/usr/local/include -isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/clang/21/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/usr/include -internal-externc-isystem /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/System/Library/Frameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/System/Library/SubFrameworks -internal-iframework /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/Library/Frameworks -ivfsstatcache /Users/user/Library/Developer/Xcode/DerivedData/SDKStatCaches.noindex/iphoneos27.0-24A430-6c78b3cbc238196c85e1bf6c792c5915.sdkstatcache -ivfsoverlay /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/Pods-8699adb1dd336b26511df848a716bd42-VFS-iphoneos/all-product-headers.yaml -std\=c99 -fexceptions -fskip-odr-check-in-gmf -fmodules -fmodule-name\=GoogleDataTransport -fno-implicit-modules -fobjc-exceptions -fmax-type-align\=16 -fpascal-strings -fstack-check -fvisibility-inlines-hidden-static-local-var -mdarwin-stkchk-strong-link -fno-odr-hash-protocols -pic-level 2 -fencode-extended-block-signature -stack-protector 1 -fobjc-runtime\=ios-15.0.0 -fobjc-arc -fobjc-runtime-has-weak -fobjc-weak -fgnuc-version\=4.2.1 -fblocks -fno-convergent-functions -ffp-contract\=on -fclang-abi-compat\=4.0 -fno-experimental-relative-c++-abi-vtables -fno-file-reproducible -clang-vendor-feature\=+disableNonDependentMemberExprInCurrentInstantiation -clang-vendor-feature\=+enableAggressiveVLAFolding -clang-vendor-feature\=+revert09abecef7bbf -clang-vendor-feature\=+thisNoAlignAttr -clang-vendor-feature\=+thisNoNullAttr -clang-vendor-feature\=+disableAtImportPrivateFrameworkInImplementationError -O0 -fno-assume-unique-vtables -fdebug-compilation-dir\=/Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods -fcoverage-compilation-dir\=/Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods -fdwarf2-cfi-asm -fobjc-msgsend-selector-stubs -fregister-global-dtors-with-atexit -fno-strict-return -dwarf-version\=4 -debugger-tuning\=lldb -disable-llvm-verifier -dwarf-ext-refs -funwind-tables\=1 -enable-tlsdesc -clear-ast-before-backend -discard-value-names -main-file-name GDTCCTUploadOperation.m -mframe-pointer\=non-leaf -debug-info-kind\=standalone -fno-loop-interchange -fdiagnostics-hotness-threshold\=0 -fdiagnostics-misexpect-tolerance\=0 -D COCOAPODS\=1 -D DEBUG\=1 -D GDTCOR_VERSION\=10.1.1 -D OBJC_OLD_DISPATCH_PROTOTYPES\=0 -D PB_ENABLE_MALLOC\=1 -D PB_FIELD_32BIT\=1 -D PB_NO_PACKED_STRUCTS\=1 -D POD_CONFIGURATION_DEBUG\=1 -fdefine-target-os-macros -MT dependencies -dependency-file /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/Pods.build/Debug-iphoneos/GoogleDataTransport.build/Objects-normal/arm64/GDTCCTUploadOperation.d -skip-unused-modulemap-deps -module-file-deps\=direct -fdepfile-entry\=/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS27.0.sdk/SDKSettings.json
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/FirebaseCoreInternal/ResourceBundle-FirebaseCoreInternal_Privacy-FirebaseCoreInternal-Info.plist (in target 'FirebaseCoreInternal-FirebaseCoreInternal_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/FirebaseCoreInternal/ResourceBundle-FirebaseCoreInternal_Privacy-FirebaseCoreInternal-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleDataTransport/ResourceBundle-GoogleDataTransport_Privacy-GoogleDataTransport-Info.plist (in target 'GoogleDataTransport-GoogleDataTransport_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleDataTransport/ResourceBundle-GoogleDataTransport_Privacy-GoogleDataTransport-Info.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/FirebaseCoreInternal/FirebaseCoreInternal-Info.plist (in target 'FirebaseCoreInternal' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/FirebaseCoreInternal/FirebaseCoreInternal-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal.framework/Info.plist
+
+RegisterExecutionPolicyException /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle (in target 'GoogleDataTransport-GoogleDataTransport_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-RegisterExecutionPolicyException /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal.framework/FirebaseCoreInternal_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle (in target 'FirebaseCoreInternal' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/FirebaseCoreInternal/FirebaseCoreInternal.framework
+
+Touch /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle (in target 'GoogleDataTransport-GoogleDataTransport_Privacy' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    /usr/bin/touch -c /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle
+
+ProcessInfoPlistFile /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework/Info.plist /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleDataTransport/GoogleDataTransport-Info.plist (in target 'GoogleDataTransport' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-infoPlistUtility /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods/Target\ Support\ Files/GoogleDataTransport/GoogleDataTransport-Info.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform iphoneos -requiredArchitecture arm64 -o /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework/Info.plist
+
+CpResource /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework/GoogleDataTransport_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle (in target 'GoogleDataTransport' from project 'Pods')
+    cd /Users/user/Desktop/iLoveWorks/frontend/ios/App/Pods
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport_Privacy.bundle /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/GoogleDataTransport/GoogleDataTransport.framework
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+warning: Run script build phase '[CP] Embed Pods Frameworks' will be run during every build because it does not specify any outputs. To address this issue, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis" in the script phase. (in target 'App' from project 'App')
+** BUILD FAILED **
+
+
+The following build commands failed:
+	Ld /Users/user/Library/Developer/Xcode/DerivedData/App-fauuqtrowvjcqhbmfojbwpcbijik/Build/Products/Debug-iphoneos/CapacitorCordova/Cordova.framework/Cordova normal (in target 'CapacitorCordova' from project 'Pods')
+	Building workspace App with scheme App
+(2 failures)

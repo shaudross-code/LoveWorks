@@ -1,0 +1,980 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-01 20:27:50.920350-0600 0x15fcf7   Error       0x0                  64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] mark_profile_seen_this_boot: exists() failed for "/private/var/root/Library/Caches/com.apple.runningboardd/DynamicPrefetching/com.loveworks.app/0.profile": Permission denied
+2026-11-01 20:27:50.920371-0600 0x15fcf7   Default     0x0                  64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] end_scenario_internal: first launch after boot for bundleid com.loveworks.app scenario Launch — discarded 0 pageins, refreshed profile mtime
+2026-11-01 20:27:51.747684-0600 0x161d38   Default     0xa6a055             64494  0    storekitd: [com.apple.storekit:Default] [dded031d] Clearing app transactions for ["com.loveworks.app"]
+2026-11-01 20:27:51.759937-0600 0x161d90   Default     0x0                  64365  0    linkd: [com.apple.appintents:IndexCoordinator] Auditing metadata, received XPC event com.apple.LaunchServices.applicationRegistered ["isPlaceholder": 0, "bundleIDs": <__NSSingleObjectArrayI 0x1039d0ad0>(
+com.loveworks.app
+)
+]
+2026-11-01 20:27:52.685527-0600 0x161a35   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d733000 -[MILaunchServicesOperationManager _onQueue_removePendingLaunchServicesOperationForUUID:dueToLSSave:]: Removing operation after LS save: <MILaunchServicesRegisterOperation: FBAF4EA3-3EA9-46C2-841D-F87FEFBAF7C5:5 com.loveworks.app/MIInstallationDomainSystemShared personas:[com.apple.containermanager.primary-persona]>
+2026-11-01 20:27:55.056508-0600 0x1619aa   Default     0x0                  64365  0    linkd: (AppIntentsIndex) [com.apple.appintents:Indexing] Looking for bundle: com.loveworks.app
+2026-11-01 20:27:59.639080-0600 0x15fdd0   Default     0x0                  64238  0    tccd: [com.apple.TCC:access] Handling Application Installed event for {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}.
+2026-11-01 20:27:59.779528-0600 0x161d6c   Default     0xa6a054             64494  0    storekitd: [com.apple.storekit:Default] Clearing transactions and subscription statuses for ["com.loveworks.app"] and account type nil
+2026-11-01 20:28:24.486549-0600 0x1619aa   Default     0x0                  64365  0    linkd: (AppIntentsIndex) [com.apple.appintents:Indexing] Collating specified bundles: com.loveworks.app
+2026-11-01 20:28:24.489759-0600 0x1619aa   Error       0x0                  64365  0    linkd: (AppIntentsIndex) [com.apple.appintents:Indexing] Logging [app] audit error Bundle did not provide any metadata sources, check for previous errors for com.loveworks.app
+2026-11-01 20:28:24.496469-0600 0x1619aa   Default     0x0                  64365  0    linkd: [com.apple.appintents:IndexCoordinator] Finished task: Audit: Bundles: com.loveworks.app
+2026-11-01 20:28:25.627601-0600 0x1616a0   Default     0xa6a054             64494  0    storekitd: [com.apple.storekit:Default] Clearing legacy transactions for ["com.loveworks.app"]
+2026-11-01 20:28:28.158208-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: Requesting launch of com.loveworks.app with options: {
+    environment =     {
+    };
+    stderr = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/tmp/launch_console-65624-2";
+    stdout = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/tmp/launch_console-65624-1";
+}
+2026-11-01 20:28:28.163166-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: Beginning launch sequence for bundle 'com.loveworks.app'
+	retryTimeout: 120.000000 (default write com.apple.CoreSimulatorBridge LaunchRetryTimeout <value>)
+	bootTimeout: 300.000000 (default write com.apple.CoreSimulatorBridge BootRetryTimeout <value>)
+	bootLeeway: 120.000000 (default write com.apple.CoreSimulatorBridge BootLeeway <value>)
+	Note: Use 'xcrun simctl spawn booted defaults write <domain> <key> <value>' to modify defaults in the booted Simulator device.
+Simulator booted at: Sun Nov  1 20:25:17 2026
+Current time: Sun Nov  1 20:28:28 2026
+Within boot leeway: NO
+2026-11-01 20:28:28.163294-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: Launch attempt #0 for bundle 'com.loveworks.app', have been trying to launch for 0 seconds.
+2026-11-01 20:28:28.165766-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: Got LSBundleProxy for 'com.loveworks.app', sequenceNumber 776, cacheGUID 689BFA7C-8FD5-4343-8B8C-067DC5B179CF
+2026-11-01 20:28:28.166335-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x1ab0] Sending request to open "com.loveworks.app"
+2026-11-01 20:28:28.166967-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x1ab0] Received request to open "com.loveworks.app" from CoreSimulatorBr:64257.
+2026-11-01 20:28:28.167088-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x1ab0] Activation request for com.loveworks.app contained LSCacheGUID 689BFA7C-8FD5-4343-8B8C-067DC5B179CF and LSSequenceNumber 776.
+2026-11-01 20:28:28.167337-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x1ab0] Activation request for com.loveworks.app will wait 10.00s for app availability, with retry every 2.00s.
+2026-11-01 20:28:28.167407-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x1ab0] Attempting activation of com.loveworks.app with {UUID: 689BFA7C-8FD5-4343-8B8C-067DC5B179CF, Sequence: 776} vs {UUID: 689BFA7C-8FD5-4343-8B8C-067DC5B179CF, Sequence: 776}
+2026-11-01 20:28:28.167503-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Workspace] Received trusted open application request for "com.loveworks.app" from <FBProcess: 0x10bb10600; osservice<com.apple.CoreSimulator.bridge>:64257(v65E00)>.
+2026-11-01 20:28:28.169152-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Executing request: <SBMainWorkspaceTransitionRequest: 0x11b42e6c0; eventLabel: OpenApplication(sceneID:com.loveworks.app-default)ForRequester(CoreSimulatorBr.64257); display: Main; source: FBSystemService>
+2026-11-01 20:28:28.178284-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBWorkspaceEvent] Executing: <FBWorkspaceEvent: 0x119378660; OpenApplication(sceneID:com.loveworks.app-default)ForRequester(CoreSimulatorBr.64257)>
+2026-11-01 20:28:28.181709-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:TraitsArbiter] [SwitcherOrientation] outSwitcherOrientation: portrait (1), outElementsOrientations: {
+    "sceneID:com.loveworks.app-default" = 1;
+}
+2026-11-01 20:28:28.181999-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Transaction] Running <SBAppToAppWorkspaceTransaction: 0x1191ab600> for transition request:
+<SBMainWorkspaceTransitionRequest: 0x11b42e6c0; eventLabel: OpenApplication(sceneID:com.loveworks.app-default)ForRequester(CoreSimulatorBr.64257); display: Main; source: FBSystemService> {
+    applicationContext = <SBWorkspaceApplicationSceneTransitionContext: 0x11830da40; background: NO> entities = {
+        SBLayoutRolePrimary = <SBDeviceApplicationSceneEntity: 0x12148dbd0; ID: sceneID:com.loveworks.app-default; layoutRole: primary>;
+    };
+}
+2026-11-01 20:28:28.182271-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: TCCs] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.182354-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: ScreenTime] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.182496-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Generating initialization context on main thread for: com.loveworks.app
+2026-11-01 20:28:28.182707-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Asked to bootstrap a new process with identity: app<com.loveworks.app((null))>
+2026-11-01 20:28:28.182733-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Creating process (sync=true) with identity: app<com.loveworks.app((null))>
+2026-11-01 20:28:28.182783-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] Created <FBWorkspace: 0x11bf7c8c0; <FBApplicationProcess: 0x1191aba80; app<com.loveworks.app>:<invalid>>>
+2026-11-01 20:28:28.182798-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Bootstrapping app<com.loveworks.app> with intent foreground-interactive
+2026-11-01 20:28:28.185882-0600 0x162680   Default     0xa76a45             64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] start_scenario: recording pageins for bundleid "com.loveworks.app" scenario "Launch"
+2026-11-01 20:28:28.185908-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:Capture] Snapshot generation request for bundleID: com.loveworks.app rejected due to the app being denylisted.
+2026-11-01 20:28:28.185913-0600 0x161d07   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting app<com.loveworks.app((null))> from originator [osservice<com.apple.SpringBoard>:64226] with description <RBSAssertionDescriptor| "FBApplicationProcess" ID:64229-64226-421 target:app<com.loveworks.app((null))> attributes:[
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableLPRunReason-Resume" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"Visibility" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableRole-UIFocal" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableJetsamPriority-Foreground" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableBootstrapping" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.pagein-prefetching" name:"LaunchPrefetch" sourceEnvironment:"(null)">
+	]>
+2026-11-01 20:28:28.185977-0600 0x162680   Default     0xa76a45             64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] start_scenario: Prefetching clean profile for bundleid "com.loveworks.app" scenario "Launch"
+2026-11-01 20:28:28.186506-0600 0x161d07   Error       0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] Multiple RBSRunningReasonAttribute provided: 10000 vs 20838. First one wins, but client should be fixed for assertion 64229-64226-421 (target:app<com.loveworks.app((null))>)
+2026-11-01 20:28:28.186528-0600 0x161d07   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-64226-421 (target:app<com.loveworks.app((null))>) will be created as active
+2026-11-01 20:28:28.186778-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:job] Creating and launching job for: app<com.loveworks.app((null))>
+2026-11-01 20:28:28.186789-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:general] _mutateContextIfNeeded called for com.loveworks.app
+2026-11-01 20:28:28.187662-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:job] app<com.loveworks.app((null))> Looking up container path with persona (null) using container identifier 'com.loveworks.app'
+2026-11-01 20:28:28.188104-0600 0x162b8b   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:job_oversize] 'app<com.loveworks.app((null))>' Constructed job description:
+<dictionary: 0x1063400c0> { count = 23, transaction: 0, voucher = 0x0, contents =
+	"ProcessType" => <string: 0x1060232d0> { string cache = 0x0, length = 3, contents = "App" }
+	"EnableTransactions" => <bool: 0x222423a90>: false
+	"_ManagedBy" => <string: 0x106020ab0> { string cache = 0x0, length = 22, contents = "com.apple.runningboard" }
+	"RootedSimulatorPath" => <bool: 0x222423a70>: true
+	"StandardOutPath" => <string: 0x106021320> { string cache = 0x0, length = 120, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/tmp/launch_console-65624-1" }
+	"CFBundleIdentifier" => <string: 0x1060238a0> { string cache = 0x0, length = 17, contents = "com.loveworks.app" }
+	"_ResourceCoalition" => <string: 0x106020cf0> { string cache = 0x0, length = 30, contents = "app<com.loveworks.app((null))>" }
+	"_POSIXSpawnTelemetryPageIn" => <bool: 0x222423a70>: true
+	"ThrottleInterval" => <int64: 0x80c11835f5acf827>: 2147483647
+	"StandardErrorPath" => <string: 0x106023840> { string cache = 0x0, length = 120, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/tmp/launch_console-65624-2" }
+	"MachServices" => <dictionary: 0x109878600> { count = 0, transaction: 0, voucher = 0x0, contents =
+	}
+	"EnablePressuredExit" => <bool: 0x222423a90>: false
+	"InitialTaskRole" => <int64: 0x80c118360a5307d7>: 1
+	"UserName" => <string: 0x106020f60> { string cache = 0x0, length = 6, contents = "mobile" }
+	"EnvironmentVariables" => <dictionary: 0x10987a6a0> { count = 4, transaction: 0, voucher = 0x0, contents =
+		"TMPDIR" => <string: 0x1060230f0> { string cache = 0x0, length = 162, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C/tmp" }
+		"HOME" => <string: 0x106020930> { string cache = 0x0, length = 158, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C" }
+		"CFFIXED_USER_HOME" => <string: 0x106022760> { string cache = 0x0, length = 158, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C" }
+		"_DYLD_CLOSURE_HOME" => <string: 0x106021740> { string cache = 0x0, length = 158, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C" }
+	}
+	"_AdditionalProperties" => <dictionary: 0x1098783c0> { count = 1, transaction: 0, voucher = 0x0, contents =
+		"RunningBoard" => <dictionary: 0x10987ba20> { count = 3, transaction: 0, voucher = 0x0, contents =
+			"Managed" => <bool: 0x222423a70>: true
+			"RunningBoardLaunchedIdentity" => <dictionary: 0x10987af40> { count = 2, transaction: 0, voucher = 0x0, contents =
+				"TYPE" => <int64: 0x80c118360a5307cf>: 2
+				"EAI" => <string: 0x106021ec0> { string cache = 0x0, length = 17, contents = "com.loveworks.app" }
+			}
+			"RunningBoardLaunched" => <bool: 0x222423a70>: true
+		}
+	}
+	"ExitTimeOut" => <int64: 0x80c118360a5307d7>: 1
+	"Label" => <string: 0x106021e90> { string cache = 0x0, length = 51, contents = "UIKitApplication:com.loveworks.app[33e4][rb-legacy]" }
+	"MaterializeDatalessFiles" => <bool: 0x222423a70>: true
+	"SandboxContainer" => <string: 0x106021c20> { string cache = 0x0, length = 158, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C" }
+	"_LaunchType" => <int64: 0x80c118360a5307c7>: 3
+	"ProgramArguments" => <array: 0x1060209c0> { count = 1, capacity = 10, contents =
+		0: <string: 0x106023d80> { string cache = 0x0, length = 172, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/App" }
+	}
+	"Program" => <string: 0x106023240> { string cache = 0x0, length = 172, contents = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/App" }
+}
+2026-11-01 20:28:28.191859-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) sceneID:com.loveworks.app-default hasParent:YES contentState:notReady hasRule:NO wantsRule:NO
+2026-11-01 20:28:28.191894-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) outcome:(no change) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.192004-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] init without scene; waiting for scene creation
+2026-11-01 20:28:28.192044-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.192063-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) sceneID:com.loveworks.app-default hasParent:YES contentState:notReady hasRule:NO wantsRule:NO
+2026-11-01 20:28:28.192071-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) outcome:(no change) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.192124-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] <SBFullScreenSwitcherLiveContentOverlayCoordinator: 0x115f38880> Adding SwitcherScene overlay for: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>, animated: NO
+2026-11-01 20:28:28.199658-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoardServices) [com.apple.runningboard:general] Full encoding handle [app<com.loveworks.app((null))>:65640], with data e943f75f00010068, and pid 65640
+2026-11-01 20:28:28.199770-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] Memory Limits: active 0 inactive 0
+ <RBJetsamProperties| tasklimit=0
+(null)>
+2026-11-01 20:28:28.199780-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] This process will be managed.
+2026-11-01 20:28:28.199786-0600 0x162b8c   Error       0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] Memorystatus failed with unexpected error: Operation not permitted (1)
+2026-11-01 20:28:28.199793-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] is not freezer eligible, disabling freezing.
+2026-11-01 20:28:28.199799-0600 0x162b8c   Error       0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] Memorystatus failed with unexpected error: Invalid argument (22)
+2026-11-01 20:28:28.199840-0600 0x162b8c   Error       0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] Memorystatus failed with unexpected error: Operation not permitted (1)
+2026-11-01 20:28:28.199870-0600 0x162b8c   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Now tracking process: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.200032-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] [app<com.loveworks.app((null))>:65640]: applying persistent assertion '64229-64226-421 (target:app<com.loveworks.app((null))>)'
+2026-11-01 20:28:28.200299-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] Using default underlying assertion for app: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.200348-0600 0x162b8c   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting [app<com.loveworks.app((null))>:65640] from originator [app<com.loveworks.app((null))>:65640] with description <RBSAssertionDescriptor| "RB Underlying Assertion" ID:64229-64229-422 target:65640 attributes:[
+	<RBSDomainAttribute| domain:"com.apple.underlying" name:"defaultUnderlyingAppAssertion" sourceEnvironment:"(null)">,
+	<RBSAcquisitionCompletionAttribute| policy:AfterApplication>
+	]>
+2026-11-01 20:28:28.200515-0600 0x162b8c   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-64229-422 (target:[app<com.loveworks.app((null))>:65640]) will be created as active
+2026-11-01 20:28:28.200605-0600 0x162681   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: running-active (role: UserInteractiveFocal) (endowments: {(
+    <RBSProcessEndowmentInfo| namespace:com.apple.frontboard.visibility env:(null)  0>
+)})
+2026-11-01 20:28:28.200612-0600 0x161d07   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] [app<com.loveworks.app((null))>:65640] Resuming task.
+2026-11-01 20:28:28.200826-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Bootstrap success!
+2026-11-01 20:28:28.201078-0600 0x162681   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: running-active (role: UserInteractiveFocal) (endowments: {(
+    <RBSProcessEndowmentInfo| namespace:com.apple.frontboard.visibility env:(null)  0>
+)})
+2026-11-01 20:28:28.201084-0600 0x162680   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:general] [app<com.loveworks.app((null))>:65640] reported to RB as running
+2026-11-01 20:28:28.201634-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:process] Hit the server for a process handle 943f75f00010068 that resolved to: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.201744-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process task state to: Running
+2026-11-01 20:28:28.201765-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process visibility to: Foreground
+2026-11-01 20:28:28.201917-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Registering event dispatcher after bootstrap
+2026-11-01 20:28:28.202094-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Initial launch state: FV-Focal[100].
+2026-11-01 20:28:28.202148-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:process] Starting death monitoring for handle [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.202148-0600 0x162b8a   Default     0xa7384f             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:process] Hit the server for a process handle 943f75f00010068 that resolved to: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.202375-0600 0x162acd   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Adding: <FBApplicationProcess: 0x1191aba80; app<com.loveworks.app>:65640(v66DE8)>
+2026-11-01 20:28:28.202605-0600 0x162b8a   Default     0xa7384f             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.202769-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:ZStack] _updatePreferences <Switcher>: {
+    activationPolicyForParticipantsBelow: AtMostBG;
+    homeAffordanceDrawingSuppression: Default;
+    associatedSceneIdentifiersToSuppressInSystemAperture: (
+        sceneID:com.loveworks.app-default
+    );
+    associatedBundleIdentifiersToSuppressInSystemAperture: (
+        com.loveworks.app
+    );
+    allowsDimmingWhenForegroundInactive: No;
+}
+2026-11-01 20:28:28.202940-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:SystemApertureViewController] Invalidating promoted elements with coversheet suppression NO liquid detection suppression NO proximity reader suppression NO system chrome suppression NO bundleIDs {(
+    "com.loveworks.app"
+)} sceneIds {(
+    "sceneID:com.loveworks.app-default"
+)}
+2026-11-01 20:28:28.203128-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:ZStack] Resolved Stack (update(Switcher)) [
+    Highest: ⬇ ,
+    SystemAperture: ⬇ ,
+    HUD: ⬇ ,
+    TransientOverlayPresentation: ⬇ ,
+    Switcher: ownsHomeGesture; FGActive; homeAffordanceDrawingSuppressed: Y->N; suppressedBundles: (none)->com.loveworks.app; suppressedScenes: 0->1,
+    HomeScreen: FGActive->BG
+]
+2026-11-01 20:28:28.203665-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] [DeviceSceneHandle] sceneID:com.loveworks.app-default display=Main bounds={{0, 0}, {402, 874}} sceneFrame={{0, 0}, {402, 874}} capability=.None
+2026-11-01 20:28:28.203823-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:TraitsArbiter] [DeviceSceneHandle] Did set interfaceOrientation[1] on scene with identifier[sceneID:com.loveworks.app-default]
+2026-11-01 20:28:28.204029-0600 0x161d07   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] [app<com.loveworks.app((null))>:65640] Set darwin role to: UserInteractiveFocal
+2026-11-01 20:28:28.204092-0600 0x161d07   Error       0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] [app<com.loveworks.app((null))>:65640] Error 1 setting Carplay mode to 0: Operation not permitted
+2026-11-01 20:28:28.204123-0600 0x161d07   Default     0xa76a45             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] [app<com.loveworks.app((null))>:65640] visiblity is yes
+2026-11-01 20:28:28.204165-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:ContinuitySession] modifying scene setting userInterfaceStyle to Light displayIdentity: Main forSceneManagers: Main <SBDeviceApplicationSceneHandle: 0x11be7f480; sceneID: sceneID:com.loveworks.app-default; scenePointer: 0x0>
+2026-11-01 20:28:28.204192-0600 0x162b8c   Default     0xa76a45             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] Successfully acquired underlying assertion for [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.204511-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: TCCs] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.204754-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: ScreenTime] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.204893-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] [SBApplicationSceneUpdateTransaction] com.loveworks.app requiresPreflight: false false (null)
+2026-11-01 20:28:28.204925-0600 0x15ff54   Default     0xa6f215             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:process] Hit the server for a process handle 943f75f00010068 that resolved to: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.205118-0600 0x15ff54   Default     0xa6f215             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.206067-0600 0x162b9a   Default     0xa760c2             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:process] Hit the server for a process handle 943f75f00010068 that resolved to: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.206186-0600 0x162b9a   Default     0xa760c2             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.206653-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] [SBApplicationSceneUpdateTransaction] com.loveworks.app not running preflight as not restricted
+2026-11-01 20:28:28.206806-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] dispatch event:
+<SBSceneReadySwitcherModifierEvent: 0x1191a5050; type: SceneReady; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main> {
+    environment = main;
+    centerConfiguration = undefined;
+    preferredDisplayOrdinal = 0;
+    continuousExposeIdentifier = com.loveworks.app;
+    layoutItems = {
+        primary = <SBDisplayItem: 0x11beb7740; type: App; bundleIdentifier: com.loveworks.app; uniqueIdentifier: sceneID:com.loveworks.app-default>;
+    }
+}>
+2026-11-01 20:28:28.209218-0600 0x15fcb9   Default     0x0                  64257  0    CoreSimulatorBridge: Launch successful for 'com.loveworks.app', pid: 65640
+2026-11-01 20:28:28.210160-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Preflighter: TCCs] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.210225-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Preflighter: ScreenTime] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.210447-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] didCreateScene
+2026-11-01 20:28:28.210521-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Preflighter: TCCs] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.210584-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Preflighter: ScreenTime] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.210603-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:PreflightSceneExtension] sceneID:com.loveworks.app-default: returning requiresPreflight FALSE as there's no activePreflightSource
+2026-11-01 20:28:28.210611-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.210636-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (BaseBoard) [com.apple.SpringBoard:AppProtection] <BSCompoundAssertion:0x11beb1360> (SBApplicationAppProtectionAssistant: 0x11beb4080 - com.loveworks.app) acquire for reason:NULL scene acq:0x121418580 count:1
+2026-11-01 20:28:28.210657-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppProtection] Informing <APSystemAppOutlet: 0x10e1303c0> that <APApplication: com.loveworks.app> will become foreground visible
+2026-11-01 20:28:28.210666-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppProtection) [com.apple.appprotection:framework] scene will become FG visible for <APApplication: com.loveworks.app>
+2026-11-01 20:28:28.210776-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppProtection) [com.apple.appprotection:framework] auth result for <APApplication: com.loveworks.app>: true (null)
+2026-11-01 20:28:28.210968-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:KBProxyForwarding] <StateMachine:0x121491dc0> Created with presentation environment: <0x11bf377e0:<_UISceneKeyboardProxyLayerForwardingPresentationScene: 0x11bf377e0> Tracking scene: <FBScene: 0x121497000; FBSceneManager:sceneID:com.loveworks.app-default>>
+2026-11-01 20:28:28.211506-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] [DeviceSceneHandle] sceneID:com.loveworks.app-default display=Main bounds={{0, 0}, {402, 874}} sceneFrame={{0, 0}, {402, 874}} capability=.None
+2026-11-01 20:28:28.211563-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:TraitsArbiter] orientationMode=dynamic for <SBTraitsSceneParticipantDelegate: 0x11b42e440> (
+    "com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default"
+)
+2026-11-01 20:28:28.211573-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:TraitsArbiter] [DeviceSceneHandle] Did set interfaceOrientation[1] on scene with identifier[sceneID:com.loveworks.app-default]
+2026-11-01 20:28:28.212158-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:ContinuitySession] modifying scene setting userInterfaceStyle to Light displayIdentity: Main forSceneManagers: Main <SBDeviceApplicationSceneHandle: 0x11be7f480; sceneID: sceneID:com.loveworks.app-default; scenePointer: 0x121497000>
+2026-11-01 20:28:28.212303-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] No capture application found for the com.loveworks.app, launchCameraCapture: NO, isCaptureApplication: NO
+2026-11-01 20:28:28.212639-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Asked to bootstrap a new process with identity: app<com.loveworks.app((null))>
+2026-11-01 20:28:28.212672-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Did not create a new process: A process for app<com.loveworks.app((null))> already exists.
+2026-11-01 20:28:28.212710-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Initialized with connection: 0x11bf32a00.
+2026-11-01 20:28:28.212728-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Registered new scene: <FBWorkspaceScene: 0x115db5200; (FBSceneManager):sceneID:com.loveworks.app-default> (fromRemnant = 0)
+2026-11-01 20:28:28.212741-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default][1] Scene activated.
+2026-11-01 20:28:28.212751-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace interruption policy did change: reconnect
+2026-11-01 20:28:28.212776-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:SceneDeactivation] Now tracking: <FBScene: 0x121497000; FBSceneManager:sceneID:com.loveworks.app-default>
+2026-11-01 20:28:28.212899-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:SceneDeactivation] [sceneID:com.loveworks.app-default] Setting deactivation reasons to: 'systemAnimation' for reason: scene settings update - settings are eligible for deactivation reasons.
+2026-11-01 20:28:28.213103-0600 0x162b8b   Default     0xa78e08             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting [app<com.loveworks.app((null))>:65640] from originator [osservice<com.apple.SpringBoard>:64226] with description <RBSAssertionDescriptor| "com.apple.frontboard.after-life.interrupted" ID:64229-64226-423 target:65640 attributes:[
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"AfterLife-Interrupted" sourceEnvironment:"(null)">
+	]>
+2026-11-01 20:28:28.213123-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] scene content state changed: preparing
+2026-11-01 20:28:28.213148-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didUpdateContentState) sceneID:com.loveworks.app-default hasParent:YES contentState:preparing hasRule:NO wantsRule:YES
+2026-11-01 20:28:28.213158-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] invalid pid for scene sceneID:com.loveworks.app-default, returning nil target
+2026-11-01 20:28:28.213162-0600 0x162b8b   Default     0xa78e08             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-64226-423 (target:[app<com.loveworks.app((null))>:65640]) will be created as inactive as originator process has not exited
+2026-11-01 20:28:28.213164-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didUpdateContentState) outcome:(wanted, but focusTarget is nil) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.213776-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Scene lifecycle state did change: Foreground
+2026-11-01 20:28:28.213810-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Scene state did change: FV-Focal[100].
+2026-11-01 20:28:28.213983-0600 0x162680   Default     0xa78e0b             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting [app<com.loveworks.app((null))>:65640] from originator [osservice<com.apple.SpringBoard>:64226] with description <RBSAssertionDescriptor| "FBWorkspace (FV-Focal[100])" ID:64229-64226-424 target:65640 attributes:[
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableLPRunReason-Resume" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"Visibility" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableRole-UIFocal" sourceEnvironment:"(null)">,
+	<RBSDomainAttribute| domain:"com.apple.frontboard" name:"SuspendableJetsamPriority-Foreground" sourceEnvironment:"(null)">
+	]>
+2026-11-01 20:28:28.214076-0600 0x162680   Default     0xa78e0b             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-64226-424 (target:[app<com.loveworks.app((null))>:65640]) will be created as active
+2026-11-01 20:28:28.214306-0600 0x162680   Default     0xa78e0b             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: running-active (role: UserInteractiveFocal) (endowments: {(
+    <RBSProcessEndowmentInfo| namespace:com.apple.frontboard.visibility env:(null)  0>
+)})
+2026-11-01 20:28:28.214440-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace state did change: XX-None[0] --> FV-Focal[100] (assertion acquired).
+2026-11-01 20:28:28.215374-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] dispatch event:
+<SBTransitionSwitcherModifierEvent: 0x11b696100; type: MainTransition; transitionID: AF908AB0-AF1F-49A1-98A5-9617EE6A5CBF; phase: Prepare; animated: YES; fromAppLayout: 0x0; toAppLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>; fromEnvironmentMode: home-screen; toEnvironmentMode: application; fromSpaceConfiguration: undefined; toSpaceConfiguration: full; pendingTermination: {(
+)}; morphingPIPLayoutRole: undefined; previousDesktopItems: {(
+)}>
+2026-11-01 20:28:28.216018-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] handle response:
+<SBSwitcherModifierEventResponse: 0x11be70ed0> {
+    <SBSwitcherModifierEventResponse: 0x11be704b0> {
+	    <SBSwitcherModifierEventResponse: 0x11be738a0> {
+		    <SBTimerEventSwitcherEventResponse: 0x11be708a0; delay: 0.240000; reason: kSBTransitionModifierInvalidateAsyncRenderingReason>;
+		    <SBInvalidateAdjustedAppLayoutsSwitcherEventResponse: 0x11be73b10>;
+		};
+	    <SBTimerEventSwitcherEventResponse: 0x11be73090; delay: 0.060000; reason: kSBFullScreenToHomeCornerRadiusDelayReason>;
+	};
+    <SBSwitcherModifierEventResponse: 0x11be703f0> {
+	    <SBUpdateLayoutSwitcherEventResponse: 0x11bd3b940; updateVisibleItems; layout; style; mode: None>;
+	    <SBRequestFolderSnapshotsSwitcherEventResponse: 0x11be70720; snapshotRequested: YES>;
+	    <SBIconOverlayVisibilitySwitcherEventResponse: 0x11bd3ab40; visible: YES; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>>;
+	    <SBIconViewVisibilitySwitcherEventResponse: 0x1183353b0; visib
+2026-11-01 20:28:28.233859-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] Creating ISIcon on main thread for app com.loveworks.app
+2026-11-01 20:28:28.236768-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] dispatch event:
+<SBTransitionSwitcherModifierEvent: 0x11b696100; type: MainTransition; transitionID: AF908AB0-AF1F-49A1-98A5-9617EE6A5CBF; phase: Animate; animated: YES; fromAppLayout: 0x0; toAppLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>; fromEnvironmentMode: home-screen; toEnvironmentMode: application; fromSpaceConfiguration: undefined; toSpaceConfiguration: full; pendingTermination: {(
+)}; morphingPIPLayoutRole: undefined; previousDesktopItems: {(
+)}>
+2026-11-01 20:28:28.251388-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Application process state changed for com.loveworks.app: <SBApplicationProcessState: 0x1160d9fe0; pid: 65640; taskState: Running; visibility: Foreground>
+2026-11-01 20:28:28.253858-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Returning cached initialization context for com.loveworks.app
+2026-11-01 20:28:28.306578-0600 0x162b98   Default     0xa78e12             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.308543-0600 0x162b9a   Default     0xa760c5             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.309075-0600 0x15ff54   Default     0xa6f217             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.468403-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:SceneDeactivation] [sceneID:com.loveworks.app-default] Setting deactivation reasons to: '(none)' for reason: updateAllScenesForBand - Assertion removed.
+2026-11-01 20:28:28.661984-0600 0x16198e   Error       0x0                  64272  0    cfprefsd: (CoreFoundation) [com.apple.defaults:cfprefsd] Couldn't open /Library/Managed Preferences/mobile/com.loveworks.app.plist due to No such file or directory
+2026-11-01 20:28:28.662089-0600 0x16198e   Error       0x0                  64272  0    cfprefsd: (CoreFoundation) [com.apple.defaults:cfprefsd] Couldn't open /Library/Managed Preferences/com.loveworks.app.plist due to No such file or directory
+2026-11-01 20:28:28.662271-0600 0x16198e   Error       0x0                  64272  0    cfprefsd: (CoreFoundation) [com.apple.defaults:cfprefsd] Couldn't open /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C/Library/Preferences/com.loveworks.app.plist due to No such file or directory
+2026-11-01 20:28:28.662523-0600 0x16198e   Error       0x0                  64272  0    cfprefsd: (CoreFoundation) [com.apple.defaults:cfprefsd] Couldn't open /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Library/Preferences/com.loveworks.app.plist due to No such file or directory
+2026-11-01 20:28:28.662905-0600 0x16198e   Error       0x0                  64272  0    cfprefsd: (CoreFoundation) [com.apple.defaults:cfprefsd] Couldn't open /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C/Library/Preferences/ByHost/com.loveworks.app..plist due to No such file or directory
+2026-11-01 20:28:28.663189-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Fetching initialization context for: com.loveworks.app
+2026-11-01 20:28:28.663211-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Returning cached initialization context for com.loveworks.app
+2026-11-01 20:28:28.663218-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Returning cached initialization context for com.loveworks.app
+2026-11-01 20:28:28.665781-0600 0x162338   Default     0x0                  64247  0    backboardd: (IOKit) [com.apple.iohid:default] Connection added: IOHIDEventSystemConnection uuid:90D62BE6-4934-462F-8C4E-4D078997C1BE pid:65640 process:App type:Passive entitlements:0x0 caller:BackBoardServices: ___getHIDEventSystemClient_block_invoke + 352 attributes:{
+    HighFrequency = 0;
+    bundleID = "com.loveworks.app";
+    lastPathComponent = App;
+    pid = 65640;
+} state:0x0 events:0 mask:0x0 dropped:0 dropStatus:0 droppedMask:0x0 lastDroppedTime:NONE
+2026-11-01 20:28:28.665920-0600 0x162338   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:HID] Adding client connection: <BKHIDClientConnection: 0x10ad32980; IOHIDEventSystemConnectionRef: 0x10a472400; vpid: 65640(v66DE8); taskPort: 0x1577B; bundleID: com.loveworks.app> for client: IOHIDEventSystemConnection uuid:90D62BE6-4934-462F-8C4E-4D078997C1BE pid:65640 process:App type:Passive entitlements:0x0 caller:BackBoardServices: ___getHIDEventSystemClient_block_invoke + 352 attributes:{
+    HighFrequency = 0;
+    bundleID = "com.loveworks.app";
+    lastPathComponent = App;
+    pid = 65640;
+} state:0x0 events:0 mask:0x0 dropped:0 dropStatus:0 droppedMask:0x0 lastDroppedTime:NONE
+2026-11-01 20:28:28.666989-0600 0x162680   Default     0xa78e29             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:connection] Setting client for [app<com.loveworks.app((null))>:65640] as ready
+2026-11-01 20:28:28.667682-0600 0x162bd8   Default     0x0                  65640  0    App: (RunningBoardServices) [com.apple.runningboard:connection] Identity resolved as app<com.loveworks.app((null))>
+2026-11-01 20:28:28.667859-0600 0x162b8b   Default     0xa78e2a             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting [app<com.loveworks.app((null))>:65640] from originator [app<com.loveworks.app((null))>:65640] with description <RBSAssertionDescriptor| "Shared Background Assertion 0 for com.loveworks.app" ID:64229-65640-428 target:65640 attributes:[
+	<RBSLegacyAttribute| requestedReason:FinishTask reason:FinishTask flags:( PreventTaskSuspend )>,
+	<RBSAcquisitionCompletionAttribute| policy:AfterValidation>
+	]>
+2026-11-01 20:28:28.667899-0600 0x162b8b   Default     0xa78e2a             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-65640-428 (target:[app<com.loveworks.app((null))>:65640]) will be created as inactive as start-time-defining assertions exist
+2026-11-01 20:28:28.670810-0600 0x161e00   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Connection established.
+2026-11-01 20:28:28.670866-0600 0x161e00   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] created proxy of <BSXPCServiceConnectionProxy<FBSWorkspaceServiceServerInterface>: 0x11b4f4680>
+2026-11-01 20:28:28.670890-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Connection to remote process established!
+2026-11-01 20:28:28.671078-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Sending scene action [Create Active][0x9094] to process 0x1191aba80 (watchdog: 599.53s)
+2026-11-01 20:28:28.671088-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] Client process connected: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.671092-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Sending scene create.
+2026-11-01 20:28:28.671853-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:ResourceConditions] Considering foreground scene <FBScene: 0x121497000; FBSceneManager:sceneID:com.loveworks.app-default> with handle=[app<com.loveworks.app((null))>:65640] (isApp=YES) and parentScene=(null)
+2026-11-01 20:28:28.671893-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:ResourceConditions] Setting resource conditions for scene=<FBScene: 0x121497000; FBSceneManager:sceneID:com.loveworks.app-default> to memoryPressure=normal
+2026-11-01 20:28:28.671996-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:HostedScenePolicy] Host window scene changed for sceneID:com.loveworks.app-default: <SBWindowScene: 0x10bba2800; scene: "<FBSScene: 0x10f281360; identifier: SB-main>"; persistentIdentifier: SB-main>
+2026-11-01 20:28:28.672030-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:SuspendedUnderLock] Started observing hosted policy component for sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.672480-0600 0x162b98   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] received incoming handshake : process=<FBApplicationProcess: 0x1191aba80; app<com.loveworks.app>:65640(v66DE8); taskState: Running; visibility: Foreground> remote=<BSAuditToken: 0x11bfeb0c0; AUID: 501; EUID: 501; EGID: 20; RUID: 501; RGID: 20; PID: 65640; ASID: 100036; PIDVersion: 421352> remnants=0
+2026-11-01 20:28:28.672541-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] [coordinator] didAddExternalForegroundApplicationSceneHandle pid:65640 scene:com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default now:<recentPIDs: [65640]; recentSceneIdentityTokensByPID: {65640: [com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default]}>
+2026-11-01 20:28:28.673499-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(clientConnected) sceneID:com.loveworks.app-default hasParent:YES contentState:preparing hasRule:NO wantsRule:YES
+2026-11-01 20:28:28.673586-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] deferFromSBWindowScene: adding rule for <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>
+2026-11-01 20:28:28.673605-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(clientConnected) outcome:(wanted, created) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.674017-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Application process state changed for com.loveworks.app: <SBApplicationProcessState: 0x115e50d00; pid: 65640; taskState: Running; visibility: Foreground>
+2026-11-01 20:28:28.674194-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bce40-com.apple.SpringBoard.SceneWorkspace.PrototypeTools] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674237-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc450-com.apple.SpringBoard.SceneWorkspace.DruidUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674265-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc5d0-com.apple.SpringBoard.SceneWorkspace.FullKeyboardAccessUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674288-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bd020-com.apple.SpringBoard.SceneWorkspace.SiriHUD] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674397-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bcd50-com.apple.SpringBoard.SceneWorkspace.AudioHUD] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674552-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bcb70-com.apple.SpringBoard.SceneWorkspace.PerfPowerHUD] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674646-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc4e0-com.apple.SpringBoard.SceneWorkspace.InputUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674687-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bcf30-com.apple.SpringBoard.SceneWorkspace.GlitchHUD] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674825-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc7b0-com.apple.SpringBoard.SceneWorkspace.AssistiveTouchUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.674885-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bd110-com.apple.SpringBoard.SceneWorkspace.AssistantIslandStageCoordinator] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675021-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc390-com.apple.SpringBoard.SceneWorkspace.OverlayUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675068-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc6c0-com.apple.SpringBoard.SceneWorkspace.VoiceControlUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675091-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc990-com.apple.SpringBoard.SceneWorkspace.EyedropperUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675147-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bcc60-com.apple.SpringBoard.SceneWorkspace.InternalPerfPowerHUD] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675220-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bca80-com.apple.SpringBoard.SceneWorkspace.Moments] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675288-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:Common] SceneWorkspaceDelegate[0x10f0bc8a0-com.apple.SpringBoard.SceneWorkspace.AccessibilityUIServerUI] client did connect with handshake: <FBSceneClientHandshake:0x115e53600; [app<com.loveworks.app((null))>:65640] remnants=0>
+2026-11-01 20:28:28.675880-0600 0x162b9e   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:EventDelivery] new deferring rules for pid:64226: [
+    [64226-8]; <keyboardFocus; A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911; <uq: 1; UIKit-localContainer>> -> <token: 0x50C43BA; pid: 64226>; reason: …gin event deferring in keyboardFocus for window: 0x1183ac000,
+    [64226-2]; <system; A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911; SBMainSystemGestures> -> <token: 0xB9174309; pid: 64226>; reason: systemGestureSymbol-A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911,
+    [64226-1]; <system; A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911> -> <token: 0xB9174309; pid: 64226>; reason: systemGestures-A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911,
+    [64226-3]; <keyboardFocus; …oard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: <uq: 1; UIKit-localContainer>; pid: 64226>; reason: UIKit-localContainer,
+    [64226-9]; <keyboardFocus; …oard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: …pservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>; reason: SB link
+]
+2026-11-01 20:28:28.675936-0600 0x162b9e   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:EventDelivery] [<keyboardFocus; builtin> 0x10a507e90] setRules:forPID(64226) generation: 17: [
+    [64226-3]; <keyboardFocus; com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: <uq: 1; UIKit-localContainer>; pid: 64226>; reason: UIKit-localContainer,
+    [64226-9]; <keyboardFocus; com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>; reason: SB link
+]
+2026-11-01 20:28:28.676028-0600 0x162b9e   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:EventDelivery] [<keyboardFocus> 0x10a507f70] setRules:forPID(64226) generation: 17: [
+    [64226-8]; <keyboardFocus; A0D39B4A-D3DC-43D3-9BD0-EF9CE7128911; <uq: 1; UIKit-localContainer>> -> <token: 0x50C43BA; pid: 64226>; reason: SBWindowScene: 0x10bba2800: Begin event deferring in keyboardFocus for window: 0x1183ac000,
+    [64226-3]; <keyboardFocus; com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: <uq: 1; UIKit-localContainer>; pid: 64226>; reason: UIKit-localContainer,
+    [64226-9]; <keyboardFocus; com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main> -> <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>; reason: SB link
+]
+2026-11-01 20:28:28.676210-0600 0x162b9e   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:EventDelivery] chain did update (setDeferringRules) <<keyboardFocus>; generation: 17; selectionPath: primary; finalStringTargetIndex: 1> containsEndOfChain: YES; [
+    <token: com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main; pid: 64226>,
+    <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>
+]
+2026-11-01 20:28:28.676553-0600 0x162b9e   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:EventDelivery] chain did update (setDeferringRules) <<keyboardFocus; builtin>; generation: 17; selectionPath: primary; finalStringTargetIndex: 1> containsEndOfChain: YES; [
+    <token: com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main; pid: 64226>,
+    <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>
+]
+2026-11-01 20:28:28.676964-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] dispatch event:
+<SBTransitionSwitcherModifierEvent: 0x10f1db480; type: MainTransition; transitionID: AF908AB0-AF1F-49A1-98A5-9617EE6A5CBF; phase: Complete; animated: YES; fromAppLayout: 0x0; toAppLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>; fromEnvironmentMode: home-screen; toEnvironmentMode: application; fromSpaceConfiguration: undefined; toSpaceConfiguration: full; pendingTermination: {(
+)}; morphingPIPLayoutRole: undefined; previousDesktopItems: {(
+)}>
+2026-11-01 20:28:28.677116-0600 0x15ff91   Default     0x0                  64350  0    InputUI: (KeyboardArbiter) [com.apple.KeyboardArbiter:Events] Event deferring target change: com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main -> com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default (activeInput=N)
+2026-11-01 20:28:28.677140-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] handle response:
+<SBSwitcherModifierEventResponse: 0x11bfa26d0> {
+    <SBPreemptAnimationSwitcherEventResponse: 0x11bfa3c90>;
+    <SBSwitcherModifierEventResponse: 0x11bfa3570> {
+	    <SBInvalidateAdjustedAppLayoutsSwitcherEventResponse: 0x11bfa07b0>;
+	    <SBSwitcherModifierEventResponse: 0x11bfa1a40> {
+		    <SBRequestFolderSnapshotsSwitcherEventResponse: 0x11bfa1260; snapshotRequested: NO>;
+		    <SBIconOverlayVisibilitySwitcherEventResponse: 0x11832f480; visible: NO; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>>;
+		    <SBIconViewVisibilitySwitcherEventResponse: 0x11bf5da90; visible: YES; animationSettings: 0x0; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>>;
+		    <SBMatchMoveToIconViewSwitcherEventResponse: 0x11bc97d20; active: NO; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>>;
+		};
+	};
+}
+2026-11-01 20:28:28.679411-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] deliveryChainDidUpdate: scene:com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default in windowScene:SB-main
+2026-11-01 20:28:28.687452-0600 0x161d07   Default     0xa78e2c             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting [app<com.loveworks.app((null))>:65640] from originator [app<com.loveworks.app((null))>:65640] with description <RBSAssertionDescriptor| "app_launch_measurement: pageins recording enabled" ID:64229-65640-429 target:65640 attributes:[
+	<RBSDomainAttribute| domain:"com.apple.pagein-prefetching" name:"LaunchPrefetch" sourceEnvironment:"(null)">
+	]>
+2026-11-01 20:28:28.687511-0600 0x161d07   Default     0xa78e2c             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Assertion 64229-65640-429 (target:[app<com.loveworks.app((null))>:65640]) will be created as active
+2026-11-01 20:28:28.687803-0600 0x161d63   Default     0xa78e2c             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: running-active (role: UserInteractiveFocal) (endowments: {(
+    <RBSProcessEndowmentInfo| namespace:com.apple.frontboard.visibility env:(null)  0>
+)})
+2026-11-01 20:28:28.688381-0600 0x162b8a   Default     0xa78e15             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.689271-0600 0x162b9a   Default     0xa760c8             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.696481-0600 0x15ff55   Default     0xa6f219             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.702306-0600 0x162b94   Default     0x0                  65640  0    App: (BacklightServices) [com.apple.BacklightServices:scenes] 0x103e0f4b0 setDelegate:<0x103e0f660 _UIBacklightEnvironment> hasDelegate:YES for environment:sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.715995-0600 0x162b94   Default     0x0                  65640  0    App: (BackBoardServices) [com.apple.BackBoard:EventDelivery] [BKSHIDEventObserver] 0x103e68a10 _UIKeyWindowSceneObserver-0x103e0f270 setToken:com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default
+2026-11-01 20:28:28.716058-0600 0x162b94   Default     0x0                  65640  1    App: (UIKitCore) [com.apple.UIKit:KeyWindow] Scene target of keyboard event deferring environment did change: target=1; ancestor=0; scene: UIWindowScene: 0x1034dd560; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default
+2026-11-01 20:28:28.716101-0600 0x162b94   Default     0x0                  65640  1    App: (UIKitCore) [com.apple.UIKit:KeyWindow] Scene became target of keyboard event deferring environment: UIWindowScene: 0x1034dd560; scene identity: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default
+2026-11-01 20:28:28.717577-0600 0x162b94   Default     0x0                  65640  0    App: (BackBoardServices) [com.apple.BackBoard:EventDelivery] [BKSHIDEventObserver] 0x103e68000  setToken:com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default
+2026-11-01 20:28:28.717627-0600 0x162b94   Default     0x0                  65640  0    App: (UIKitCore) [com.apple.UIKit:KeyboardFocusAssistant] Event deferring policy changed: finalScene:N->Y (token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default)
+2026-11-01 20:28:28.719597-0600 0x162b94   Default     0x0                  65640  0    App: (UIKitCore) [com.apple.UIKit:KeyboardScene] Requesting keyboard scene for (FBSceneManager):sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.720437-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] Asked to bootstrap a new process for handle: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.720483-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] Creating process (sync=true) for handle: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.720544-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Registering event dispatcher at init
+2026-11-01 20:28:28.720608-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] Created <FBWorkspace: 0x103f9dae0; <FBApplicationProcess: 0x103df9380; app<com.loveworks.app>:65640(v66DE8)>>
+2026-11-01 20:28:28.720623-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] Bootstrapping app<com.loveworks.app> with intent background
+2026-11-01 20:28:28.720814-0600 0x162a90   Default     0x0                  64247  0    backboardd: (IOKit) [com.apple.iohid:default] Connection removed: IOHIDEventSystemConnection uuid:90D62BE6-4934-462F-8C4E-4D078997C1BE pid:65640 process:App type:Passive entitlements:0x0 caller:BackBoardServices: ___getHIDEventSystemClient_block_invoke + 352 attributes:{
+    HighFrequency = 0;
+    bundleID = "com.loveworks.app";
+    lastPathComponent = App;
+    pid = 65640;
+} state:0x1 events:0 mask:0x0 dropped:0 dropStatus:0 droppedMask:0x0 lastDroppedTime:NONE
+2026-11-01 20:28:28.720889-0600 0x162a90   Default     0x0                  64247  0    backboardd: (BackBoardHIDEventFoundation) [com.apple.BackBoard:HID] Removing client connection <BKHIDClientConnection: 0x10ad32980; IOHIDEventSystemConnectionRef: 0x10a472400; vpid: 65640(v66DE8); taskPort: 0x1577B; bundleID: com.loveworks.app> for client: IOHIDEventSystemConnection uuid:90D62BE6-4934-462F-8C4E-4D078997C1BE pid:65640 process:App type:Passive entitlements:0x0 caller:BackBoardServices: ___getHIDEventSystemClient_block_invoke + 352 attributes:{
+    HighFrequency = 0;
+    bundleID = "com.loveworks.app";
+    lastPathComponent = App;
+    pid = 65640;
+} state:0x1 events:0 mask:0x0 dropped:0 dropStatus:0 droppedMask:0x0 lastDroppedTime:NONE source:HID
+2026-11-01 20:28:28.720936-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] Update failed: <NSError: 0x11bfa1bf0; domain: FBSceneErrorDomain; code: 1 ("operation-failed"); "Scene update failed."> {
+    NSUnderlyingError = <NSError: 0x11bf322b0; domain: BSServiceConnectionErrorDomain; code: 3 ("OperationFailed"); "XPC error received on message reply handler">;
+}
+2026-11-01 20:28:28.720947-0600 0x162b8a   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Scene creation failed: <NSError: 0x11bf30960; domain: FBWorkspaceScene; code: 2 ("scene-creation-failed"); "Scene create failed. (null)">
+2026-11-01 20:28:28.720969-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Scene action [Create Active][0x9094] completed with success: 0
+2026-11-01 20:28:28.721268-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace connection invalidated.
+2026-11-01 20:28:28.721300-0600 0x162746   Default     0x0                  64220  0    launchd_sim: [user/501:] service inactive: UIKitApplication:com.loveworks.app[33e4][rb-legacy]
+2026-11-01 20:28:28.721384-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Now flagged as pending exit for reason: workspace client connection invalidated
+2026-11-01 20:28:28.721669-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] XPC connection invalidated: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.722053-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] Update failed: <NSError: 0x11bfa1e60; domain: FBSceneErrorDomain; code: 1 ("operation-failed"); "Scene update failed."> {
+    NSUnderlyingError = <NSError: 0x11bf314d0; domain: BSServiceConnectionErrorDomain; code: 3 ("OperationFailed"); "XPC error received on message reply handler">;
+}
+2026-11-01 20:28:28.722121-0600 0x161d07   Default     0xa79231             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] ignoring [app<com.loveworks.app((null))>:65640] as candidate for concrete target as it is terminating
+2026-11-01 20:28:28.722139-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] Update failed: <NSError: 0x11bfa0060; domain: FBSceneErrorDomain; code: 1 ("operation-failed"); "Scene update failed."> {
+    NSUnderlyingError = <NSError: 0x11bf30570; domain: BSServiceConnectionErrorDomain; code: 3 ("OperationFailed"); "XPC error received on message reply handler">;
+}
+2026-11-01 20:28:28.722201-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] Update failed: <NSError: 0x11bfa2010; domain: FBSceneErrorDomain; code: 1 ("operation-failed"); "Scene update failed."> {
+    NSUnderlyingError = <NSError: 0x11bf30960; domain: FBWorkspaceScene; code: 2 ("scene-creation-failed"); "Scene create failed. (null)"> {
+        NSUnderlyingError = <NSError: 0x11bf324c0; domain: BSServiceConnectionErrorDomain; code: 3 ("OperationFailed"); "XPC error received on message reply handler">;
+    };
+}
+2026-11-01 20:28:28.722362-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] Deactivating scene: (FBSceneManager):sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.722411-0600 0x161e52   Error       0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] failed to acquire launch assertion for app<com.loveworks.app> : existingProcess=65640 error=Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 65640 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 65640 does not exist} attributes=(
+    "<RBSDomainAttribute| domain:\"com.apple.frontboard\" name:\"SuspendableLPRunReason-Suspend\" sourceEnvironment:\"(null)\">",
+    "<RBSDomainAttribute| domain:\"com.apple.frontboard\" name:\"SuspendableRole-NonUI\" sourceEnvironment:\"(null)\">",
+    "<RBSDomainAttribute| domain:\"com.apple.frontboard\" name:\"SuspendableJetsamPriority-Active\" sourceEnvironment:\"(null)\">",
+    "<RBSDomainAttribute| domain:\"com.apple.frontboard\" name:\"SuspendableBootstrapping\" sourceEnvironment:\"(null)\">"
+)
+2026-11-01 20:28:28.722521-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] [coordinator] _removeSceneFromRecents willRemoveExternalForegroundApplicationSceneHandle pid:65640 scene:com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default now:<empty>
+2026-11-01 20:28:28.722598-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Bootstrap success!
+2026-11-01 20:28:28.722635-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:SceneDeactivation] No longer tracking: <FBScene: 0x121497000; FBSceneManager:sceneID:com.loveworks.app-default>
+2026-11-01 20:28:28.722739-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default] scene content state changed: notReady
+2026-11-01 20:28:28.722864-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didUpdateContentState) sceneID:com.loveworks.app-default hasParent:YES contentState:notReady hasRule:YES wantsRule:NO
+2026-11-01 20:28:28.722971-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process visibility to: Background
+2026-11-01 20:28:28.723010-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] deferFromSBWindowScene: invalidate for <token: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default; pid: 65640>
+2026-11-01 20:28:28.723169-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didUpdateContentState) outcome:(unwanted, destroyed) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.723261-0600 0x161d63   Default     0xa79234             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] ignoring [app<com.loveworks.app((null))>:65640] as candidate for concrete target as it is terminating
+2026-11-01 20:28:28.723491-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default][1] Scene deactivated.
+2026-11-01 20:28:28.723502-0600 0x161e52   Error       0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] FBWorkspaceDomain: error injecting workspace endpoint to [app<com.loveworks.app((null))>:65640] : Error Domain=RBSAssertionErrorDomain Code=2 "Specified target process 65640 does not exist" UserInfo={NSLocalizedFailureReason=Specified target process 65640 does not exist}
+2026-11-01 20:28:28.723525-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Unregistering scene: <FBWorkspaceScene: 0x115db5200; (FBSceneManager):sceneID:com.loveworks.app-default>
+2026-11-01 20:28:28.723525-0600 0x161e52   Default     0x0                  64350  0    InputUI: (RunningBoardServices) [com.apple.runningboard:process] Starting death monitoring for handle [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.723556-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] Invalidating scene: (FBSceneManager):sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.723574-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessScene] [0x115db5200:(FBSceneManager):sceneID:com.loveworks.app-default] Invalidated for connection: 0x11bf32a00.
+2026-11-01 20:28:28.723684-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] [(FBSceneManager):sceneID:com.loveworks.app-default][1] Scene invalidated.
+2026-11-01 20:28:28.723727-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace interruption policy did change: default
+2026-11-01 20:28:28.723778-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] Adding: <FBApplicationProcess: 0x103df9380; app<com.loveworks.app>:65640(v66DE8)>
+2026-11-01 20:28:28.723907-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] Ignoring update for invalidated scene: (FBSceneManager):sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.723934-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process visibility to: Unknown
+2026-11-01 20:28:28.724043-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] didDestroyScene
+2026-11-01 20:28:28.724141-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace state did change: FV-Focal[100] --> XX-None[0] (assertion dropped).
+2026-11-01 20:28:28.724177-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Connection established.
+2026-11-01 20:28:28.724183-0600 0x162b8b   Default     0xa79237             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Invalidating assertion 64229-64226-423 (target:[app<com.loveworks.app((null))>:65640]) from originator [osservice<com.apple.SpringBoard>:64226]
+2026-11-01 20:28:28.724195-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.724253-0600 0x162b8b   Default     0xa79238             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Invalidating assertion 64229-64226-424 (target:[app<com.loveworks.app((null))>:65640]) from originator [osservice<com.apple.SpringBoard>:64226]
+2026-11-01 20:28:28.724309-0600 0x161e52   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] created proxy of <BSXPCServiceConnectionProxy<FBSWorkspaceServiceServerInterface>: 0x1068b3300>
+2026-11-01 20:28:28.724357-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (BaseBoard) [com.apple.SpringBoard:AppProtection] <BSCompoundAssertion:0x11beb1360> (SBApplicationAppProtectionAssistant: 0x11beb4080 - com.loveworks.app) invalidate acq:0x121418580 count:1
+2026-11-01 20:28:28.724362-0600 0x162ba8   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Connection to remote process established!
+2026-11-01 20:28:28.724485-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppProtection] Informing <APSystemAppOutlet: 0x10e1303c0> that <APApplication: com.loveworks.app> will become background as far as we know
+2026-11-01 20:28:28.724574-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppProtection) [com.apple.appprotection:framework] All scenes dismissed for <APApplication: com.loveworks.app>
+2026-11-01 20:28:28.724961-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:CompanionScenes] [sceneID:com.loveworks.app-default] Host scene invalidated, unregistering all presentations.
+2026-11-01 20:28:28.724973-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:CompanionScenes] [sceneID:com.loveworks.app-default] Component invalidated, unregistering all presentations.
+2026-11-01 20:28:28.725059-0600 0x162b8a   Default     0x0                  64226  0    SpringBoard: (AppProtection) [com.apple.appprotection:framework] told auth provider com.loveworks.app was dimissed. result:true err:(null)
+2026-11-01 20:28:28.725207-0600 0x15fc47   Error       0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Scene] Ignoring update for invalidated scene: (FBSceneManager):sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.725260-0600 0x162ba8   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Workspace connection invalidated.
+2026-11-01 20:28:28.725348-0600 0x162ba8   Default     0x0                  64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Now flagged as pending exit for reason: workspace client connection invalidated
+2026-11-01 20:28:28.725593-0600 0x162ba6   Default     0xa78e70             64350  0    InputUI: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, running-active-Visible
+2026-11-01 20:28:28.725651-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (UIKitCore) [com.apple.UIKit:KBProxyForwarding] <StateMachine:0x121491dc0> Presentation environment invalidated: <_UISceneKeyboardProxyLayerForwardingPresentationScene: 0x11bf377e0> Tracking scene: <FBScene: 0x121497000; (null):sceneID:com.loveworks.app-default>
+2026-11-01 20:28:28.725763-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] [Main (EmbeddedDisplay)] dispatch event:
+<SBSceneReadySwitcherModifierEvent: 0x11bfa01b0; type: SceneReady; appLayout: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main> {
+    environment = main;
+    centerConfiguration = undefined;
+    preferredDisplayOrdinal = 0;
+    continuousExposeIdentifier = com.loveworks.app;
+    layoutItems = {
+        primary = <SBDisplayItem: 0x11beb7740; type: App; bundleIdentifier: com.loveworks.app; uniqueIdentifier: sceneID:com.loveworks.app-default>;
+    }
+}>
+2026-11-01 20:28:28.726298-0600 0x161d07   Default     0x0                  64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] [app<com.loveworks.app((null))>:65640] termination reported by launchd (2, 5, 5)
+2026-11-01 20:28:28.726354-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Removing process: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.726477-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:job] Removing launch job for: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.726748-0600 0x162ae7   Default     0x0                  64220  0    launchd_sim: [user/501:] removing service: UIKitApplication:com.loveworks.app[33e4][rb-legacy]
+2026-11-01 20:28:28.726861-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:job] Removed job for [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.726890-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Removing assertions for terminated process: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.726916-0600 0x161d07   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:assertion] Removed last relative-start-date-defining assertion for process app<com.loveworks.app((null))>
+2026-11-01 20:28:28.728094-0600 0x162b8b   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Notifying connection [osservice<com.apple.SpringBoard>:64226] that process [app<com.loveworks.app((null))>:65640] exited with context <RBSProcessExitContext| specific, status:<RBSProcessExitStatus| domain:signal(2) code:SIGTRAP(5)>>
+2026-11-01 20:28:28.728108-0600 0x161d63   Default     0xa7923b             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: none (role: None) (endowments: (null))
+2026-11-01 20:28:28.728141-0600 0x162b8b   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Notifying connection [osservice<com.apple.InputUI>:64350] that process [app<com.loveworks.app((null))>:65640] exited with context <RBSProcessExitContext| specific, status:<RBSProcessExitStatus| domain:signal(2) code:SIGTRAP(5)>>
+2026-11-01 20:28:28.728245-0600 0x162b8b   Default     0x0                  64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:monitor] Calculated state for app<com.loveworks.app((null))>: none (role: None) (endowments: (null))
+2026-11-01 20:28:28.728338-0600 0x162ba6   Default     0xa78e71             64350  0    InputUI: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.728349-0600 0x162b98   Default     0xa78e16             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Launch assertion invalidated: <NSError: 0x11bf31560; domain: RBSAssertionErrorDomain; code: 1; "Assertions were invalidated, count = 1.
+64229-64226-421: invalidation reason: 1">
+2026-11-01 20:28:28.728379-0600 0x162b98   Default     0xa78e17             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:process] Calling process death completion block for handle [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.728460-0600 0x162b98   Default     0xa78e17             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Process exited: <RBSProcessExitContext| specific, status:<RBSProcessExitStatus| domain:signal(2) code:SIGTRAP(5)>>.
+2026-11-01 20:28:28.728528-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (RunningBoardServices) [com.apple.runningboard:process] Calling process death completion block for handle [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.728551-0600 0x162b98   Default     0xa78e17             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process task state to: Not Running
+2026-11-01 20:28:28.728592-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Process exited: <RBSProcessExitContext| specific, status:<RBSProcessExitStatus| domain:signal(2) code:SIGTRAP(5)>>.
+2026-11-01 20:28:28.728625-0600 0x161e00   Default     0xa78e17             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Invalidating workspace.
+2026-11-01 20:28:28.728672-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process task state to: Not Running
+2026-11-01 20:28:28.728715-0600 0x161e00   Default     0xa78e17             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] Removing source registration for processHandle: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.728787-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] [app<com.loveworks.app>:65640] Setting process visibility to: Unknown
+2026-11-01 20:28:28.728880-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] [app<com.loveworks.app>:65640] Invalidating workspace.
+2026-11-01 20:28:28.728902-0600 0x161e00   Default     0xa78e17             64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Process] Removing: <FBApplicationProcess: 0x1191aba80; app<com.loveworks.app>:65640(v66DE8)>
+2026-11-01 20:28:28.729029-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:ProcessWorkspace] Removing source registration for processHandle: [app<com.loveworks.app((null))>:65640]
+2026-11-01 20:28:28.729110-0600 0x162b8a   Default     0xa78e19             64226  0    SpringBoard: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.729136-0600 0x162ba8   Default     0xa78e72             64350  0    InputUI: (FrontBoard) [com.apple.FrontBoard:Process] Removing: <FBApplicationProcess: 0x103df9380; app<com.loveworks.app>:65640(v66DE8)>
+2026-11-01 20:28:28.729474-0600 0x162ba6   Default     0xa78e73             64350  0    InputUI: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.729869-0600 0x15ff54   Default     0xa6f21a             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.730313-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Front display did change: <SBApplication: 0x116162300; com.loveworks.app>
+2026-11-01 20:28:28.730442-0600 0x15ff54   Default     0xa6f21b             64316  0    callservicesd: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.730551-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: TCCs] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.730632-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (AppRestrictions) [preflight:SceneHostedPreflight] [Source: ScreenTime] com.loveworks.app requires preflight: false
+2026-11-01 20:28:28.730650-0600 0x161d1f   Default     0xa760c9             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.731801-0600 0x162b9a   Default     0xa760ca             64233  0    mediaremoted: (RunningBoardServices) [com.apple.runningboard:monitor] Received state update for 65640 (app<com.loveworks.app((null))>, none-NotVisible
+2026-11-01 20:28:28.733479-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardFoundation) [com.apple.SpringBoard:ZStack] Resolved Stack (update(Switcher)) [
+    Highest: ⬇ ,
+    SystemAperture: ⬇ ,
+    HUD: ⬇ ,
+    TransientOverlayPresentation: ⬇ ,
+    Switcher: ownsHomeGesture; FGActive; homeAffordanceDrawingSuppressed: N->Y; suppressedBundles: com.loveworks.app->(none); suppressedScenes: 1->0,
+    HomeScreen: BG->FGActive
+]
+2026-11-01 20:28:28.736264-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.753367-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) sceneID:com.loveworks.app-default hasParent:NO contentState:notReady hasRule:NO wantsRule:NO
+2026-11-01 20:28:28.753381-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) outcome:(no change) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.753405-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.753457-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) sceneID:com.loveworks.app-default hasParent:NO contentState:notReady hasRule:NO wantsRule:NO
+2026-11-01 20:28:28.753466-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:KeyboardFocus] _updateDeferringRules(didMoveToParentViewController) outcome:(no change) sceneID:com.loveworks.app-default
+2026-11-01 20:28:28.753800-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppSwitcher] <SBFullScreenSwitcherLiveContentOverlayCoordinator: 0x115f38880> Removing SwitcherScene overlay for: <SBAppLayout: 0x11bc81030; primary: com.loveworks.app:default; environment: main>, animated: NO
+2026-11-01 20:28:28.756806-0600 0x15fc47   Default     0xa6ed89             64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppRestrictionsOverlay] [sceneID:com.loveworks.app-default] tearing down vc for overlay: 0x0
+2026-11-01 20:28:28.781348-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Application process state changed for com.loveworks.app: <SBApplicationProcessState: 0x12141a9a0; pid: 65640; taskState: Running; visibility: Unknown>
+2026-11-01 20:28:28.782953-0600 0x15ff91   Default     0x0                  64350  0    InputUI: (KeyboardArbiter) [com.apple.KeyboardArbiter:Events] Event deferring target change: com.apple.frontboard.systemappservices/FBSceneManager:sceneID%3Acom.loveworks.app-default -> com.apple.frontboard.systemappservices/SSK.primary.root(mainDisplay):SB-main (activeInput=N)
+2026-11-01 20:28:28.787462-0600 0x15fc47   Default     0xa78e17             64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Workspace] Process exited: <FBApplicationProcess: 0x1191aba80; app<com.loveworks.app>:65640(v66DE8)> -> <RBSProcessExitContext| specific, status:<RBSProcessExitStatus| domain:signal(2) code:SIGTRAP(5)>>
+2026-11-01 20:28:28.789793-0600 0x15fc47   Default     0xa78e17             64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Application process state changed for com.loveworks.app: (null)
+2026-11-01 20:28:28.831014-0600 0x162b8b   Error       0xa79237             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:general] RBSStateCapture remove item called for untracked item 64229-64226-424 (target:[app<com.loveworks.app((null))>:65640])
+2026-11-01 20:28:28.831134-0600 0x162b8b   Error       0xa79237             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:general] RBSStateCapture remove item called for untracked item 64229-64226-423 (target:[app<com.loveworks.app((null))>:65640])
+2026-11-01 20:28:36.348158-0600 0x162b97   Default     0xa78e1e             64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:SnapshotReaper] <XBApplicationSnapshotManifestImpl: 0x115d6c080> [com.loveworks.app] Reaping invalid snapshot <XBApplicationSnapshot: 0x10f0ab100; …9F5408092F46> [com.loveworks.app]
+ invalidReason: expired. expirationDate: 0001-01-01 00:00:00 +0000; how long ago (seconds): 63929356116.348289
+2026-11-01 20:28:36.348267-0600 0x162b97   Default     0xa78e1e             64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:FileManifest] <XBApplicationSnapshotManifestImpl: 0x115d6c080> [com.loveworks.app] Deleting snapshot <XBApplicationSnapshot: 0x10f0ab100; …9F5408092F46> [com.loveworks.app] for reason: _contentType: GeneratedDefault(1)
+2026-11-01 20:28:36.348396-0600 0x162b97   Default     0xa78e1e             64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:FileManifest] <XBApplicationSnapshotManifestImpl: 0x115d6c080> [com.loveworks.app] We don't have any snapshots, so we're clearing our manifest data.
+2026-11-01 20:28:37.380928-0600 0x162b97   Default     0xa78e1f             64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:FileManifest] <XBApplicationSnapshotManifestImpl: 0x115d6c080> [com.loveworks.app] We don't have any snapshots, so we're clearing our manifest data.
+2026-11-01 20:28:42.941175-0600 0x162681   Error       0x0                  64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] mark_profile_seen_this_boot: exists() failed for "/private/var/root/Library/Caches/com.apple.runningboardd/DynamicPrefetching/com.loveworks.app/0.profile": Permission denied
+2026-11-01 20:28:42.941283-0600 0x162681   Default     0x0                  64229  0    runningboardd: (DynamicPrefetching) [com.apple.DynamicPrefetching:default] end_scenario_internal: first launch after boot for bundleid com.loveworks.app scenario Launch — discarded 0 pageins, refreshed profile mtime
+2026-11-01 20:38:23.559928-0600 0x162b89   Default     0x0                  64257  0    CoreSimulatorBridge: Request received for uninstallation of com.loveworks.app with options: {
+    SimulatorRootPath = "/Library/Developer/CoreSimulator/Volumes/iOS_24A434/Library/Developer/CoreSimulator/Profiles/Runtimes/iOS 27.0.simruntime/Contents/Resources/RuntimeRoot";
+    SimulatorUserPath = "/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data";
+}
+2026-11-01 20:39:25.372969-0600 0x1601e9   Default     0x0                  64370  7    installcoordinationd: [com.apple.installcoordination:daemon] -[IXSClientConnection _remote_uninstallAppWithIdentity:options:completion:]: Uninstall of [com.loveworks.app/Invalid/[system-defined]] requested by client CoreSimulatorBridge (pid 64257) with uninstall options <confirmation:N wait:N archive:N demote:N notAllowed:N ignoreRemovability:N ignoreRestrictions:N ignoreAppProtection:N>
+2026-11-01 20:39:25.397508-0600 0x16cda9   Default     0xaee816             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:connection] Received termination request from [osservice<com.apple.installcoordinationd>:64370] on <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "com.loveworks.app">> with context <RBSTerminateContext| explanation:IX terminating bundleIDs for uninstallation: {(
+    "com.loveworks.app"
+)} reportType:None maxTerminationResistance:Absolute attrs:[
+	<RBSPreventLaunchLimitation| <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "com.loveworks.app">> allow:(null)>
+	]>
+2026-11-01 20:39:25.397703-0600 0x16cda9   Default     0xaee816             64229  0    runningboardd: (RunningBoardServices) [com.apple.runningboard:general] Found 0 extensions contained in com.loveworks.app
+2026-11-01 20:39:25.404967-0600 0x16dfa6   Default     0x0                  64420  7    appstored: (InstallCoordination) [com.apple.installcoordination:framework] -[IXAppInstallObserver _client_mayUninstallAppWithIdentity:]_block_invoke: Calling mayUninstallAppWithIdentity: on delegate for identity [com.loveworks.app/Invalid/[system-defined]]
+2026-11-01 20:39:25.482525-0600 0x16cda9   Default     0xaee816             64229  7    runningboardd: (RunningBoard) [com.apple.runningboard:ttl] Acquiring assertion targeting system from originator [osservice<com.apple.installcoordinationd>:64370] with description <RBSAssertionDescriptor| "IX terminating bundleIDs for uninstallation: {(
+    "com.loveworks.app"
+)}" ID:64229-64370-458 target:system attributes:[
+	<RBSPreventLaunchLimitation| <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "com.loveworks.app">> allow:(null)>
+	]>
+2026-11-01 20:39:25.482737-0600 0x16cda9   Default     0xaee816             64229  0    runningboardd: (RunningBoard) [com.apple.runningboard:process] Executing termination request for: <RBSProcessPredicate <RBSProcessBundleIdentifierPredicate "com.loveworks.app">>
+2026-11-01 20:39:25.516569-0600 0x161d4e   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppInstall] Received app may be uninstalled notification for bundleID: com.loveworks.app
+2026-11-01 20:39:25.535971-0600 0x161ddc   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] connection from 64370 sending notification 5 for com.loveworks.app
+2026-11-01 20:39:25.557399-0600 0x16dfa6   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/96034D5F] [com.loveworks.app] May be uninstalled
+2026-11-01 20:39:25.563104-0600 0x161ddc   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sending applicationsWillUninstall: for (
+    "<LSApplicationProxy: 0x106330000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.778417-0600 0x15fc47   Default     0xab0d38             64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] termination assertion acquired for com.loveworks.app
+2026-11-01 20:39:25.789630-0600 0x16dfa5   Default     0x0                  64370  7    installcoordinationd: [com.apple.installcoordination:daemon] IXUninstallIdentityWithOptions: Uninstallation reason: Uninstalling [com.loveworks.app/Invalid/[system-defined]] for CoreSimulatorBridge (pid 64257) (flags: 0x4)
+2026-11-01 20:39:25.826921-0600 0x15fc47   Default     0xab0d38             64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] 0x10e0e5c80-SBApplicationIcon Data source did change: <SBApplication: 0x116162300; com.loveworks.app> {
+} (SBApplication)
+2026-11-01 20:39:25.899048-0600 0x16197e   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d6a7000 -[MIClientConnection _uninstallIdentities:withOptions:completion:]: Uninstall requested by installcoordinationd (pid 64370 (501/20)) for identity [com.loveworks.app/PersonalPersonaPlaceholderString/[system-defined]] with options: {
+    UninstallReasonString = "Uninstalling [com.loveworks.app/Invalid/[system-defined]] for CoreSimulatorBridge (pid 64257) (flags: 0x4)";
+    WaitForStorageDeletion = 0;
+}
+2026-11-01 20:39:25.909364-0600 0x16197e   Default     0xa6ef45             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.943347-0600 0x16df6c   Default     0x0                  64226  5    SpringBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10e116a00> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943366-0600 0x1616a4   Default     0x0                  64493  5    clipserviced: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x103d60000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943449-0600 0x162ba9   Default     0x0                  64254  5    sleepd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1061fc0c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943520-0600 0x161d39   Default     0x0                  64373  5    deviceaccessd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1059646c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943731-0600 0x16dfa6   Default     0x0                  64420  5    appstored: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x104ee40c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943748-0600 0x1694cc   Default     0x0                  64283  5    donotdisturbd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x103a02340> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943846-0600 0x16cd1b   Default     0x0                  64256  5    passd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x108a0ca80> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.943948-0600 0x16dfd9   Default     0x0                  64380  5    gamed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x103724180> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944013-0600 0x164b3a   Default     0x0                  65195  5    privacyaccountingd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1034e40c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944079-0600 0x168e00   Default     0x0                  64250  5    locationd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x107af4e40> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944231-0600 0x16dfda   Default     0x0                  64242  5    mobiletimerd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1055a80c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944328-0600 0x16dfdb   Default     0x0                  64288  5    liveactivitiesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10225e280> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944341-0600 0x16dfd0   Default     0x0                  64294  5    chronod: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1081a5f80> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944374-0600 0x16d941   Default     0x0                  64343  5    financed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x109d35980> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944411-0600 0x16df68   Default     0x0                  64229  5    runningboardd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1061a4000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944608-0600 0x16dfc2   Default     0x0                  64316  5    callservicesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x104169b00> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944689-0600 0x16d34f   Default     0x0                  64275  5    nsurlsessiond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x10468c180> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.944785-0600 0x16dfdc   Default     0x0                  64340  5    webbookmarksd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x1041dc000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.948052-0600 0x16df6c   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:observer] -[FBSApplicationLibrary applicationsWillUninstall:] com.loveworks.app
+2026-11-01 20:39:25.950808-0600 0x16dfdd   Default     0x0                  64367  5    homed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x101a9ff00> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:25.956746-0600 0x161d06   Default     0xa6ef45             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.959028-0600 0x16197e   Default     0xa6ef47             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.959238-0600 0x161d06   Default     0xa6ef47             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.967902-0600 0x16197e   Default     0xa6ef49             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.968132-0600 0x161d06   Default     0xa6ef49             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.969099-0600 0x16197e   Default     0xa6ef4b             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.969238-0600 0x161d06   Default     0xa6ef4b             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.973151-0600 0x16197e   Default     0x0                  64394  14   installd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/com.apple.containermanager.primary-persona:7:11:1:1:Start : Uninstall (Application)
+2026-11-01 20:39:25.973233-0600 0x16197e   Default     0xa6ef4d             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 14, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.973963-0600 0x15fd54   Default     0xa6ef4d             64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051700; userIdentity = <501/20/501/2/501>, identifier = com.loveworks.app, class = (14)perUserApp, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.974304-0600 0x16197e   Default     0xa6ef4e             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.974424-0600 0x161d06   Default     0xa6ef4e             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.975173-0600 0x16197e   Default     0xaef8a0             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:xpc] Query; euid = 501, uid = 501, class = 1, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.975322-0600 0x161d06   Default     0xaef8a0             64276  7    containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x103c549c0; userIdentity = <501/20/501/3/501>, identifier = com.loveworks.app, class = (1)app, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.978165-0600 0x16197e   Default     0xaef8a2             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 2, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000000
+2026-11-01 20:39:25.978368-0600 0x15fd54   Default     0xaef8a2             64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051700; userIdentity = <501/20/501/2/501>, identifier = com.loveworks.app, class = (2)appData, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.979449-0600 0x16197e   Default     0xaef8a4             64394  7    installd: (libsystem_containermanager.dylib) [com.apple.containermanager:query] Query; personaid = 4294967295, type = NOPERSONA, name = <unknown>, origin [pid = 0, personaid = 0], proximate [pid = 0, personaid = 0], euid = 501, uid = 501, class = 2, identifier = [com.loveworks.app](1), gidentifier = [(null)](0), flags = 300000002
+2026-11-01 20:39:25.979600-0600 0x15fd54   Default     0xaef8a4             64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:query] Selected query plan; plan = <MCMCommandQueryPlanWithIdentities; identities = [<MCMContainerIdentity: 0x106051700; userIdentity = <501/20/501/2/501>, identifier = com.loveworks.app, class = (2)appData, platform = 0, ownership = {501:20:u+rwx,g+rx,o+rx}, transient = 0>]>
+2026-11-01 20:39:25.980416-0600 0x16197e   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d6a7000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Uninstalling identifier com.loveworks.app
+2026-11-01 20:39:25.980548-0600 0x16197e   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d6a7000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Destroying container com.loveworks.app with persona com.apple.containermanager.primary-persona at /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C
+2026-11-01 20:39:25.980639-0600 0x16197e   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d6a7000 -[MIUninstaller _uninstallBundleWithIdentity:linkedToChildren:waitForDeletion:uninstallReason:temporaryReference:deleteDataContainers:wasLastReference:error:]: Destroying container com.loveworks.app with persona com.apple.containermanager.primary-persona at /Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED
+2026-11-01 20:39:26.014213-0600 0x15fd54   Default     0xaef8a6             64286  30   containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:longterm] DELETED: [/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Data/Application/3F588249-BC08-496D-9E18-96DC3CD4345C] <com.loveworks.app((2)appData);<501/20/501/2/501>;O{501:20:u+rwx,g+rx,o+rx};u39C28AF3-457E-4E44-9A48-E4317D353499;p3F588249-BC08-496D-9E18-96DC3CD4345C;pf0;E>
+2026-11-01 20:39:26.014257-0600 0x15fd54   Default     0xaef8a6             64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:codesignmapping] Removing codesign info for [{(
+    "com.loveworks.app"
+)}]
+2026-11-01 20:39:26.014382-0600 0x15fd54   Default     0xaef8a6             64286  7    containermanagerd: (ContainerManagerCommon) [com.apple.containermanager:codesignmapping] Reconciled [com.loveworks.app]; old app groups: (null), new app groups: (null), old system groups: (null), new system groups: (null)
+2026-11-01 20:39:26.018861-0600 0x161d06   Default     0xaef8a6             64276  30   containermanagerd_system: (ContainerManagerCommon) [com.apple.containermanager:longterm] DELETED: [/Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED] <com.loveworks.app((1)app);<501/20/501/3/501>;O{501:20:u+rwx,g+rx,o+rx};u6B37E1E6-C71D-4F04-B05D-E7D29FDBAECA;p3FC5A510-6359-4F01-90D2-AF8969151DED;pf0;E>
+2026-11-01 20:39:26.019385-0600 0x16197e   Default     0x0                  64394  14   installd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/com.apple.containermanager.primary-persona:7:11:2:1:Success (End) : Uninstall (Application)
+2026-11-01 20:39:26.026235-0600 0x16197e   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d6a7000 -[MILaunchServicesOperationManager _onQueue_addPendingLaunchServicesOperation:error:]: Added pending LS operation <MILaunchServicesUnregisterOperation: 94AD5FB4-C7F4-4D9F-B411-7439BC83C18F:6 com.loveworks.app/MIInstallationDomainSystemShared>
+2026-11-01 20:39:26.030662-0600 0x161ddc   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Post uninstallation unregistration: request to unregister com.loveworks.app, operation 94AD5FB4-C7F4-4D9F-B411-7439BC83C18F, type 3 from pid 64394
+2026-11-01 20:39:26.032750-0600 0x161ddc   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/Unknown Persona:5:6:1:1:Unregister bundles via unregistrant - Start
+2026-11-01 20:39:26.033136-0600 0x161ddc   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/Unknown Persona:5:6:1:1:Beginning _LSUnregisterAppWithBundleID
+2026-11-01 20:39:26.033186-0600 0x161ddc   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] No placeholder to remove for com.loveworks.app
+2026-11-01 20:39:26.033205-0600 0x161ddc   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Found app to remove for com.loveworks.app
+2026-11-01 20:39:26.033344-0600 0x161ddc   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:default] LSDefaultApplicationQueryServerDatastore: clearing entries for com.loveworks.app
+2026-11-01 20:39:26.033845-0600 0x161ddc   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] _LSUnregisterBundle(com.loveworks.app) returned 1 for app
+2026-11-01 20:39:26.033862-0600 0x161ddc   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Clearing icon cache entries for com.loveworks.app
+2026-11-01 20:39:26.038581-0600 0x16dfaa   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:default] Asking to clear identifiers for vendor BundleID:com.loveworks/bundle com.loveworks.app
+2026-11-01 20:39:26.051402-0600 0x161ddc   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:icons] clearAlternateNameForBundleIdentifier: will clear for com.loveworks.app
+2026-11-01 20:39:26.051456-0600 0x161ddc   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/Unknown Persona:5:6:2:1:Finished _LSUnregisterAppWithBundleID
+2026-11-01 20:39:26.052679-0600 0x161ddc   Default     0x0                  64281  14   lsd: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/Unknown Persona:5:6:2:1:Unregister bundles - End
+2026-11-01 20:39:26.052751-0600 0x16dfe4   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sending applicationsDidUninstall: for (
+    "<LSApplicationProxy: 0x106330000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.052814-0600 0x16dfe3   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Failed to remove all handler prefs for bundle ID com.loveworks.app: NO Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSPrefs.mm, _LSLine=1271, _LSFunction=_LSHandlerPrefRemoveAllWithBundleID_block_invoke}
+2026-11-01 20:39:26.054738-0600 0x16dfdb   Default     0x0                  64288  5    liveactivitiesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10225e280> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.054738-0600 0x16dfa6   Default     0x0                  64420  5    appstored: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x104ee40c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055062-0600 0x161da1   Default     0x0                  65195  5    privacyaccountingd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1034e40c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055066-0600 0x16df6c   Default     0x0                  64226  5    SpringBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10e117180> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055108-0600 0x16df6c   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:observer] -[FBSApplicationLibrary applicationsDidUninstall:] com.loveworks.app
+2026-11-01 20:39:26.055113-0600 0x16dfda   Default     0x0                  64242  5    mobiletimerd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1055a80c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055125-0600 0x16dfd8   Default     0x0                  64283  5    donotdisturbd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x103a02340> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055187-0600 0x160086   Default     0x0                  64343  5    financed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x109d35980> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055548-0600 0x1616a4   Default     0x0                  64493  5    clipserviced: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x103d60000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055596-0600 0x168dff   Default     0x0                  64250  5    locationd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x107af4e40> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.055703-0600 0x168dff   Default     0x0                  64250  0    locationd: (LocationAuthorizationFramework) [com.apple.locationd.Core:Core] {"msg":"#Warning #ClientResolution the passed keyPath is not registered. Resolving to #nullCKP", "InputCKP":icom.loveworks.app:}
+2026-11-01 20:39:26.055727-0600 0x168dff   Default     0x0                  64250  0    locationd: [com.apple.locationd.Core:Core] {"msg":"AppMonitor - application (un)installation notification", "notification":Uninstallation, "BundleId":com.loveworks.app, "BundlePath":, "ExecutablePath":}
+2026-11-01 20:39:26.056036-0600 0x1619a1   Default     0x0                  64380  5    gamed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x103724180> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.056144-0600 0x16d4a1   Default     0x0                  64294  5    chronod: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1081a5f80> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.056318-0600 0x16af1b   Default     0x0                  64316  5    callservicesd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x104169b00> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.056681-0600 0x16dfc1   Default     0x0                  64275  5    nsurlsessiond: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x10468c180> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.056718-0600 0x16dfd7   Default     0x0                  64373  5    deviceaccessd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1059646c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.056772-0600 0x16dfe4   Default     0x0                  64281  2    lsd: (CoreServices) [com.apple.launchservices:progress] Sent distributed notification com.apple.LaunchServices.applicationUnregistered with payload {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}
+2026-11-01 20:39:26.056969-0600 0x16d697   Default     0x0                  64229  5    runningboardd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1061a4000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.057143-0600 0x16dfdc   Default     0x0                  64340  5    webbookmarksd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1041dc000> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.057403-0600 0x16dfd6   Default     0x0                  64254  5    sleepd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1061fc0c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.057615-0600 0x16dfdd   Default     0x0                  64367  5    homed: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x101a9ff00> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.067991-0600 0x16df6c   Default     0x0                  64226  0    SpringBoard: (FrontBoardServices) [com.apple.frontboard.ApplicationLibrary:default] Removed application: <SBApplicationInfo: 0x118369800; com.loveworks.app (iLoveWorks)>
+2026-11-01 20:39:26.068759-0600 0x16dfd2   Default     0x0                  64256  5    passd: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x108a0ca80> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.069203-0600 0x16dfa5   Default     0x0                  64370  7    installcoordinationd: (InstallCoordination) [com.apple.installcoordination:framework] IXSyncLSDatabase: Uninstall of [com.loveworks.app/Invalid/[system-defined]]; re-fetching local LS database
+2026-11-01 20:39:26.069327-0600 0x16dfa5   Default     0x0                  64370  7    installcoordinationd: [com.apple.installcoordination:daemon] -[IXSAppUninstaller _performUninstallOfAppWithIdentity:clientName:withFlags:record:completion:]_block_invoke: Uninstall succeeded with disposition:UninstallDispositionUninstalled for bundleID:com.loveworks.app
+2026-11-01 20:39:26.069757-0600 0x15fc47   Default     0xaef8b1             64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] termination assertion released for com.loveworks.app
+2026-11-01 20:39:26.069814-0600 0x15fc47   Default     0xaef8b1             64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] 0x10e0e5c80-SBApplicationIcon Data source did change: <SBApplication: 0x116162300; com.loveworks.app> {
+} (SBApplication)
+2026-11-01 20:39:26.088863-0600 0x16c63c   Default     0x0                  64493  14   clipserviced: (ClipServices) [com.apple.ClipServices:ClipServices] CPSClipCleanupManager: Post notification with name: com.apple.LaunchServices.applicationUnregistered, userInfo: {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}
+2026-11-01 20:39:26.095306-0600 0x16dfea   Default     0x0                  64298  0    contactsd: [com.apple.contacts.provider:ContactProviderService] ContactProviderService received application unregistered notification, bundle ids (
+    "com.loveworks.app"
+)
+2026-11-01 20:39:26.143948-0600 0x16dfc4   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Handling application un-installation: {bundleID = com.loveworks.app; version = (null); shortVersion = (null); variantID = (null)}
+2026-11-01 20:39:26.145017-0600 0x16dfa6   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Handling application un-installation: {bundleID = com.loveworks.app; version = (null); shortVersion = (null); variantID = (null)}
+2026-11-01 20:39:26.155305-0600 0x161d39   Default     0x0                  64373  0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### applicationsDidUninstall [
+    <LSApplicationProxy: 0x1059646c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>
+]
+2026-11-01 20:39:26.179948-0600 0x161d39   Default     0x0                  64373  0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### removeAppsAccess [
+    "com.loveworks.app"
+]
+2026-11-01 20:39:26.181271-0600 0x162be7   Default     0x0                  64245  2    appprotectiond: (AppProtection) [com.apple.appprotection:server] received note: name = com.apple.LaunchServices.applicationUnregistered, object = Optional(AppProtection.DistnotedXPCEventStreamTranslator), userInfo = Optional([AnyHashable("bundleIDs"): <__NSCFArray 0x1061450c0>(
+com.loveworks.app
+)
+, AnyHashable("isPlaceholder"): 0])
+2026-11-01 20:39:26.194859-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Cancelled download requests for: com.loveworks.app
+2026-11-01 20:39:26.194899-0600 0x16e009   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Received request to cancel download requests for com.loveworks.app - (null)
+2026-11-01 20:39:26.195000-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Cancelled download requests for: com.loveworks.app
+2026-11-01 20:39:26.209636-0600 0x16e005   Default     0x0                  64365  0    linkd: [com.apple.appintents:IndexCoordinator] Auditing metadata, received XPC event com.apple.LaunchServices.applicationUnregistered ["isPlaceholder": 0, "bundleIDs": <__NSSingleObjectArrayI 0x1039d0d90>(
+com.loveworks.app
+)
+]
+2026-11-01 20:39:26.295451-0600 0x15ff2d   Default     0x0                  64342  3    appleaccountd: [com.apple.appleaccount:daemon] Dataclass App Install Observer - Ignoring ["com.loveworks.app"]
+2026-11-01 20:39:26.336318-0600 0x16dfa5   Default     0x0                  64370  0    installcoordinationd: (InstallProgress) [com.apple.installprogress:default] No record found for identity [com.loveworks.app/Invalid/[system-defined]]; manually creating one from constituent values
+2026-11-01 20:39:26.339986-0600 0x16dfe6   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Received disposition UninstallDispositionUninstalled from installcoordinationd for [com.loveworks.app/Invalid/[system-defined]]
+2026-11-01 20:39:26.340140-0600 0x16dfe6   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Resyncing local LS database to ensure it knows about uninstall of [com.loveworks.app/Invalid/[system-defined]]
+2026-11-01 20:39:26.340215-0600 0x16dfe6   Default     0x0                  64257  7    CoreSimulatorBridge: (InstallCoordination) [com.apple.installcoordination:framework] +[IXAppInstallCoordinator uninstallAppWithIdentity:options:completion:]_block_invoke: Resync of local LS database complete after uninstall of [com.loveworks.app/Invalid/[system-defined]]
+2026-11-01 20:39:26.377699-0600 0x16e009   Default     0x0                  64420  14   appstored: [com.apple.appstored:ODR] Received request to cancel download requests for com.loveworks.app - (null)
+2026-11-01 20:39:26.380411-0600 0x16e018   Default     0x0                  64245  2    appprotectiond: (AppProtection) [com.apple.appprotection:server] processing settings authority event: SettingsAuthorityEvent.purgeSettingsForUninstalledApplication(com.loveworks.app)
+2026-11-01 20:39:26.385155-0600 0x16dfc2   Default     0x0                  64316  0    callservicesd: [com.apple.calls.callservicesd:Default] Handling NSConcreteNotification 0x106b61320 {name = com.apple.LaunchServices.applicationUnregistered; userInfo = {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}}
+2026-11-01 20:39:26.397557-0600 0x15fc47   Default     0x0                  64226  14   SpringBoard: (MobileInstallation) [com.apple.appinstallation:TransactionLog] com.loveworks.app/Unknown Persona:10:12:3:1:Application removed for reason: Removed from the system.
+2026-11-01 20:39:26.434418-0600 0x16dfc2   Default     0x0                  64316  0    callservicesd: [com.apple.calls.callservicesd:Default] Unregistering application <CSDVoIPApplication 0x102af3640 bundleIdentifier=com.loveworks.app environment=(null) pushKitClient=(null) networkExtensionClient=(null) token=(null) pendingPKMessageContextCount=0 pendingNetworkExtensionContextsCount=0> from PushKit voip in environment (null)
+2026-11-01 20:39:26.434492-0600 0x16dfc2   Default     0x0                  64316  0    callservicesd: [com.apple.calls.callservicesd:Default] Disabling topic com.loveworks.app.voip and invalidating its token for all connections
+2026-11-01 20:39:26.436721-0600 0x16e028   Default     0x0                  64366  5    PosterBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Will uninstall (
+    "<LSApplicationProxy: 0x107973600> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.437224-0600 0x16e02a   Default     0x0                  64366  5    PosterBoard: (CoreServices) [com.apple.launchservices:appinstallation] LaunchServices observer: Uninstalled (
+    "<LSApplicationProxy: 0x1079736c0> com.loveworks.app file:///Users/user/Library/Developer/CoreSimulator/Devices/6206DF0A-CA53-476C-9DAD-AC6260B032AD/data/Containers/Bundle/Application/3FC5A510-6359-4F01-90D2-AF8969151DED/App.app/ <com.loveworks.app <installed >:0>"
+)
+2026-11-01 20:39:26.440458-0600 0x16af1b   Default     0x0                  64316  0    callservicesd: (CopresenceCore) [com.apple.calls.copresencecore:Default] Invalidating cached value for bundle identifier: com.loveworks.app
+2026-11-01 20:39:26.443413-0600 0x16af1b   Default     0x0                  64316  0    callservicesd: (CopresenceCore) [com.apple.calls.copresencecore:Default] Invalidating cached value for bundle identifier: com.loveworks.app
+2026-11-01 20:39:26.443549-0600 0x16dfc2   Default     0x0                  64316  0    callservicesd: (ApplePushService) [com.apple.apsd:connection] <APSConnection: 0x103c00400> invalidateTokenForTopic: com.loveworks.app.voip identifier
+2026-11-01 20:39:26.443791-0600 0x16dfc2   Default     0x0                  64316  0    callservicesd: (ApplePushService) [com.apple.apsd:connection] <APSConnection: 0x103c00000> invalidateTokenForTopic: com.loveworks.app.voip identifier
+2026-11-01 20:39:26.445237-0600 0x160042   Default     0x0                  64369  0    searchd: (Search) [com.apple.spotlight:default] Received a notification for name:"com.apple.LaunchServices.applicationUnregistered", userInfo:{
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}, bundleIDs:(
+    "com.loveworks.app"
+)
+2026-11-01 20:39:26.454203-0600 0x16dfa6   Default     0x0                  64420  14   appstored: [com.apple.appstored:Updates] [D373FE8D] Cleaning up following removal of apps: com.loveworks.app
+2026-11-01 20:39:26.454354-0600 0x16dfc4   Default     0x0                  64420  14   appstored: [com.apple.appstored:Updates] [C4AC74D8] Cleaning up following removal of apps: com.loveworks.app
+2026-11-01 20:39:26.458584-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/A741932F] Recording uninstalled apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.458610-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/A741932F] Preparing with apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.477681-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/A741932F] Recording events for apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.477830-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/A741932F] [Uninstall] [com.loveworks.app] Removed metadata following deletion
+2026-11-01 20:39:26.477854-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/A741932F] Recorded uninstalled apps: [com.loveworks.app] for types: []
+2026-11-01 20:39:26.477980-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/2BB0B9F5] Recording uninstalled apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.478024-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/2BB0B9F5] Preparing with apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.483648-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUserCourier 0x1051aa9b0 development 0> asked by <APSConnectionServer: 0x1059c6e80; development/com.apple.telephonyutilities.callservicesdaemon.voip.push/callservicesd 0> to invalidate extended app token for info <APSAppTokenInfo 0x105831290>: Topic com.loveworks.app.voip Identifier  Expiration (null) type 0 base token (null)
+2026-11-01 20:39:26.485832-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Widgets] handleRemovedDataSource:<SBApplication: 0x116162300; com.loveworks.app> {
+} ofIcon:<SBApplicationIcon: 0x10e0e5c80; uniqueIdentifier: com.loveworks.app; bundleID: com.loveworks.app>
+2026-11-01 20:39:26.488203-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/2BB0B9F5] Recording events for apps: [com.loveworks.app] sourceType: Uninstall
+2026-11-01 20:39:26.490163-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/2BB0B9F5] [Uninstall] [com.loveworks.app] Removed metadata following deletion
+2026-11-01 20:39:26.490198-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:AppUsage] [MetricsCoordinator/2BB0B9F5] Recorded uninstalled apps: [com.loveworks.app] for types: []
+2026-11-01 20:39:26.495570-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:General] [AppLedger] [69A2D62A] Removing: com.loveworks.app
+2026-11-01 20:39:26.495904-0600 0x16e006   Default     0x0                  64420  14   appstored: [com.apple.appstored:General] [AppLedger] [63D4AE78] Removing: com.loveworks.app
+2026-11-01 20:39:26.497211-0600 0x16e006   Error       0x0                  64420  14   appstored: [com.apple.appstored:Progress] Canceling untracked progress for bundleID: com.loveworks.app
+2026-11-01 20:39:26.497700-0600 0x16e006   Error       0x0                  64420  14   appstored: [com.apple.appstored:Progress] Canceling untracked progress for bundleID: com.loveworks.app
+2026-11-01 20:39:26.509750-0600 0x161dee   Default     0x0                  64298  0    contactsd: [com.apple.contacts.provider:ContactProviderService] ContactProviderService handling unregistered applications: (
+    "com.loveworks.app"
+)
+2026-11-01 20:39:26.527668-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoardHome) [com.apple.SpringBoard:Icon] Reload icon image of com.loveworks.app for reason 'active data source did change'
+2026-11-01 20:39:26.552277-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com com.loveworks.app.voip ,PerAppToken.v0
+2026-11-01 20:39:26.554784-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] SBWorkspaceTerminateApplication: com.loveworks.app: "uninstalling app"
+2026-11-01 20:39:26.574070-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com com.loveworks.app.voip ,ExtendedAppToken.v1
+2026-11-01 20:39:26.574969-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] No tokens use salt anymore. Clearing salt for topic com.loveworks.app.voip
+2026-11-01 20:39:26.577253-0600 0x15fcde   Error       0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUser: 0x10519c260; name: 0> saveSalt failed (null) com.loveworks.app.voip
+2026-11-01 20:39:26.577914-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUserCourier 0x1051aa9b0 development 0> asked by <APSConnectionServer: 0x1059c7480; development/com.apple.telephonyutilities.callservicesdaemon.voip.push.development/callservicesd 0> to invalidate extended app token for info <APSAppTokenInfo 0x105833900>: Topic com.loveworks.app.voip Identifier  Expiration (null) type 0 base token (null)
+2026-11-01 20:39:26.578383-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com com.loveworks.app.voip ,PerAppToken.v0
+2026-11-01 20:39:26.579053-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSTokenStore:0x10594c3c0; development>: copyAppSpecificTokensWithDomain sandbox.push.apple.com com.loveworks.app.voip ,ExtendedAppToken.v1
+2026-11-01 20:39:26.579749-0600 0x15fcde   Default     0x0                  64274  0    apsd: [com.apple.apsd:courier] No tokens use salt anymore. Clearing salt for topic com.loveworks.app.voip
+2026-11-01 20:39:26.580164-0600 0x15fcde   Error       0x0                  64274  0    apsd: [com.apple.apsd:courier] <APSUser: 0x10519c260; name: 0> saveSalt failed (null) com.loveworks.app.voip
+2026-11-01 20:39:26.783340-0600 0x161d39   Default     0x0                  64373  0    deviceaccessd: (CoreUtils) [com.apple.DeviceAccess:DADaemonServer] ### removeAppsAccess com.loveworks.app
+2026-11-01 20:39:26.829459-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] com.loveworks.app: Updating app shortcut store...
+2026-11-01 20:39:26.830399-0600 0x16df6c   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] com.loveworks.app: Saving...
+2026-11-01 20:39:26.831936-0600 0x16df6c   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:AppShortcuts] com.loveworks.app: SBApplicationShortcutStore doesn't need truncation (truncation reason: _saveQueue_save); there are 0 application shortcut items.
+2026-11-01 20:39:26.942299-0600 0x15fc47   Default     0x0                  64226  0    SpringBoard: (SpringBoard) [com.apple.SpringBoard:Common] Installed apps did change.
+Added: {(
+)}
+Removed: {(
+    "com.loveworks.app"
+)}
+Replaced: {(
+)}
+Updated: (null)
+2026-11-01 20:39:26.943565-0600 0x15fc47   Default     0xaef8bb             64226  0    SpringBoard: (SpringBoard) [com.apple.SplashBoard:FileManifest] FBSApplicationLibrary removed applications. Removing launch images for (
+    "com.loveworks.app"
+)
+2026-11-01 20:39:26.946881-0600 0x15fc47   Default     0xaef8bb             64226  0    SpringBoard: (SplashBoard) [com.apple.SplashBoard:FileManifest] [<XBApplicationSnapshotManifestImpl: 0x115d6c080> [com.loveworks.app]] endTrackingImageDeletions
+2026-11-01 20:39:27.118806-0600 0x16dfe3   Default     0x0                  64281  5    lsd: (CoreServices) [com.apple.launchservices:appinstallation] Save after unregistration for com.loveworks.app attempted: 1 save error: (null)
+2026-11-01 20:39:27.119186-0600 0x16e04f   Default     0x0                  64394  0    installd: (MobileSystemServices) 0x16d733000 -[MILaunchServicesOperationManager _onQueue_removePendingLaunchServicesOperationForUUID:dueToLSSave:]: Removing operation after LS save: <MILaunchServicesUnregisterOperation: 94AD5FB4-C7F4-4D9F-B411-7439BC83C18F:6 com.loveworks.app/MIInstallationDomainSystemShared>
+2026-11-01 20:39:27.447850-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Requesting launch of com.loveworks.app with options: {
+    environment =     {
+    };
+}
+2026-11-01 20:39:27.462759-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Beginning launch sequence for bundle 'com.loveworks.app'
+	retryTimeout: 120.000000 (default write com.apple.CoreSimulatorBridge LaunchRetryTimeout <value>)
+	bootTimeout: 300.000000 (default write com.apple.CoreSimulatorBridge BootRetryTimeout <value>)
+	bootLeeway: 120.000000 (default write com.apple.CoreSimulatorBridge BootLeeway <value>)
+	Note: Use 'xcrun simctl spawn booted defaults write <domain> <key> <value>' to modify defaults in the booted Simulator device.
+Simulator booted at: Sun Nov  1 20:25:17 2026
+Current time: Sun Nov  1 20:39:27 2026
+Within boot leeway: NO
+2026-11-01 20:39:27.462877-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Launch attempt #0 for bundle 'com.loveworks.app', have been trying to launch for 0 seconds.
+2026-11-01 20:39:27.463042-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Failed to get LSBundleProxy for 'com.loveworks.app'
+2026-11-01 20:39:27.464856-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x623e] Sending request to open "com.loveworks.app"
+2026-11-01 20:39:28.192015-0600 0x16b280   Default     0x0                  64352  0    assetsd: (PhotoLibraryServices) [com.apple.photos.backend:Backend] Handling 'Application Uninstalled' event for {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}.
+2026-11-01 20:39:29.430063-0600 0x16dffc   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x623e] Received request to open "com.loveworks.app" from CoreSimulatorBr:64257.
+2026-11-01 20:39:29.683328-0600 0x16e0c2   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x623e] Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"
+2026-11-01 20:39:29.683469-0600 0x16e0c2   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x623e] Open "com.loveworks.app" request from CoreSimulatorBr:64257 failed with error: <NSError: 0x10f2b48a0; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x623e;
+    NSLocalizedDescription = The request to open "com.loveworks.app" failed.;
+    NSUnderlyingError = <NSError: 0x10f2b78a0; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"">;
+}
+2026-11-01 20:39:29.693016-0600 0x16e03d   Error       0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x623e] Error handling open request for com.loveworks.app: <NSError: 0x10444e5e0; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x623e;
+    NSLocalizedDescription = The request to open "com.loveworks.app" failed.;
+    NSUnderlyingError = <NSError: 0x10444c6f0; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"">;
+}
+2026-11-01 20:39:29.693139-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Error Launching: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "com.loveworks.app" failed." UserInfo={NSUnderlyingError=0x10444c6f0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x623e, NSLocalizedDescription=The request to open "com.loveworks.app" failed.}
+2026-11-01 20:39:29.693475-0600 0x16dfe6   Default     0x0                  64257  0    CoreSimulatorBridge: Non-FBS error launching 'com.loveworks.app'. Error was: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "com.loveworks.app" failed." UserInfo={NSUnderlyingError=0x10444c6f0 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x623e, NSLocalizedDescription=The request to open "com.loveworks.app" failed.}
+2026-11-01 20:39:29.986047-0600 0x167cb6   Default     0x0                  64302  0    siriactionsd: (VoiceShortcuts) [com.apple.shortcuts:Daemon] Dispatching XPC event: <distributed notification: com.apple.LaunchServices.applicationUnregistered, userInfo: [AnyHashable("isPlaceholder"): 0, AnyHashable("bundleIDs"): <__NSSingleObjectArrayI 0x1029daae0>(
+com.loveworks.app
+)
+]>
+2026-11-01 20:39:29.994744-0600 0x167cb6   Default     0x0                  64302  0    siriactionsd: (VoiceShortcuts) [com.apple.shortcuts:Daemon] Firing event: <distributed notification: com.apple.LaunchServices.applicationUnregistered, userInfo: [AnyHashable("isPlaceholder"): 0, AnyHashable("bundleIDs"): <__NSSingleObjectArrayI 0x1029daae0>(
+com.loveworks.app
+)
+]>
+2026-11-01 20:39:30.967914-0600 0x16b280   Default     0x0                  64352  0    assetsd: (PhotoLibraryServices) [com.apple.photos.backend:Backend] Handling application uninstall event with {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}
+2026-11-01 20:39:31.060137-0600 0x16df6d   Error       0x0                  64226  2    SpringBoard: (CoreServices) [com.apple.launchservices:default] *** ERROR *** Presenting restoration prompt for com.loveworks.app: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSBindingEvaluator.mm, _LSLine=1975, _LSFunction=runEvaluator}
+2026-11-01 20:39:38.160385-0600 0x15fdd0   Default     0x0                  64238  0    tccd: [com.apple.TCC:access] Handling Application Uninstalled event for {
+    bundleIDs =     (
+        "com.loveworks.app"
+    );
+    isPlaceholder = 0;
+}.
+2026-11-01 20:39:40.856139-0600 0x15fdd0   Default     0x0                  64238  0    tccd: [com.apple.TCC:access] Deleted entries for com.loveworks.app
+2026-11-01 20:39:45.345015-0600 0x161697   Default     0xabbc8d             64494  0    storekitd: [com.apple.storekit:Default] [a71f591a] Clearing app transactions for ["com.loveworks.app"]
+2026-11-01 20:40:04.506567-0600 0x161697   Default     0xabbc8d             64494  0    storekitd: [com.apple.storekit:Default] Clearing transactions and subscription statuses for ["com.loveworks.app"] and account type nil
+2026-11-01 20:40:36.351499-0600 0x161697   Default     0xabbc8d             64494  0    storekitd: [com.apple.storekit:Default] Clearing legacy transactions for ["com.loveworks.app"]
+2026-11-01 20:41:19.746641-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Requesting launch of com.loveworks.app with options: {
+    environment =     {
+    };
+}
+2026-11-01 20:41:19.746889-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Beginning launch sequence for bundle 'com.loveworks.app'
+	retryTimeout: 120.000000 (default write com.apple.CoreSimulatorBridge LaunchRetryTimeout <value>)
+	bootTimeout: 300.000000 (default write com.apple.CoreSimulatorBridge BootRetryTimeout <value>)
+	bootLeeway: 120.000000 (default write com.apple.CoreSimulatorBridge BootLeeway <value>)
+	Note: Use 'xcrun simctl spawn booted defaults write <domain> <key> <value>' to modify defaults in the booted Simulator device.
+Simulator booted at: Sun Nov  1 20:25:17 2026
+Current time: Sun Nov  1 20:41:19 2026
+Within boot leeway: NO
+2026-11-01 20:41:19.747009-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Launch attempt #0 for bundle 'com.loveworks.app', have been trying to launch for 0 seconds.
+2026-11-01 20:41:19.748165-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Failed to get LSBundleProxy for 'com.loveworks.app'
+2026-11-01 20:41:19.748899-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x5eb0] Sending request to open "com.loveworks.app"
+2026-11-01 20:41:19.749416-0600 0x16df6d   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x5eb0] Received request to open "com.loveworks.app" from CoreSimulatorBr:64257.
+2026-11-01 20:41:19.749493-0600 0x16e044   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x5eb0] Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"
+2026-11-01 20:41:19.749614-0600 0x16e044   Default     0x0                  64226  0    SpringBoard: (FrontBoard) [com.apple.FrontBoard:Common] [FBSystemService][0x5eb0] Open "com.loveworks.app" request from CoreSimulatorBr:64257 failed with error: <NSError: 0x10e394870; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x5eb0;
+    NSLocalizedDescription = The request to open "com.loveworks.app" failed.;
+    NSUnderlyingError = <NSError: 0x10e396250; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"">;
+}
+2026-11-01 20:41:19.749964-0600 0x16df6d   Error       0x0                  64226  2    SpringBoard: (CoreServices) [com.apple.launchservices:default] *** ERROR *** Presenting restoration prompt for com.loveworks.app: Error Domain=NSOSStatusErrorDomain Code=-10814 "(null)" UserInfo={_LSFile=LSBindingEvaluator.mm, _LSLine=1975, _LSFunction=runEvaluator}
+2026-11-01 20:41:19.749979-0600 0x16f8e3   Error       0x0                  64257  0    CoreSimulatorBridge: (FrontBoardServices) [com.apple.FrontBoard:Common] [FBSSystemService][0x5eb0] Error handling open request for com.loveworks.app: <NSError: 0x10444e370; domain: FBSOpenApplicationServiceErrorDomain; code: 4 ("InvalidRequest")> {
+    FBSOpenApplicationRequestID = 0x5eb0;
+    NSLocalizedDescription = The request to open "com.loveworks.app" failed.;
+    NSUnderlyingError = <NSError: 0x10444df20; domain: FBSOpenApplicationErrorDomain; code: 4 ("NotFound"); "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"">;
+}
+2026-11-01 20:41:19.750050-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Error Launching: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "com.loveworks.app" failed." UserInfo={NSUnderlyingError=0x10444df20 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x5eb0, NSLocalizedDescription=The request to open "com.loveworks.app" failed.}
+2026-11-01 20:41:19.750170-0600 0x16e03e   Default     0x0                  64257  0    CoreSimulatorBridge: Non-FBS error launching 'com.loveworks.app'. Error was: Error Domain=FBSOpenApplicationServiceErrorDomain Code=4 "The request to open "com.loveworks.app" failed." UserInfo={NSUnderlyingError=0x10444df20 {Error Domain=FBSOpenApplicationErrorDomain Code=4 "Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"" UserInfo={BSErrorCodeDescription=NotFound, NSLocalizedFailureReason=Application info provider (FBSApplicationLibrary) returned nil for "com.loveworks.app"}}, BSErrorCodeDescription=InvalidRequest, FBSOpenApplicationRequestID=0x5eb0, NSLocalizedDescription=The request to open "com.loveworks.app" failed.}
+2026-11-01 20:47:39.778052-0600 0x0        Default     0x0                  75042  0    log: [com.apple.log:] log run noninteractively, parent: 64220 (launchd_sim), args: 'log' 'show' '--predicate' 'eventMessage contains "com.loveworks.app"' '--last' '20m'

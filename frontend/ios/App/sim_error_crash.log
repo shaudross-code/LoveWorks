@@ -1,0 +1,2 @@
+Timestamp                       Thread     Type        Activity             PID    TTL  
+2026-11-03 01:58:38.539759-0500 0x0        Default     0x0                  35827  0    log: [com.apple.log:] log run noninteractively, parent: 64220 (launchd_sim), args: 'log' 'show' '--predicate' 'eventMessage contains "com.loveworks.app"' '--last' '1m'

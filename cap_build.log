@@ -1,0 +1,5 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild build -workspace frontend/ios/App/App.xcworkspace -scheme App -destination id=9FD64C8F-49B1-4D67-B209-C2EAB8E05F0F
+
+2026-10-31 11:45:36.193 xcodebuild[82482:6271591] Writing error result bundle to /var/folders/90/m97jxq8x7sgf2v7hrv4bty7w0000gn/T/ResultBundle_2026-31-10_11-45-0036.xcresult
+xcodebuild: error: The workspace named "App" does not contain a scheme named "App". The "-list" option can be used to find the names of the schemes in the workspace.
