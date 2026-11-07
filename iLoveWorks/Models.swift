@@ -170,12 +170,22 @@ struct WeeklyActivityResponse: Codable {
     let completionsByDay: [WeeklyDay]
 }
 
+struct DailyCompletion: Codable {
+    let day: String
+    let count: Int
+    let earned: Double
+    let hours: Double
+    let titles: [String]
+}
+
 struct WorkerStatus: Codable, Identifiable {
     let worker: User
     let online: Bool
     let lastSeenAt: String?
     let currentlyClockedIn: Bool
     let activeActivity: String?
+    let isIdle: Bool?
+    let idleMinutes: Int?
     let todayWorkedHours: Double
     let weekWorkedHours: Double
     let dailyRequiredHours: Double
@@ -186,6 +196,7 @@ struct WorkerStatus: Codable, Identifiable {
     let potentialMonthly: Double
     let openTasksCount: Int
     let streakDays: Int
+    let completionsByDay: [DailyCompletion]?
     let inconsistencies: Inconsistencies?
 
     var id: String { worker.id }

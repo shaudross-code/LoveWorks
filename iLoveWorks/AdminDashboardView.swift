@@ -360,6 +360,7 @@ struct AdminWorkersView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAddWorker = false
     @State private var editingWorker: User? = nil
+    @State private var sizingWorker: User? = nil
     
     var body: some View {
         NavigationView {
@@ -384,9 +385,16 @@ struct AdminWorkersView: View {
                         
                         VStack(spacing: 12) {
                             ForEach(viewModel.workerStatuses) { status in
-                                AdminWorkerCard(status: status)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture { editingWorker = status.worker }
+                                AdminWorkerCard(
+                                    status: status,
+                                    onEdit: { editingWorker = status.worker },
+                                    onSizes: { sizingWorker = status.worker },
+                                    onDelete: {
+                                        Task {
+                                            try? await viewModel.deleteWorker(workerId: status.worker.id)
+                                        }
+                                    }
+                                )
                             }
                         }
                         .padding(.horizontal)
@@ -401,6 +409,9 @@ struct AdminWorkersView: View {
             .sheet(item: $editingWorker) { worker in
                 EditWorkerModal(worker: worker, viewModel: viewModel)
             }
+            .sheet(item: $sizingWorker) { worker in
+                WorkerSizesView(worker: worker)
+            }
             .sheet(isPresented: $showingAddWorker) {
                 AddWorkerView(viewModel: viewModel)
             }
@@ -413,6 +424,11 @@ struct AdminWorkersView: View {
 
 struct AdminWorkerCard: View {
     let status: WorkerStatus
+    
+    // Actions supplied by the parent list
+    var onEdit: () -> Void = {}
+    var onSizes: () -> Void = {}
+    var onDelete: () -> Void = {}
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -450,39 +466,114 @@ struct AdminWorkerCard: View {
                 
                 Spacer()
                 
-                if status.streakDays >= 1 {
-                    HStack(spacing: 4) {
-                        Text("🔥")
-                        Text("\(status.streakDays)")
-                            .font(.system(size: 14, weight: .bold))
+                // Actions exactly like web format
+                HStack(spacing: 12) {
+                    Button(action: onSizes) {
+                        Image(systemName: "ruler.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Theme.textMuted)
                     }
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 6)
-                    .background(Color.orange.opacity(0.1))
-                    .cornerRadius(12)
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Theme.textMuted)
+                    }
+                    Button(action: onDelete) {
+                        Image(systemName: "trash.fill")
+                            .font(.system(size: 14))
+                            .foregroundStyle(Theme.textMuted)
+                    }
                 }
             }
             
             // Progress Bars for Hours
             HStack(spacing: 16) {
-                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, color: Theme.lovePink)
-                HourProgressView(label: "WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, color: Theme.primary)
+                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, color: .yellow)
+                HourProgressView(label: "WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, color: Theme.success)
             }
             
-            // Inconsistency Chips
-            if (status.inconsistencies?.totalIssues ?? 0) > 0 {
-                HStack(spacing: 8) {
-                    if status.inconsistencies?.streakBroken == true {
-                        InconsistencyChip(label: "STREAK BROKEN", icon: "exclamationmark.triangle.fill", color: .red)
-                    }
-                    if !(status.inconsistencies?.missedDays ?? []).isEmpty {
-                        InconsistencyChip(label: "\((status.inconsistencies?.missedDays ?? []).count) MISSED DAYS", icon: "zzz", color: .blue)
-                    }
-                    if !(status.inconsistencies?.lowDays ?? []).isEmpty {
-                        InconsistencyChip(label: "\((status.inconsistencies?.lowDays ?? []).count) LIGHT DAYS", icon: "chart.line.downtrend.xyaxis", color: .orange)
-                    }
+            HStack(spacing: 4) {
+                Image(systemName: "list.clipboard.fill")
+                    .font(.system(size: 10))
+                Text("\(status.openTasksCount) open task\(status.openTasksCount == 1 ? "" : "s")")
+                    .font(.system(size: 12))
+            }
+            .foregroundStyle(Theme.textMuted)
+            
+            // Weekly Strip
+            WeeklyStrip(days: status.completionsByDay ?? [], streak: status.streakDays, title: "COMPLETED THIS WEEK")
+                .padding(.top, 4)
+            
+            // Chips matching web implementation
+            HStack(spacing: 8) {
+                if status.isIdle == true {
+                    Text("💤 IDLE \(status.idleMinutes ?? 0)M")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.yellow.opacity(0.15))
+                        .foregroundStyle(Color.yellow)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.yellow.opacity(0.3), lineWidth: 1))
+                }
+                if status.streakDays >= 2 {
+                    Text("🔥 \(status.streakDays)-DAY STREAK")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.orange.opacity(0.15))
+                        .foregroundStyle(Color.orange)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.orange.opacity(0.3), lineWidth: 1))
+                }
+                if status.inconsistencies?.streakBroken == true {
+                    Text("⚠️ STREAK BROKEN")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.yellow.opacity(0.15))
+                        .foregroundStyle(Color.yellow)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.yellow.opacity(0.3), lineWidth: 1))
+                }
+                if !(status.inconsistencies?.missedDays ?? []).isEmpty {
+                    Text("💤 \((status.inconsistencies?.missedDays ?? []).count) MISSED DAY\((status.inconsistencies?.missedDays ?? []).count == 1 ? "" : "S")")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Theme.danger.opacity(0.15))
+                        .foregroundStyle(Theme.danger)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Theme.danger.opacity(0.3), lineWidth: 1))
+                }
+                if !(status.inconsistencies?.lowDays ?? []).isEmpty {
+                    Text("📉 \((status.inconsistencies?.lowDays ?? []).count) LIGHT DAY\((status.inconsistencies?.lowDays ?? []).count == 1 ? "" : "S")")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Theme.surfaceHover)
+                        .foregroundStyle(Theme.textMain)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Theme.border, lineWidth: 1))
+                }
+                if status.streakDays == 0 && (status.inconsistencies?.totalIssues ?? 0) == 0 {
+                    Text("✨ CLEAN WEEK")
+                        .font(.system(size: 10, weight: .black))
+                        .tracking(1)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Theme.success.opacity(0.15))
+                        .foregroundStyle(Theme.success)
+                        .cornerRadius(100)
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Theme.success.opacity(0.3), lineWidth: 1))
                 }
             }
+            .padding(.top, 4)
         }
         .padding(20)
         .background(Theme.surface)
@@ -2111,3 +2202,82 @@ struct EditGoalModal: View {
     }
 }
 
+
+struct WeeklyStrip: View {
+    let days: [DailyCompletion]
+    let streak: Int
+    let title: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(title)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(Theme.textMuted)
+                    .textCase(.uppercase)
+                    .tracking(1)
+                Spacer()
+                if streak >= 2 {
+                    HStack(spacing: 4) {
+                        Text("🔥")
+                        Text("\(streak)-DAY STREAK")
+                            .font(.system(size: 10, weight: .black))
+                            .tracking(1)
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 2)
+                    .background(LinearGradient(colors: [.orange, .yellow], startPoint: .leading, endPoint: .trailing))
+                    .foregroundStyle(.black)
+                    .cornerRadius(100)
+                    .shadow(color: .black.opacity(0.1), radius: 2)
+                }
+            }
+            
+            HStack(spacing: 6) {
+                let currentDayIndex = (Calendar.current.component(.weekday, from: Date()) + 5) % 7
+                let streakSet = Set((0..<streak).map { (currentDayIndex - $0 + 7) % 7 })
+                
+                ForEach(0..<7, id: \.self) { i in
+                    let dayObj = i < days.count ? days[i] : nil
+                    let has = (dayObj?.count ?? 0) > 0
+                    let isToday = i == currentDayIndex
+                    let isStreak = streakSet.contains(i) && has
+                    
+                    VStack(spacing: 2) {
+                        if isStreak {
+                            Text("🔥")
+                                .font(.system(size: 8))
+                                .offset(x: 10, y: -4)
+                        }
+                        Text(dayObj?.day ?? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][i])
+                            .font(.system(size: 9, weight: .semibold))
+                            .foregroundStyle(has ? .black : Theme.textMuted)
+                            .textCase(.uppercase)
+                            .tracking(1)
+                            .opacity(has ? 0.8 : 1.0)
+                        
+                        Text("\(dayObj?.count ?? 0)")
+                            .font(.custom("Outfit-Bold", size: 16))
+                            .foregroundStyle(has ? .black : Theme.textMuted.opacity(0.8))
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                        Group {
+                            if has {
+                                LinearGradient(colors: [.yellow, .orange], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            } else {
+                                Theme.surface.opacity(0.6)
+                            }
+                        }
+                    )
+                    .cornerRadius(8)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(has ? .yellow : Theme.border, lineWidth: isToday ? 2 : 1)
+                    )
+                }
+            }
+        }
+    }
+}
