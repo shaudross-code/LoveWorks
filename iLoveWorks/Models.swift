@@ -52,6 +52,8 @@ struct TaskItem: Codable, Identifiable {
     let payoutSchedule: String? // per_task, daily, weekly, monthly
     let dueAt: String?
     let dueTime: String?
+    let adminAlarm: String?
+    let userAlarm: String?
     let dueDayOfWeek: Int? // 0 = Monday … 6 = Sunday
     let estimatedHours: Double?
     let dailyHours: Double?

@@ -400,7 +400,9 @@ struct WorkerDashboardMainView: View {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.isCompleted ? "assigned" : "completed") }
                                     }, onStart: {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.status == "in_progress" ? "assigned" : "in_progress") }
-                                    }, onSpeak: { speak($0) })
+                                    }, onSpeak: { speak($0) }, onSaveAlarm: { alarm in 
+                                        run { try await viewModel.updateTaskAlarm(taskId: task.id, alarmTime: alarm) }
+                                    })
                                 }
                             }
                         }

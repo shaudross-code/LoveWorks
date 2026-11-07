@@ -80,6 +80,22 @@ class WorkerViewModel: ObservableObject {
         await refresh()
     }
 
+    struct AlarmUpdateRequest: Encodable {
+        let userAlarm: String?
+        enum CodingKeys: String, CodingKey {
+            case userAlarm
+        }
+        func encode(to encoder: Encoder) throws {
+            var c = encoder.container(keyedBy: CodingKeys.self)
+            try c.encode(userAlarm, forKey: .userAlarm)
+        }
+    }
+    
+    func updateTaskAlarm(taskId: String, alarmTime: String?) async throws {
+        let _: TaskItem = try await APIClient.shared.send("/tasks/\(taskId)", method: "PATCH", json: AlarmUpdateRequest(userAlarm: alarmTime))
+        await refresh()
+    }
+
     func setReactions(goalId: String, _ reactions: [GoalReaction]) {
         if let i = goals.firstIndex(where: { $0.id == goalId }) { goals[i].reactions = reactions }
         if let i = trips.firstIndex(where: { $0.id == goalId }) { trips[i].reactions = reactions }

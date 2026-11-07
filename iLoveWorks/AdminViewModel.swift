@@ -111,6 +111,7 @@ class AdminViewModel: ObservableObject {
         let frequency: String
         let dueDayOfWeek: Int?
         let dueTime: String?
+        let adminAlarm: String?
 
         // Send explicit nulls so "no specific day" clears the weekday
         func encode(to encoder: Encoder) throws {
@@ -122,10 +123,11 @@ class AdminViewModel: ObservableObject {
             try c.encode(frequency, forKey: .frequency)
             try c.encode(dueDayOfWeek, forKey: .dueDayOfWeek)
             try c.encode(dueTime, forKey: .dueTime)
+            try c.encode(adminAlarm, forKey: .adminAlarm)
         }
 
         enum CodingKeys: String, CodingKey {
-            case title, description, price, assigneeId, frequency, dueDayOfWeek, dueTime
+            case title, description, price, assigneeId, frequency, dueDayOfWeek, dueTime, adminAlarm
         }
     }
 }

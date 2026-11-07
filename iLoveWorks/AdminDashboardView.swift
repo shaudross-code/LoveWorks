@@ -553,6 +553,8 @@ struct AddWorkerView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isSubmitting = false
+    @State private var setMandatoryAlarm = false
+    @State private var mandatoryAlarmTime = Date()
     
     var body: some View {
         NavigationView {
@@ -696,6 +698,8 @@ struct AddTaskView: View {
     @State private var price = ""
     @State private var selectedWorkerId = ""
     @State private var isSubmitting = false
+    @State private var setMandatoryAlarm = false
+    @State private var mandatoryAlarmTime = Date()
     
     var body: some View {
         NavigationView {
@@ -756,11 +760,32 @@ struct AddTaskView: View {
                         }
                     }
                     
+                    VStack(alignment: .leading, spacing: 12) {
+                        Toggle("Mandatory Alarm (Admin Only)", isOn: $setMandatoryAlarm)
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(Theme.textMain)
+                            .tint(Theme.lovePink)
+                        
+                        if setMandatoryAlarm {
+                            DatePicker("Alarm Time", selection: $mandatoryAlarmTime, displayedComponents: .hourAndMinute)
+                                .font(.system(size: 14))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                    }
+                    .padding()
+                    .background(Theme.surface)
+                    .cornerRadius(12)
+                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
+                    
                     Button(action: {
                         isSubmitting = true
                         Task {
                             if let p = Double(price) {
-                                try? await viewModel.createTask(AdminViewModel.TaskCreateRequest(title: title, description: description, price: p, assigneeId: selectedWorkerId, frequency: "one-off", dueDayOfWeek: nil, dueTime: nil))
+                                
+                                let formatter = DateFormatter()
+                                formatter.dateFormat = "HH:mm"
+                                let alarmStr = setMandatoryAlarm ? formatter.string(from: mandatoryAlarmTime) : nil
+                                try? await viewModel.createTask(AdminViewModel.TaskCreateRequest(title: title, description: description, price: p, assigneeId: selectedWorkerId, frequency: "one-off", dueDayOfWeek: nil, dueTime: nil, adminAlarm: alarmStr))
                                 await MainActor.run {
                                     isSubmitting = false
                                     dismiss()
@@ -920,6 +945,8 @@ struct AddEssentialView: View {
     @State private var category = "household"
     @State private var ownerId = ""
     @State private var isSubmitting = false
+    @State private var setMandatoryAlarm = false
+    @State private var mandatoryAlarmTime = Date()
     
     let categories = ["household", "everyday", "groceries", "personal", "kids", "other"]
     
@@ -1051,6 +1078,8 @@ struct AddGoalView: View {
     @State private var period = "weekly"
     @State private var ownerId = ""
     @State private var isSubmitting = false
+    @State private var setMandatoryAlarm = false
+    @State private var mandatoryAlarmTime = Date()
     
     let periods = ["daily", "weekly", "monthly", "yearly", "once"]
     
