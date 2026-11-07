@@ -1,11 +1,12 @@
-iLoveWorks: Native UI Parity & Advanced Admin Features 🚀
+iLoveWorks: Native UI Parity & Halloween Theming 🚀
 
-Welcome to the latest build of iLoveWorks! This massive update brings our native iOS app perfectly in line with the web experience. We have finalized the custom horizontal tab navigation across the entire app and rewritten all of the Admin & Worker modals natively in SwiftUI for blazing-fast performance.
+Welcome to the latest build of iLoveWorks! This update finalizes the native iOS look to perfectly match the web layout and polishes the dynamic holiday UI mapping.
 
 What to Test:
-1. Dashboard Tabs: Test the new horizontally scrolling custom tab bar. Verify it matches the website's layout and cleanly switches between sections (Overview, Workers, Tasks, Goals, Announcements, Sizes, Profile).
-2. Advanced Editing Modals: In the Admin view, tap on any active Worker, Task, Goal, or Trip card. A custom-themed sheet should appear. Verify all matching web fields are present (Task Frequency, Payout Schedules, Image URLs, Target amounts, etc.).
-3. Worker Sizes: Check out the new native "Sizes" tab! Admins can tap on a worker, hit "VIEW & EDIT SIZES", and manage apparel fits and preferences natively while pushing update notifications.
-4. Passwords & Profiles: Test editing a worker's profile (name & email) and verify you can securely set a new optional password for them directly from the Admin console.
-5. Task Alarms & Push Notifications: Test creating tasks with mandatory Admin alarms. Verify local Push Notifications arrive reliably for scheduled task alarms.
-6. Overall UI & Theming: Ensure cards, grid layouts, and padding correctly mirror the website experience across all views.
+1. Horizontal Tab Navigation: Test the new horizontally scrolling custom tab bar across the app. Verify it matches the website's layout and cleanly switches between sections (Overview, Workers, Tasks, Goals, Announcements, Sizes, Profile).
+2. Advanced Edit Modals: In the Admin view, tap on any active Worker, Task, Goal, or Trip card. A native custom-themed sheet should appear containing all expected web fields (Task frequency, payout schedules, product links).
+3. Worker Profile & Passwords: Test editing a worker's name and email, and verify you can securely set a new password for them directly from the Admin console.
+4. Worker Sizes Management: Check out the new native "Sizes" tab! Admins can tap on a worker, hit "Sizes", and manage apparel fits natively.
+5. Admin Worker Cards: Test the newly overhauled top layout of the Admin Worker Cards. They now perfectly mirror the web with inline Status pills (Online pulsing green / Offline mute), direct inline email tracks, dynamic Halloween colored activity statuses, and the styled edit buttons!
+6. Web-Matched Hour Trackers: Verify the 'TODAY' and 'THIS WEEK' progress modules match the web layout in box styling and properly track the current Theme. Check that custom Halloween orange accents map correctly instead of default yellow.
+7. Alert Chips: Verify 'STREAK BROKEN', 'IDLE', and 'Missed Days' badges show appropriately formatted with their respective warning colors!
