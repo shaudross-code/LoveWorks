@@ -171,11 +171,11 @@ struct WeeklyActivityResponse: Codable {
 }
 
 struct DailyCompletion: Codable {
-    let day: String
+    let day: String?
     let count: Int
-    let earned: Double
-    let hours: Double
-    let titles: [String]
+    let earned: Double?
+    let hours: Double?
+    let titles: [String]?
 }
 
 struct WorkerStatus: Codable, Identifiable {

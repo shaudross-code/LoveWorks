@@ -487,9 +487,9 @@ struct AdminWorkerCard: View {
             }
             
             // Progress Bars for Hours
-            HStack(spacing: 16) {
-                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, color: .yellow)
-                HourProgressView(label: "WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, color: Theme.success)
+            HStack(spacing: 12) {
+                HourProgressView(label: "TODAY", current: status.todayWorkedHours, target: status.dailyRequiredHours, left: status.todayLeftHours, color: .yellow)
+                HourProgressView(label: "THIS WEEK", current: status.weekWorkedHours, target: status.weeklyRequiredHours, left: status.weekLeftHours, color: Theme.success)
             }
             
             HStack(spacing: 4) {
@@ -512,10 +512,10 @@ struct AdminWorkerCard: View {
                         .tracking(1)
                         .padding(.horizontal, 8)
                         .padding(.vertical, 4)
-                        .background(Color.yellow.opacity(0.15))
-                        .foregroundStyle(Color.yellow)
+                        .background(Color.orange.opacity(0.15))
+                        .foregroundStyle(Color.orange)
                         .cornerRadius(100)
-                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.yellow.opacity(0.3), lineWidth: 1))
+                        .overlay(RoundedRectangle(cornerRadius: 100).stroke(Color.orange.opacity(0.3), lineWidth: 1))
                 }
                 if status.streakDays >= 2 {
                     Text("🔥 \(status.streakDays)-DAY STREAK")
@@ -586,24 +586,40 @@ struct HourProgressView: View {
     let label: String
     let current: Double
     let target: Double
+    let left: Double?
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(label)
-                    .font(.system(size: 9, weight: .black))
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.system(size: 10, weight: .bold))
+                .foregroundStyle(Theme.textMuted)
+                .textCase(.uppercase)
+                .tracking(1)
+            
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text(String(format: "%.1fh", current))
+                    .font(.custom("Outfit-Bold", size: 20))
+                    .foregroundStyle(.white)
+                Text("/ \(String(format: "%.1fh", target))")
+                    .font(.system(size: 14))
                     .foregroundStyle(Theme.textMuted)
-                Spacer()
-                Text(String(format: "%.1fh / %.1fh", current, target))
-                    .font(.system(size: 9, weight: .bold))
-                    .foregroundStyle(Theme.textMain)
+            }
+            
+            if let left = left, left > 0 {
+                Text("\(String(format: "%.1fh", left)) left")
+                    .font(.system(size: 10))
+                    .foregroundStyle(.yellow)
+            } else {
+                Text("Target hit")
+                    .font(.system(size: 10))
+                    .foregroundStyle(Theme.success)
             }
             
             GeometryReader { geo in
                 ZStack(alignment: .leading) {
                     Rectangle()
-                        .fill(Theme.secondary)
+                        .fill(Theme.surfaceHover)
                         .frame(height: 6)
                     Rectangle()
                         .fill(color)
@@ -612,7 +628,12 @@ struct HourProgressView: View {
                 .cornerRadius(3)
             }
             .frame(height: 6)
+            .padding(.top, 4)
         }
+        .padding()
+        .background(Theme.surfaceHover)
+        .cornerRadius(12)
+        .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
         .frame(maxWidth: .infinity)
     }
 }
