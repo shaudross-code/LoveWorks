@@ -1548,6 +1548,91 @@ struct AddAnnouncementView: View {
     }
 }
 
+struct PayrollRowCard: View {
+    let row: PayrollRow
+    @State private var isExpanded = false
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 16) {
+                if let urlString = row.worker.avatarUrl, let url = URL(string: APIClient.shared.fullURL(for: urlString)) {
+                    AsyncImage(url: url) { image in
+                        image.resizable().aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Circle().fill(Theme.secondary)
+                    }
+                    .frame(width: 44, height: 44)
+                    .clipShape(Circle())
+                } else {
+                    Circle()
+                        .fill(Theme.secondary)
+                        .frame(width: 44, height: 44)
+                        .overlay(
+                            Text(String(row.worker.name.prefix(1)))
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(Theme.textMain)
+                        )
+                }
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(row.worker.name)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(Theme.textMain)
+                    Text(isExpanded ? "Tap to collapse" : "Tap for payout details")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.lovePink)
+                }
+                
+                Spacer()
+                
+                Text("$\(String(format: "%.0f", row.tasksEarnings))")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(Theme.success)
+                
+                Image(systemName: "chevron.down")
+                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
+                    .foregroundStyle(Theme.textMuted)
+                    .font(.system(size: 14, weight: .bold))
+            }
+            .padding(.vertical, 8)
+            .contentShape(Rectangle())
+            .onTapGesture {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    isExpanded.toggle()
+                }
+            }
+            
+            if isExpanded {
+                VStack(spacing: 12) {
+                    Divider().background(Theme.border)
+                    
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("HOURS WORKED")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            Text("\(String(format: "%.1f", row.totalHours))h")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                        Spacer()
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("TASKS COMPLETED")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Theme.textMuted)
+                            Text("\(row.tasksCompleted)")
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundStyle(Theme.textMain)
+                        }
+                    }
+                    .padding(.top, 4)
+                }
+                .padding(.bottom, 8)
+            }
+        }
+    }
+}
+
 struct AdminPayrollView: View {
     @ObservedObject var viewModel: AdminViewModel
     
@@ -1557,47 +1642,14 @@ struct AdminPayrollView: View {
             
             List {
                 ForEach(viewModel.payroll) { row in
-                    HStack(spacing: 16) {
-                        if let urlString = row.worker.avatarUrl, let url = URL(string: APIClient.shared.fullURL(for: urlString)) {
-                            AsyncImage(url: url) { image in
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } placeholder: {
-                                Circle().fill(Theme.secondary)
-                            }
-                            .frame(width: 44, height: 44)
-                            .clipShape(Circle())
-                        } else {
-                            Circle()
-                                .fill(Theme.secondary)
-                                .frame(width: 44, height: 44)
-                                .overlay(
-                                    Text(String(row.worker.name.prefix(1)))
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(Theme.textMain)
-                                )
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(row.worker.name)
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(Theme.textMain)
-                            Text("\(row.tasksCompleted) tasks completed • \(String(format: "%.1f", row.totalHours))h worked")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Theme.textMuted)
-                        }
-                        
-                        Spacer()
-                        
-                        Text("$\(String(format: "%.2f", row.tasksEarnings))")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Theme.success)
-                    }
-                    .padding(.vertical, 8)
-                    .listRowBackground(Theme.surface)
-                    .listRowSeparatorTint(Theme.border)
+                    PayrollRowCard(row: row)
+                        .listRowBackground(Theme.surface)
+                        .listRowSeparatorTint(Theme.border)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16))
                 }
             }
             .scrollContentBackground(.hidden)
+            .listStyle(.plain)
         }
         .navigationTitle("Payroll")
         .onAppear {
