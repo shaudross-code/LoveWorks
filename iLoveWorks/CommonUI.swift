@@ -11,7 +11,11 @@ public class SpeechManager: ObservableObject {
         // Enforce audio routing just in case
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
-            try AVAudioSession.sharedInstance().setActive(true)
+            if #available(iOS 27.0, *) {
+                AVAudioSession.sharedInstance().activate(options: []) { success, error in }
+            } else {
+                try AVAudioSession.sharedInstance().setActive(true)
+            }
         } catch {}
         
         // Stop before speaking to avoid queued overlap blocks
