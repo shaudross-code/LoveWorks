@@ -86,7 +86,7 @@ final class PushManager: ObservableObject {
     func forgetToken() {
         registered = false
     }
-    func scheduleAlarm(id: String, title: String, body: String, timeString: String?) {
+    func scheduleAlarm(id: String, title: String, body: String, timeString: String?, dueDayOfWeek: Int? = nil) {
         guard let timeString = timeString else {
             cancelAlarm(id: id)
             return
@@ -108,6 +108,11 @@ final class PushManager: ObservableObject {
         var dateComponents = DateComponents()
         dateComponents.hour = hour
         dateComponents.minute = minute
+        
+        if let dow = dueDayOfWeek {
+            let appleWeekday = (dow + 2) > 7 ? 1 : (dow + 2)
+            dateComponents.weekday = appleWeekday
+        }
         
         let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
         

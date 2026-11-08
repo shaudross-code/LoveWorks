@@ -52,7 +52,11 @@ class WorkerViewModel: ObservableObject {
             tasks = v
             for task in v {
                 let alarm = task.adminAlarm ?? task.userAlarm
-                PushManager.shared.scheduleAlarm(id: task.id, title: "Task Alarm", body: task.title, timeString: alarm)
+                if task.isCompleted {
+                    PushManager.shared.cancelAlarm(id: task.id)
+                } else {
+                    PushManager.shared.scheduleAlarm(id: task.id, title: "Task Alarm", body: task.title, timeString: alarm, dueDayOfWeek: task.dueDayOfWeek)
+                }
             }
         }
         if let v = await fetchedEntries { allEntries = v }
@@ -99,7 +103,9 @@ class WorkerViewModel: ObservableObject {
     
     func updateTaskAlarm(taskId: String, alarmTime: String?, taskTitle: String) async throws {
         let _: TaskItem = try await APIClient.shared.send("/tasks/\(taskId)", method: "PATCH", json: AlarmUpdateRequest(userAlarm: alarmTime))
-        PushManager.shared.scheduleAlarm(id: taskId, title: "Task Alarm", body: taskTitle, timeString: alarmTime)
+        if let idx = tasks.firstIndex(where: { $0.id == taskId }) {
+            PushManager.shared.scheduleAlarm(id: taskId, title: "Task Alarm", body: taskTitle, timeString: alarmTime, dueDayOfWeek: tasks[idx].dueDayOfWeek)
+        }
         await refresh()
     }
 
