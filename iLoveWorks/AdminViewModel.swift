@@ -42,6 +42,15 @@ class AdminViewModel: ObservableObject {
             tasks = v
             statsTasksAssigned = v.count
             statsCompletedCount = v.filter { $0.isCompleted }.count
+            for task in v {
+                let alarm = task.adminAlarm ?? task.userAlarm
+                if task.isCompleted {
+                    PushManager.shared.cancelAlarm(id: task.id)
+                } else {
+                    let title = "\(task.assigneeName ?? "Worker") Task Alarm"
+                    PushManager.shared.scheduleAlarm(id: task.id, title: title, body: task.title, timeString: alarm, dueDayOfWeek: task.dueDayOfWeek)
+                }
+            }
         }
         if let v = await p {
             payroll = v
