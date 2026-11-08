@@ -1,3 +1,21 @@
+import SwiftUI
+import Combine
+import AVFoundation
+
+class SpeechManager: ObservableObject {
+    let objectWillChange = Combine.ObservableObjectPublisher()
+    private let synthesizer = AVSpeechSynthesizer()
+    func speak(_ text: String) {
+        let utterance = AVSpeechUtterance(string: text)
+        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        // Enforce audio routing just in case
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {}
+        synthesizer.speak(utterance)
+    }
+}
 //
 //  CommonUI.swift
 //  iLoveWorks

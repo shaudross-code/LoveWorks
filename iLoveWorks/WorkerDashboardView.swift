@@ -196,7 +196,7 @@ struct WorkerDashboardMainView: View {
     @State private var showingPicker = false
     @State private var actionError: String?
 
-    let speechSynthesizer = AVSpeechSynthesizer()
+    @StateObject private var speechManager = SpeechManager()
 
     var body: some View {
         ZStack {
@@ -474,10 +474,7 @@ struct WorkerDashboardMainView: View {
     }
 
     private func speak(_ text: String) {
-        let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
-        utterance.rate = 0.5
-        speechSynthesizer.speak(utterance)
+        speechManager.speak(text)
     }
 }
 
