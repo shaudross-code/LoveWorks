@@ -136,9 +136,14 @@ final class PushManager: ObservableObject {
         UIApplication.shared.registerForRemoteNotifications()
         #endif
         #if canImport(FirebaseMessaging)
-        Messaging.messaging().token { [weak self] token, _ in
-            guard let token else { return }
-            Task { @MainActor in self?.didReceive(fcmToken: token) }
+        Task {
+            do {
+                if let token = try await Messaging.messaging().token() as String? {
+                    await MainActor.run { self.didReceive(fcmToken: token) }
+                }
+            } catch {
+                print("Failed to get FCM token: \(error)")
+            }
         }
         #endif
     }
