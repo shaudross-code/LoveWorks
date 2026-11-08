@@ -2,9 +2,9 @@ import SwiftUI
 import Combine
 import AVFoundation
 
-class SpeechManager: ObservableObject {
-    let objectWillChange = Combine.ObservableObjectPublisher()
+public class SpeechManager: ObservableObject {
     private let synthesizer = AVSpeechSynthesizer()
+    public init() {}
     func speak(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
