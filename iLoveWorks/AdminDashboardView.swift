@@ -41,6 +41,7 @@ enum AdminTab: String, CaseIterable, Identifiable {
 
 struct AdminDashboardView: View {
     @StateObject private var viewModel = AdminViewModel()
+    @StateObject private var speechManager = SpeechManager()
     @EnvironmentObject var sessionManager: SessionManager
     @State private var selectedTab: AdminTab = .overview
     
@@ -811,6 +812,7 @@ struct AddWorkerView: View {
 
 struct AdminTasksView: View {
     @ObservedObject var viewModel: AdminViewModel
+    @StateObject private var speechManager = SpeechManager()
     @State private var showingAddTask = false
     @State private var editingTask: TaskItem? = nil
     
@@ -843,7 +845,7 @@ struct AdminTasksView: View {
                         
                         VStack(spacing: 12) {
                             ForEach(viewModel.tasks.sorted { !$0.isCompleted && $1.isCompleted }) { task in
-                                TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { _ in })
+                                TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { speechManager.speak($0) })
                                     .contentShape(Rectangle())
                                     .onTapGesture { editingTask = task }
                             }

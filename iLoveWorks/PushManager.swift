@@ -203,21 +203,11 @@ extension Notification.Name {
 final class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
         PushManager.shared.configure()
-        Task {
-            do {
-                try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
-                if #available(iOS 27.0, *) {
-                    AVAudioSession.sharedInstance().activate(options: []) { success, error in
-                        if let error = error {
-                            print("Failed to configure audio session asynchronously: \(error)")
-                        }
-                    }
-                } else {
-                    try AVAudioSession.sharedInstance().setActive(true)
-                }
-            } catch {
-                print("Failed to set audio session category: \(error)")
-            }
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
+            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
+        } catch {
+            print("Failed to set audio session category: \(error)")
         }
         return true
     }
