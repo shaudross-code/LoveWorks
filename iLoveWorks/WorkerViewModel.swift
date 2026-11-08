@@ -88,10 +88,17 @@ class WorkerViewModel: ObservableObject {
         await refresh()
     }
 
+    struct ClockOutPayload: Encodable {
+        let lat: Double?
+        let lng: Double?
+    }
+
     func clockOut(entryId: String? = nil) async throws {
         var endpoint = "/time/clock-out"
         if let id = entryId { endpoint += "?entry_id=\(id)" }
-        let _: EmptyResponse = try await APIClient.shared.request(endpoint, method: "POST")
+        let loc = LocationManager.shared.location
+        let payload = ClockOutPayload(lat: loc?.coordinate.latitude, lng: loc?.coordinate.longitude)
+        let _: EmptyResponse = try await APIClient.shared.send(endpoint, json: payload)
         await refresh()
     }
 
