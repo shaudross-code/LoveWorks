@@ -7,7 +7,9 @@ public class SpeechManager: ObservableObject {
     public init() {}
     func speak(_ text: String) {
         let utterance = AVSpeechUtterance(string: text)
-        utterance.voice = AVSpeechSynthesisVoice(language: "en-US")
+        if let v = AVSpeechSynthesisVoice(language: "en-US") {
+            utterance.voice = v
+        }
         // Enforce audio routing just in case
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])

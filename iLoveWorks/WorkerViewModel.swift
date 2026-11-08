@@ -30,6 +30,8 @@ class WorkerViewModel: ObservableObject {
     var deadlines: DeadlineBuckets { TaskSchedule.buckets(tasks, now: now) }
 
     func loadData() {
+        LocationManager.shared.requestPermission()
+        LocationManager.shared.startUpdating()
         Task { await refresh() }
     }
 
@@ -73,8 +75,16 @@ class WorkerViewModel: ObservableObject {
         startTimer()
     }
 
+    struct ClockInPayload: Encodable {
+        let activity: String
+        let lat: Double?
+        let lng: Double?
+    }
+
     func clockIn(activity: String) async throws {
-        let _: TimeEntry = try await APIClient.shared.send("/time/clock-in", json: ["activity": activity])
+        let loc = LocationManager.shared.location
+        let payload = ClockInPayload(activity: activity, lat: loc?.coordinate.latitude, lng: loc?.coordinate.longitude)
+        let _: TimeEntry = try await APIClient.shared.send("/time/clock-in", json: payload)
         await refresh()
     }
 
