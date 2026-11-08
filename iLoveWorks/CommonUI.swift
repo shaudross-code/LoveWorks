@@ -13,7 +13,15 @@ class SpeechManager: ObservableObject {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {}
-        synthesizer.speak(utterance)
+        
+        // Stop before speaking to avoid queued overlap blocks
+        if synthesizer.isSpeaking {
+            synthesizer.stopSpeaking(at: .immediate)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.synthesizer.speak(utterance)
+        }
     }
 }
 //
