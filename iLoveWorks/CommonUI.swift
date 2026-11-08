@@ -28,7 +28,12 @@ public class SpeechManager: ObservableObject {
             do {
                 try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers])
                 if #available(iOS 27.0, *) {
-                    AVAudioSession.sharedInstance().activate(options: []) { success, error in }
+                    AVAudioSession.sharedInstance().activate(options: []) { success, error in
+                        DispatchQueue.main.async {
+                            self.synthesizer.speak(utterance)
+                        }
+                    }
+                    return
                 } else {
                     try AVAudioSession.sharedInstance().setActive(true)
                 }
