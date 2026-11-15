@@ -89,7 +89,7 @@ logger = logging.getLogger(__name__)
 # --- Helpers ---
 # Configured display/business timezone. All "day", "week", "month" boundaries
 # are computed in this TZ so workers see calendar windows that match their wall clock.
-APP_TZ_NAME = os.environ.get("WEEK_TZ", "UTC")
+APP_TZ_NAME = os.environ.get("WEEK_TZ", "America/New_York")
 try:
     APP_TZ = ZoneInfo(APP_TZ_NAME) if ZoneInfo else timezone.utc
 except Exception:

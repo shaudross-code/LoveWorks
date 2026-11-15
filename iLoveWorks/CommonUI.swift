@@ -414,6 +414,7 @@ struct TaskRow: View {
                             
                             Button(action: {
                                 let formatter = DateFormatter()
+                                formatter.locale = Locale(identifier: "en_US_POSIX")
                                 formatter.dateFormat = "HH:mm"
                                 let str = formatter.string(from: draftAlarmTime)
                                 onSaveAlarm?(str)

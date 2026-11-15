@@ -100,11 +100,15 @@ final class PushManager: ObservableObject {
         content.body = body
         content.sound = .default
         
-        // Parse "HH:mm"
-        let parts = timeString.split(separator: ":")
+        // Parse "HH:mm" or "HH:mm a"
+        let cleanTime = timeString.replacingOccurrences(of: " AM", with: "").replacingOccurrences(of: " PM", with: "").replacingOccurrences(of: " am", with: "").replacingOccurrences(of: " pm", with: "")
+        let parts = cleanTime.split(separator: ":")
         guard parts.count == 2,
-              let hour = Int(parts[0]),
-              let minute = Int(parts[1]) else { return }
+              var hour = Int(parts[0]),
+              let minute = Int(parts[1].trimmingCharacters(in: .whitespaces)) else { return }
+              
+        if timeString.uppercased().contains("PM") && hour < 12 { hour += 12 }
+        if timeString.uppercased().contains("AM") && hour == 12 { hour = 0 }
               
         var dateComponents = DateComponents()
         dateComponents.hour = hour
@@ -133,7 +137,9 @@ final class PushManager: ObservableObject {
 
     private func registerWithApple() {
         #if canImport(UIKit)
-        UIApplication.shared.registerForRemoteNotifications()
+        Task { @MainActor in
+            UIApplication.shared.registerForRemoteNotifications()
+        }
         #endif
         #if canImport(FirebaseMessaging)
         Task {
