@@ -1,6 +1,6 @@
 /* LoveWorks Service Worker — Web Push + offline PWA caching */
 
-const CACHE_NAME = 'iloveworks-v2';
+const CACHE_NAME = 'iloveworks-v3';
 const PRECACHE = ['/', '/manifest.json', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (event) => {
@@ -63,14 +63,17 @@ self.addEventListener('push', (event) => {
     if (event.data) data.body = event.data.text();
   }
 
+  const meta = data.meta || {};
+  const isAlarm = meta.kind === 'alarm';
   const options = {
     body: data.body || '',
     icon: '/icon-192.png',
     badge: '/badge-96.png',
-    tag: (data.meta && data.meta.task_id) ? `task-${data.meta.task_id}` : undefined,
+    tag: isAlarm ? `alarm-${meta.alarm_id}` : (meta.task_id ? `task-${meta.task_id}` : undefined),
     renotify: true,
-    data: { link: data.link || '/', meta: data.meta || {} },
-    vibrate: [120, 60, 120],
+    requireInteraction: isAlarm,
+    data: { link: data.link || '/', meta },
+    vibrate: isAlarm ? [400, 150, 400, 150, 400] : [120, 60, 120],
   };
 
   event.waitUntil(self.registration.showNotification(data.title || 'iLoveWorks', options));
@@ -81,13 +84,13 @@ self.addEventListener('notificationclick', (event) => {
   const targetUrl = (event.notification.data && event.notification.data.link) || '/';
   event.waitUntil((async () => {
     const allClients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    // Reuse an open app window and let React route there (keeps the session, no reload)
     for (const c of allClients) {
       try {
-        const u = new URL(c.url);
-        if (u.pathname.startsWith(targetUrl) || c.url.includes(targetUrl)) {
-          await c.focus();
-          return;
-        }
+        if (new URL(c.url).origin !== self.location.origin) continue;
+        await c.focus();
+        c.postMessage({ type: 'navigate', link: targetUrl });
+        return;
       } catch (_) { /* noop */ }
     }
     if (self.clients.openWindow) {

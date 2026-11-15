@@ -282,6 +282,7 @@ struct TaskRow: View {
     let onToggle: () -> Void
     let onStart: () -> Void
     let onSpeak: (String) -> Void
+    var onAlarm: (() -> Void)? = nil
 
     var body: some View {
         HStack(spacing: 16) {
@@ -343,6 +344,15 @@ struct TaskRow: View {
                 Text("$\(String(format: "%.2f", task.price))")
                     .font(.system(size: 14, weight: .bold))
                     .foregroundStyle(Theme.lovePink)
+
+                if let onAlarm, !task.isCompleted {
+                    Button(action: onAlarm) {
+                        Image(systemName: "alarm")
+                            .font(.system(size: 13))
+                            .foregroundStyle(Theme.primary)
+                    }
+                    .accessibilityLabel("Set alarm")
+                }
 
                 if !task.isCompleted {
                     Button(action: onStart) {

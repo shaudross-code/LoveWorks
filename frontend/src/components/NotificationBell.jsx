@@ -8,6 +8,7 @@ const TYPE_ICON = {
   task_assigned:        ClipboardList,
   task_updated:         ClipboardList,
   task_due_soon:        AlarmClock,
+  alarm:                AlarmClock,
   task_completed:       CheckCircle2,
   award:                Trophy,
   announcement:         Megaphone,

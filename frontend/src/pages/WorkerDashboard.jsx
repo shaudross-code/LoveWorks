@@ -4,13 +4,15 @@ import { Button } from "@/components/ui/button";
 import {
   Play, Square, Plus, Loader2, CheckCircle2, Circle, BadgeDollarSign, Sparkles,
   CalendarClock, Calendar, AlertTriangle, Hourglass, TrendingUp, ArrowRight,
-  Repeat, Wallet, Clock,
+  Repeat, Wallet, Clock, AlarmClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
 import SpeakButton from "@/components/SpeakButton";
 import WeeklyStrip from "@/components/WeeklyStrip";
 import PushPrompt from "@/components/PushPrompt";
+import AlarmsPanel from "@/components/AlarmsPanel";
+import { openAlarmDialog } from "@/lib/alarms";
 import { ACTIVITIES, activityOf } from "@/lib/activities";
 
 function formatDuration(seconds) {
@@ -167,6 +169,7 @@ export default function WorkerDashboard() {
   return (
     <div className="space-y-10">
       <PushPrompt />
+      <AlarmsPanel />
       {/* Hero — clock in / activity */}
       <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-5 sm:p-10">
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />
@@ -443,6 +446,13 @@ function TaskRow({ t, onToggle, onStart }) {
             label="Read task aloud"
             size={14}
           />
+          {t.status !== "completed" && (
+            <button data-testid={`alarm-task-${t.id}`} aria-label="Set alarm for this task"
+              onClick={() => openAlarmDialog({ title: t.title, task_id: t.id, due_time: t.due_time })}
+              className="w-7 h-7 rounded-full grid place-items-center text-zinc-500 hover:text-yellow-400 hover:bg-yellow-400/10 transition-colors">
+              <AlarmClock className="w-3.5 h-3.5" />
+            </button>
+          )}
           {t.frequency && t.frequency !== "once" && (
             <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] bg-sky-400/15 text-sky-300 uppercase tracking-widest">
               <Repeat className="w-3 h-3" /> {t.frequency}

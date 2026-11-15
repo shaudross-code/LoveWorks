@@ -50,10 +50,12 @@ class SessionManager: ObservableObject {
     private func didSignIn() {
         Task { await ThemeStore.shared.refresh() }
         PushManager.shared.signedIn()
+        Task { await AlarmStore.shared.sync() }
     }
 
     func logout() {
         currentUser = nil
+        AlarmStore.shared.clearLocal()
         Task {
             await PushManager.shared.signedOut()
             _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
@@ -64,6 +66,7 @@ class SessionManager: ObservableObject {
     /// Clears the session without calling the server (account already deleted).
     func forgetSession() {
         PushManager.shared.forgetToken()
+        AlarmStore.shared.clearLocal()
         _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
         currentUser = nil
     }

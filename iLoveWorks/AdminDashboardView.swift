@@ -1051,6 +1051,9 @@ struct AdminMoreView: View {
                         NavigationLink(destination: AdminAnnouncementsView(viewModel: viewModel)) {
                             Label("Announcements", systemImage: "megaphone.fill")
                         }
+                        NavigationLink(destination: AlarmsView()) {
+                            Label("Alarms", systemImage: "alarm.fill")
+                        }
                     } header: {
                         Text("Management")
                     }
