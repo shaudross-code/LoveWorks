@@ -40,37 +40,6 @@ enum AdminTab: String, CaseIterable, Identifiable {
 }
 
 
-enum AdminTab: String, CaseIterable, Identifiable {
-    case overview = "Overview"
-    case workers = "Workers"
-    case tasks = "Tasks"
-    case goals = "Goals"
-    case trips = "Trips"
-    case essentials = "Essentials"
-    case payroll = "Payroll"
-    case announcements = "Announcements"
-    case sizes = "My Sizes"
-    case profile = "Profile"
-
-    var id: String { self.rawValue }
-    var label: String { self.rawValue }
-
-    var icon: String {
-        switch self {
-        case .overview: return "square.grid.2x2.fill"
-        case .workers: return "person.2.fill"
-        case .tasks: return "checklist"
-        case .goals: return "target"
-        case .trips: return "airplane"
-        case .essentials: return "cart.fill"
-        case .payroll: return "dollarsign.circle.fill"
-        case .announcements: return "megaphone.fill"
-        case .sizes: return "ruler.fill"
-        case .profile: return "person.crop.circle.fill"
-        }
-    }
-}
-
 struct AdminDashboardView: View {
     @StateObject private var viewModel = AdminViewModel()
     @EnvironmentObject var sessionManager: SessionManager

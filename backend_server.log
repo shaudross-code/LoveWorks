@@ -267,3 +267,4 @@ ERROR:    Traceback (most recent call last):
 pymongo.errors.ServerSelectionTimeoutError: No replica set members found yet, Timeout: 9.899020666s, Topology Description: <TopologyDescription id: 6aedee3ce101f3bad3076583, topology_type: ReplicaSetNoPrimary, servers: [<ServerDescription ('customer-apps-shard-00-00.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-01.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>, <ServerDescription ('customer-apps-shard-00-02.zeiu64.mongodb.net', 27017) server_type: Unknown, rtt: None>]>
 
 ERROR:    Application startup failed. Exiting.
+INFO:     Stopping reloader process [45379]
