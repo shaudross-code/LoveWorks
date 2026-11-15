@@ -70,13 +70,12 @@ self.addEventListener('push', (event) => {
     icon: '/icon-192.png',
     badge: '/badge-96.png',
     tag: isAlarm ? `alarm-${meta.alarm_id}` : (meta.task_id ? `task-${meta.task_id}` : undefined),
-    renotify: true,
     requireInteraction: isAlarm,
     data: { link: data.link || '/', meta },
     vibrate: isAlarm ? [400, 150, 400, 150, 400] : [120, 60, 120],
   };
 
-  event.waitUntil(self.registration.showNotification(data.title || 'iLoveWorks', options));
+  event.waitUntil(self.registration.showNotification(data.title || 'iLoveWorks', { ...options, renotify: !!options.tag }));
 });
 
 self.addEventListener('notificationclick', (event) => {

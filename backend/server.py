@@ -2095,11 +2095,15 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         update["completed_at"] = now_utc().isoformat()
     elif new_status and new_status != "completed" and was_done:
         update["completed_at"] = None  # unticking undoes only this tick
-    await db.tasks.update_one({"id": task_id}, {"$set": update})
-    updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
     if new_status == "completed" and not was_done:
-        await _record_completion(updated, update["completed_at"])
-    elif new_status and new_status != "completed" and was_done and task.get("completed_at"):
+        # Conditional write so two simultaneous ticks can't both record a completion
+        res = await db.tasks.update_one({"id": task_id, "status": {"$ne": "completed"}}, {"$set": update})
+        if res.modified_count:
+            await _record_completion({**task, **update}, update["completed_at"])
+    else:
+        await db.tasks.update_one({"id": task_id}, {"$set": update})
+    updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    if new_status and new_status != "completed" and was_done and task.get("completed_at"):
         await db.task_completions.delete_one({"task_id": task_id, "completed_at": task["completed_at"]})
     # --- Admin-edit notifications to worker(s) ---
     if user["role"] == "admin":
@@ -2187,8 +2191,8 @@ async def delete_task(task_id: str, admin: dict = Depends(require_admin)):
     res = await db.tasks.delete_one({"id": task_id, "assignee_id": {"$in": await _scoped_worker_ids(admin)}})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Task not found")
-    await db.task_completions.delete_many({"task_id": task_id})
-    await db.alarms.delete_many({"task_id": task_id})
+    # Completion history is kept so past pay and weekly counts survive; pending alarms are cancelled
+    await db.alarms.update_many({"task_id": task_id, "status": "scheduled"}, {"$set": {"status": "cancelled"}})
     return {"ok": True}
 
 

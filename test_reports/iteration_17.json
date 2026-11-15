@@ -1,0 +1,38 @@
+{
+  "summary": "Iteration 17: completion-event history + alarms (server-side, in-app ring, push status/iOS install path). Backend: new suite test_completions_alarms_iter17.py (11 tests) + existing test_completions_alarms.py (3 tests) = 14/14 pass. Checked: one task_completions row per tick, re-sending completed adds no second row, untick removes only the row with the current completed_at (a historic row survives), payroll counts both ticks and sums prices, daily/weekly/monthly rollover reopens tasks and keeps last_completed_at, awards endpoints OK. Alarms: create/list/cancel(soft)/snooze(+10m)/dismiss(done), validation 400 (past, bad date, bad source), 422 empty title, 401 no auth, 404 for another worker's task_id, user isolation (B gets 404 on cancel/snooze/dismiss and can't see A's alarms), fired >24h hidden, alarm_loop fires exactly once (no second notification after another tick), worker link /worker?alarm=id, admin link /admin?alarm=id, meta.kind=alarm. Frontend: all flows pass. Alarms panel and New dialog work, the task-row alarm icon prefills the title (time defaults to 30 min before due_time), the cancel button removes the alarm, and a past time shows the error toast. The in-app ring dialog appeared on time at the exact minute and Stop set the API status to done. The /worker?alarm=id deep link rings, strips the param, and Snooze reschedules +10 min. Spoofed iPhone UA shows Safari tab + ios-install-steps, no push-status-enable, and requestPermission is never called. Desktop with permission=default shows push-status-enable. /admin/profile has the Alarms panel and the /admin?alarm= deep link rings, so AlarmWatcher is mounted in the admin layout. Regression passed: the admin Workers weekly strip renders and tick/untick shows the '+$4.00 earned' toast.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "DELETE /api/tasks/{id}", "issue": "Deleting a task now also deletes all of its task_completions rows, so a repeating task's whole earnings and weekly history disappears from payroll and counters when an admin deletes it. Check that this is intended. Keeping the events (or soft-deleting the task) would keep payroll history."},
+      {"endpoint": "PATCH /api/tasks/{id}", "issue": "Possible race: two concurrent 'completed' PATCHes can both see was_done=False and write two events with different timestamps. The unique index only covers (task_id, completed_at). A conditional update_one({status != completed}) would close this. Low risk."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "PushPrompt banner on worker dashboard", "issue": "On an iPhone UA in a Safari tab (not standalone), the old 'Never miss a task deadline' banner with an 'Enable notifications' button still shows right above the new PushStatus card, which says to Add to Home Screen. Clicking it doesn't request permission (enablePush guard throws) and only shows an error toast, so the two messages conflict. Hide PushPrompt when needsHomeScreenInstall() is true. On real iOS Safari tabs PushManager may be undefined, so impact is likely low.", "selector": "[data-testid='push-prompt'] [data-testid='push-enable-btn']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "public/sw.js push handler (pre-existing)", "issues": ["renotify:true is set even when tag is undefined (non-alarm, non-task pushes such as test push, announcements, clock-out reminders). Chrome throws TypeError 'renotify flag cannot be set to true when tag is empty', so those notifications may silently not show. Alarm pushes always have a tag, so they are fine. Suggest renotify: !!tag."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_completions_alarms_iter17.py", "/app/backend/tests/test_completions_alarms.py", "/app/test_reports/pytest/pytest_iter17.xml"],
+  "action_items": [
+    "Hide PushPrompt (push-prompt) when needsHomeScreenInstall() so iPhone Safari users only see the Add to Home Screen steps",
+    "sw.js: set renotify only when a tag exists (renotify: !!options.tag)",
+    "Decide whether DELETE /api/tasks should wipe task_completions (it removes payroll history)",
+    "Existing backend/tests/test_completions_alarms.py::test_alarm_is_stored_and_fires leaves TEST_alarm rows (status cancelled) and their alarm notifications in the DB. Add cleanup."
+  ],
+  "critical_code_review_comments": [
+    "AlarmWatcher: closing the ring dialog with X, Esc or a click outside calls onStop, which dismisses the alarm permanently. Maybe make that snooze or keep it, but document it.",
+    "AlarmWatcher re-runs schedule() every 60s and on visibilitychange. An alarm still 'scheduled' within the last 60s (before the server's 15s tick flips it) can ring a second time. Harmless but could double-ring.",
+    "If the client dismisses before alarm_loop fires, status becomes done and no push or notification is sent (correct). fired_at stays null in that case.",
+    "server.py is ~3580 lines. Splitting it into routers (alarms, tasks, payroll) is recommended."
+  ],
+  "updated_files": ["/app/backend/tests/test_completions_alarms_iter17.py"],
+  "success_rate": {"backend": "100% (14/14)", "frontend": "100% of requested flows (1 low-priority UX conflict)"},
+  "seed_data_creation": "Created TEST_ tasks and alarms only. All of them were deleted by id: the UI task was deleted via the admin API, which also removed its alarm, and the pytest fixtures remove tasks, alarms and alarm notifications. Two pre-existing 'TEST_alarm' cancelled rows from the legacy test file remain; I didn't delete them because I couldn't tell them apart from other runs' rows.",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Run with export REACT_APP_BACKEND_URL from frontend/.env and use -p no:xdist (the tests poll background loops for up to ~75s). Headless Chromium reports Notification.permission='denied'. Override with add_init_script to simulate 'default' or an iPhone UA. lovetest has 0 tasks by default, so create one via admin POST /api/tasks to see alarm-task-<id>. datetime-local has minute precision: to test ringing, set the next minute while seconds are 5-25."
+}
