@@ -52,7 +52,12 @@ struct iLoveWorksApp: App {
                 }
             }
             .onChange(of: scenePhase) { _, phase in
-                if phase == .active { Task { await themeStore.refresh() } }
+                if phase == .active {
+                    Task {
+                        await themeStore.refresh()
+                        await AlarmStore.shared.sync()
+                    }
+                }
             }
         }
     }

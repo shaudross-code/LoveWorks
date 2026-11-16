@@ -195,6 +195,7 @@ struct WorkerDashboardMainView: View {
     @State private var showingNotifications = false
     @State private var showingPicker = false
     @State private var actionError: String?
+    @State private var alarmDraft: AlarmDraft?
 
     @StateObject private var speechManager = SpeechManager()
 
@@ -402,6 +403,8 @@ struct WorkerDashboardMainView: View {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.status == "in_progress" ? "assigned" : "in_progress") }
                                     }, onSpeak: { speak($0) }, onSaveAlarm: { alarm in 
                                         run { try await viewModel.updateTaskAlarm(taskId: task.id, alarmTime: alarm, taskTitle: task.title) }
+                                    }, onSpeak: { speak($0) }, onAlarm: {
+                                        alarmDraft = AlarmDraft(title: task.title, dueTime: task.dueTime, taskId: task.id)
                                     })
                                 }
                             }
@@ -436,6 +439,7 @@ struct WorkerDashboardMainView: View {
         .sheet(isPresented: $showingNotifications) {
             NotificationsView(notifications: viewModel.notifications) { viewModel.markNotificationsRead() }
         }
+        .sheet(item: $alarmDraft) { AlarmEditorView(draft: $0) }
     }
 
     private var deadlinesSection: some View {

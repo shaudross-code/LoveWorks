@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
 import { HolidayBadge } from "@/components/HolidayDecor";
+import AlarmWatcher from "@/components/AlarmWatcher";
 import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler } from "lucide-react";
 
 const items = [
@@ -122,6 +123,7 @@ export default function AdminLayout({ children }) {
           {children}
         </div>
       </main>
+      <AlarmWatcher />
     </div>
   );
 }

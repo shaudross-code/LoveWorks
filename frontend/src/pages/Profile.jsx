@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Camera, Loader2, Save, Trash2, User, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
-import { PushSettings } from "@/components/PushPrompt";
+import PushStatus from "@/components/PushStatus";
+import AlarmsPanel from "@/components/AlarmsPanel";
 import ThemeSettings from "@/components/ThemeSettings";
 
 export default function Profile() {
@@ -156,7 +157,7 @@ export default function Profile() {
             Get push pings 30 minutes before a task is due, plus instant alerts when admin assigns you a new task, goal, or announcement — even when iLoveWorks is closed.
           </div>
           <div className="mt-3">
-            <PushSettings />
+            {user?.role === "admin" ? <AlarmsPanel /> : <PushStatus />}
           </div>
         </div>
 

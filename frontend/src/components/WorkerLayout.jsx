@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
 import { HolidayBadge } from "@/components/HolidayDecor";
+import AlarmWatcher from "@/components/AlarmWatcher";
 import { Clock, History, LogOut, UserCircle2, Trophy, Megaphone, ShoppingBag, Plane, Heart, Ruler } from "lucide-react";
 
 const items = [
@@ -84,6 +85,7 @@ export default function WorkerLayout({ children }) {
         </div>
       </header>
       <main className="mx-auto max-w-5xl px-4 sm:px-8 py-6 sm:py-8 md:py-12">{children}</main>
+      <AlarmWatcher />
     </div>
   );
 }

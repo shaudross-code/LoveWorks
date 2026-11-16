@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { BellRing, BellOff, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { enablePush, disablePush, isPushSupported, pushPermission, registerServiceWorker } from "@/lib/push";
+import { enablePush, disablePush, isPushSupported, pushPermission, registerServiceWorker, needsHomeScreenInstall } from "@/lib/push";
 import { isNative, initNativePush, nativePushPermission, disableNativePush } from "@/lib/nativePush";
 
 const DISMISS_KEY = "cw_push_dismissed_at";
@@ -59,6 +59,7 @@ export default function PushPrompt() {
   };
 
   if (!supported) return null;
+  if (!isNative() && needsHomeScreenInstall()) return null; // the Alarms card shows Add-to-Home-Screen steps
   if (perm === "granted") return null;
   if (perm === "denied") return null;
   if (perm === "dismissed") return null;

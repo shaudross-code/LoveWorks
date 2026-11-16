@@ -374,7 +374,7 @@ async def _scoped_worker_ids(user: dict) -> list:
 
 
 # --- Notification & award helpers ---
-async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None) -> dict:
+async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None, native: bool = True) -> dict:
     doc = {
         "id": str(uuid.uuid4()),
         "user_id": user_id,
@@ -394,10 +394,11 @@ async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Opt
     except Exception as e:
         logger.warning(f"web push failed for {user_id}: {e}")
     # Fire-and-forget native push (Capacitor iOS/Android via FCM)
-    try:
-        await send_native_push(user_id, title, body or "", link=link)
-    except Exception as e:
-        logger.warning(f"native push failed for {user_id}: {e}")
+    if native:
+        try:
+            await send_native_push(user_id, title, body or "", link=link)
+        except Exception as e:
+            logger.warning(f"native push failed for {user_id}: {e}")
     return doc
 
 
@@ -488,7 +489,7 @@ async def grant_award(user_id: str, code: str) -> Optional[dict]:
 
 
 async def evaluate_task_count_awards(user_id: str):
-    count = await db.tasks.count_documents({"assignee_id": user_id, "status": "completed"})
+    count = await db.task_completions.count_documents({"worker_id": user_id})
     for threshold, code in TASK_AWARD_THRESHOLDS:
         if count >= threshold:
             await grant_award(user_id, code)
@@ -689,6 +690,8 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
         raise HTTPException(status_code=401, detail="Incorrect password")
     uid = user["id"]
     await db.tasks.delete_many({"assignee_id": uid})
+    await db.task_completions.delete_many({"worker_id": uid})
+    await db.alarms.delete_many({"user_id": uid})
     await db.time_entries.delete_many({"user_id": uid})
     await db.goals.delete_many({"owner_id": uid})
     await db.goals.update_many({"collaborator_ids": uid}, {"$pull": {"collaborator_ids": uid}})
@@ -901,15 +904,48 @@ def _start_of_year(dt: datetime) -> datetime:
     return _start_of_day(dt).replace(month=1, day=1)
 
 
+# --- Task completion events: one row per tick, so history survives repeats and daily resets ---
+async def _record_completion(task: dict, completed_at: str) -> None:
+    await db.task_completions.update_one(
+        {"task_id": task["id"], "completed_at": completed_at},
+        {"$setOnInsert": {
+            "id": str(uuid.uuid4()), "task_id": task["id"], "worker_id": task["assignee_id"],
+            "completed_at": completed_at, "title": task.get("title", ""),
+            "price": float(task.get("price") or 0), "frequency": task.get("frequency") or "once",
+        }},
+        upsert=True,
+    )
+
+
+async def _completion_events(worker_ids: list, since_iso: Optional[str] = None) -> list:
+    q: dict = {"worker_id": {"$in": worker_ids}}
+    if since_iso:
+        q["completed_at"] = {"$gte": since_iso}
+    docs = await db.task_completions.find(q, {"_id": 0}).to_list(100000)
+    for d in docs:
+        d["assignee_id"] = d["worker_id"]
+    return docs
+
+
+async def _rollover_recurring_tasks(now: datetime) -> int:
+    """Reopen repeating tasks once their period has passed (the completion event stays)."""
+    starts = {"daily": _start_of_day(now), "weekly": _start_of_week(now), "monthly": _start_of_month(now)}
+    n = 0
+    for freq, start in starts.items():
+        res = await db.tasks.update_many(
+            {"status": "completed", "frequency": freq, "completed_at": {"$lt": iso_utc(start)}},
+            [{"$set": {"status": "assigned", "last_completed_at": "$completed_at", "completed_at": None}}],
+        )
+        n += res.modified_count
+    return n
+
+
 async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
     """Return {user_id: {'today': X, 'week': X, 'year': X}} sums of completed task prices."""
     if not user_ids:
         return {}
     year_start = iso_utc(_start_of_year(ref))
-    tasks = await db.tasks.find(
-        {"assignee_id": {"$in": user_ids}, "status": "completed", "completed_at": {"$gte": year_start}},
-        {"_id": 0, "assignee_id": 1, "price": 1, "completed_at": 1},
-    ).to_list(50000)
+    tasks = await _completion_events(user_ids, year_start)
     today_s = _start_of_day(ref)
     week_s = _start_of_week(ref)
     month_s = _start_of_month(ref)
@@ -1544,6 +1580,8 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Worker not found")
     await db.tasks.delete_many({"assignee_id": worker_id})
+    await db.task_completions.delete_many({"worker_id": worker_id})
+    await db.alarms.delete_many({"user_id": worker_id})
     await db.time_entries.delete_many({"user_id": worker_id})
     await db.sizes.delete_many({"user_id": worker_id})
     await db.files.update_many({"user_id": worker_id}, {"$set": {"is_deleted": True}})
@@ -2019,8 +2057,6 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
         if req.status not in ("in_progress", "completed", "assigned"):
             raise HTTPException(status_code=400, detail="Workers may only update status")
         update["status"] = req.status
-        if req.status == "completed":
-            update["completed_at"] = now_utc().isoformat()
     else:
         if req.title is not None:
             update["title"] = req.title
@@ -2036,8 +2072,6 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
             if req.status not in ("assigned", "in_progress", "completed"):
                 raise HTTPException(status_code=400, detail="Invalid status")
             update["status"] = req.status
-            if req.status == "completed":
-                update["completed_at"] = now_utc().isoformat()
         if req.due_at is not None:
             update["due_at"] = _parse_deadline(req.due_at) if req.due_at else None
         if req.due_time is not None:
@@ -2055,8 +2089,22 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
             update["payout_schedule"] = _validate_payout(req.payout_schedule)
     if not update:
         raise HTTPException(status_code=400, detail="No fields to update")
-    await db.tasks.update_one({"id": task_id}, {"$set": update})
+    was_done = task.get("status") == "completed"
+    new_status = update.get("status")
+    if new_status == "completed" and not was_done:
+        update["completed_at"] = now_utc().isoformat()
+    elif new_status and new_status != "completed" and was_done:
+        update["completed_at"] = None  # unticking undoes only this tick
+    if new_status == "completed" and not was_done:
+        # Conditional write so two simultaneous ticks can't both record a completion
+        res = await db.tasks.update_one({"id": task_id, "status": {"$ne": "completed"}}, {"$set": update})
+        if res.modified_count:
+            await _record_completion({**task, **update}, update["completed_at"])
+    else:
+        await db.tasks.update_one({"id": task_id}, {"$set": update})
     updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
+    if new_status and new_status != "completed" and was_done and task.get("completed_at"):
+        await db.task_completions.delete_one({"task_id": task_id, "completed_at": task["completed_at"]})
     # --- Admin-edit notifications to worker(s) ---
     if user["role"] == "admin":
         # Build a single composite message rather than spamming many notifications
@@ -2143,6 +2191,8 @@ async def delete_task(task_id: str, admin: dict = Depends(require_admin)):
     res = await db.tasks.delete_one({"id": task_id, "assignee_id": {"$in": await _scoped_worker_ids(admin)}})
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Task not found")
+    # Completion history is kept so past pay and weekly counts survive; pending alarms are cancelled
+    await db.alarms.update_many({"task_id": task_id, "status": "scheduled"}, {"$set": {"status": "cancelled"}})
     return {"ok": True}
 
 
@@ -2258,10 +2308,7 @@ async def payroll(admin: dict = Depends(require_admin)):
         return []
 
     # Batch fetch: completed tasks + all time entries (only the fields we need)
-    tasks_done = await db.tasks.find(
-        {"assignee_id": {"$in": worker_ids}, "status": "completed"},
-        {"_id": 0, "assignee_id": 1, "price": 1},
-    ).to_list(10000)
+    tasks_done = await _completion_events(worker_ids)
     time_entries = await db.time_entries.find(
         {"user_id": {"$in": worker_ids}},
         {"_id": 0, "user_id": 1, "clock_out": 1, "duration_seconds": 1},
@@ -2337,10 +2384,7 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
     ).to_list(10000)
 
     # Completed this week, for per-weekday counts
-    completed_week = await db.tasks.find(
-        {"assignee_id": {"$in": worker_ids}, "status": "completed", "completed_at": {"$gte": week_start_q}},
-        {"_id": 0, "assignee_id": 1, "completed_at": 1, "title": 1, "price": 1},
-    ).to_list(10000)
+    completed_week = await _completion_events(worker_ids, week_start_q)
     completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
     for t in completed_week:
         try:
@@ -2592,10 +2636,7 @@ async def my_weekly_activity(user: dict = Depends(get_current_user)):
     week_start_q = iso_utc(week_start)
     uid = user["id"]
 
-    completed = await db.tasks.find(
-        {"assignee_id": uid, "status": "completed", "completed_at": {"$gte": week_start_q}},
-        {"_id": 0, "completed_at": 1, "title": 1, "price": 1},
-    ).to_list(2000)
+    completed = await _completion_events([uid], week_start_q)
     entries = await db.time_entries.find(
         {"user_id": uid, "clock_in": {"$gte": week_start_q}},
         {"_id": 0, "clock_in": 1, "clock_out": 1},
@@ -2958,10 +2999,7 @@ async def peer_overview(target_id: str, user: dict = Depends(get_current_user)):
     now = now_utc()
     week_start = _start_of_week(now)
     week_start_q = iso_utc(week_start)
-    completed = await db.tasks.find(
-        {"assignee_id": target_id, "status": "completed", "completed_at": {"$gte": week_start_q}},
-        {"_id": 0, "completed_at": 1, "title": 1, "price": 1},
-    ).to_list(2000)
+    completed = await _completion_events([target_id], week_start_q)
     entries = await db.time_entries.find(
         {"user_id": target_id, "clock_in": {"$gte": week_start_q}}, {"_id": 0},
     ).to_list(2000)
@@ -3122,6 +3160,7 @@ async def reminder_loop():
             now = now_utc()
             now_l = now.astimezone(APP_TZ)
             today_iso = now_l.date().isoformat()
+            await _rollover_recurring_tasks(now)
             cursor = db.tasks.find(
                 {"status": {"$ne": "completed"}, "due_time": {"$ne": None}},
                 {"_id": 0},
@@ -3211,6 +3250,126 @@ async def reminder_loop():
 _reminder_task_ref = {"task": None}
 
 
+# --- Alarms: user-set reminders. Web gets a server push at fire time; the iOS app rings locally ---
+ALARM_LOOP_SECONDS = 15
+_alarm_task_ref = {"task": None}
+
+
+class AlarmCreate(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
+    fire_at: str
+    task_id: Optional[str] = None
+    note: Optional[str] = Field(default=None, max_length=300)
+    source: str = "web"  # "web" | "ios"
+
+
+class AlarmSnooze(BaseModel):
+    minutes: int = Field(default=10, ge=1, le=240)
+
+
+def _parse_fire_at(raw: str) -> datetime:
+    try:
+        dt = datetime.fromisoformat(raw.strip().replace("Z", "+00:00"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="fire_at must be an ISO date-time, e.g. 2026-11-08T07:30:00-06:00")
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=APP_TZ)
+    return dt.astimezone(timezone.utc)
+
+
+def _alarm_out(a: dict) -> dict:
+    return {k: a.get(k) for k in ("id", "title", "note", "task_id", "fire_at", "status", "source", "created_at", "fired_at")}
+
+
+async def _own_alarm(alarm_id: str, user: dict) -> dict:
+    a = await db.alarms.find_one({"id": alarm_id, "user_id": user["id"]}, {"_id": 0})
+    if not a:
+        raise HTTPException(status_code=404, detail="Alarm not found")
+    return a
+
+
+@api_router.post("/alarms")
+async def create_alarm(req: AlarmCreate, user: dict = Depends(get_current_user)):
+    fire = _parse_fire_at(req.fire_at)
+    now = now_utc()
+    if fire < now - timedelta(seconds=60):
+        raise HTTPException(status_code=400, detail="That time has already passed.")
+    if fire > now + timedelta(days=366):
+        raise HTTPException(status_code=400, detail="Alarms can be set up to a year ahead.")
+    if req.source not in ("web", "ios"):
+        raise HTTPException(status_code=400, detail="source must be web or ios")
+    if req.task_id:
+        task = await db.tasks.find_one({"id": req.task_id}, {"_id": 0, "assignee_id": 1})
+        allowed = task and (task["assignee_id"] == user["id"] or (user["role"] == "admin" and task["assignee_id"] in await _scoped_worker_ids(user)))
+        if not allowed:
+            raise HTTPException(status_code=404, detail="Task not found")
+    doc = {
+        "id": str(uuid.uuid4()), "user_id": user["id"], "title": req.title.strip(),
+        "note": (req.note or "").strip() or None, "task_id": req.task_id, "fire_at": iso_utc(fire),
+        "source": req.source, "status": "scheduled", "created_at": now.isoformat(), "fired_at": None,
+    }
+    await db.alarms.insert_one(doc)
+    return _alarm_out(doc)
+
+
+@api_router.get("/alarms")
+async def list_alarms(user: dict = Depends(get_current_user)):
+    since = iso_utc(now_utc() - timedelta(hours=24))
+    docs = await db.alarms.find(
+        {"user_id": user["id"], "$or": [{"status": "scheduled"}, {"status": "fired", "fire_at": {"$gte": since}}]},
+        {"_id": 0},
+    ).sort("fire_at", 1).to_list(200)
+    return [_alarm_out(a) for a in docs]
+
+
+@api_router.delete("/alarms/{alarm_id}")
+async def cancel_alarm(alarm_id: str, user: dict = Depends(get_current_user)):
+    await _own_alarm(alarm_id, user)
+    await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "cancelled"}})
+    return {"ok": True}
+
+
+@api_router.post("/alarms/{alarm_id}/snooze")
+async def snooze_alarm(alarm_id: str, req: AlarmSnooze, user: dict = Depends(get_current_user)):
+    await _own_alarm(alarm_id, user)
+    fire = iso_utc(now_utc() + timedelta(minutes=req.minutes))
+    await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "scheduled", "fire_at": fire, "fired_at": None}})
+    return _alarm_out(await _own_alarm(alarm_id, user))
+
+
+@api_router.post("/alarms/{alarm_id}/dismiss")
+async def dismiss_alarm(alarm_id: str, user: dict = Depends(get_current_user)):
+    await _own_alarm(alarm_id, user)
+    await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "done"}})
+    return {"ok": True}
+
+
+async def _fire_alarm(a: dict) -> None:
+    u = await db.users.find_one({"id": a["user_id"]}, {"_id": 0, "role": 1})
+    base = "/admin" if (u or {}).get("role") == "admin" else "/worker"
+    # native=False: the iOS app already rings from its own local schedule, so no duplicate FCM ping
+    await notify(
+        a["user_id"], "alarm", f"⏰ {a['title']}", a.get("note") or "Your alarm is ringing.",
+        link=f"{base}?alarm={a['id']}", meta={"kind": "alarm", "alarm_id": a["id"], "task_id": a.get("task_id")},
+        native=False,
+    )
+
+
+async def alarm_loop():
+    await asyncio.sleep(5)
+    while True:
+        try:
+            now_q = iso_utc(now_utc())
+            due = await db.alarms.find({"status": "scheduled", "fire_at": {"$lte": now_q}}, {"_id": 0}).to_list(200)
+            for a in due:
+                res = await db.alarms.update_one({"id": a["id"], "status": "scheduled"}, {"$set": {"status": "fired", "fired_at": now_q}})
+                if res.modified_count:
+                    await _fire_alarm(a)
+        except Exception as e:
+            logger.error(f"alarm_loop tick error: {e}")
+        await asyncio.sleep(ALARM_LOOP_SECONDS)
+
+
 # --- Health ---
 @api_router.get("/")
 async def root():
@@ -3265,6 +3424,14 @@ async def startup():
     await db.peer_access.create_index([("requester_id", 1), ("target_id", 1)], unique=True)
     await db.peer_access.create_index([("target_id", 1), ("status", 1)])
     await db.sizes.create_index("user_id", unique=True)
+    await db.task_completions.create_index([("task_id", 1), ("completed_at", 1)], unique=True)
+    await db.task_completions.create_index([("worker_id", 1), ("completed_at", 1)])
+    await db.alarms.create_index([("status", 1), ("fire_at", 1)])
+    await db.alarms.create_index([("user_id", 1), ("fire_at", 1)])
+    # Backfill completion events from tasks that are completed today (idempotent)
+    async for t in db.tasks.find({"status": "completed", "completed_at": {"$ne": None}}, {"_id": 0}):
+        if t.get("assignee_id"):
+            await _record_completion(t, t["completed_at"])
     # init object storage
     try:
         init_storage()
@@ -3405,6 +3572,9 @@ async def startup():
     if _reminder_task_ref.get("task") is None or _reminder_task_ref["task"].done():
         _reminder_task_ref["task"] = asyncio.create_task(reminder_loop())
         logger.info(f"Reminder loop started (lead={REMINDER_LEAD_MINUTES}min, tick={REMINDER_LOOP_SECONDS}s)")
+    if _alarm_task_ref.get("task") is None or _alarm_task_ref["task"].done():
+        _alarm_task_ref["task"] = asyncio.create_task(alarm_loop())
+        logger.info(f"Alarm loop started (tick={ALARM_LOOP_SECONDS}s)")
 
 
 @app.on_event("shutdown")

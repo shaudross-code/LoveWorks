@@ -1382,6 +1382,50 @@ struct AddGoalView: View {
     }
 }
 
+struct AdminMoreView: View {
+    @ObservedObject var viewModel: AdminViewModel
+    @EnvironmentObject var sessionManager: SessionManager
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Theme.background.ignoresSafeArea()
+                
+                List {
+                    Section {
+                        NavigationLink(destination: AdminTripsView(viewModel: viewModel)) {
+                            Label("Trips", systemImage: "airplane")
+                        }
+                        NavigationLink(destination: AdminPayrollView(viewModel: viewModel)) {
+                            Label("Payroll", systemImage: "dollarsign.circle.fill")
+                        }
+                        NavigationLink(destination: AdminAnnouncementsView(viewModel: viewModel)) {
+                            Label("Announcements", systemImage: "megaphone.fill")
+                        }
+                        NavigationLink(destination: AlarmsView()) {
+                            Label("Alarms", systemImage: "alarm.fill")
+                        }
+                    } header: {
+                        Text("Management")
+                    }
+                    .listRowBackground(Theme.surface)
+                    
+                    Section {
+                        Button(action: { sessionManager.logout() }) {
+                            Label("Log Out", systemImage: "power")
+                                .foregroundStyle(Theme.danger)
+                        }
+                    } header: {
+                        Text("Account")
+                    }
+                    .listRowBackground(Theme.surface)
+                }
+                .scrollContentBackground(.hidden)
+            }
+            .navigationTitle("More")
+        }
+    }
+}
 
 struct AdminTripsView: View {
     @ObservedObject var viewModel: AdminViewModel

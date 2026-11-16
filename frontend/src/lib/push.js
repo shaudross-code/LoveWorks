@@ -24,6 +24,26 @@ export function pushPermission() {
   return Notification.permission; // "default" | "granted" | "denied"
 }
 
+export function isIOS() {
+  const ua = navigator.userAgent || "";
+  return /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+export function isStandalone() {
+  return window.navigator.standalone === true || !!window.matchMedia?.("(display-mode: standalone)").matches;
+}
+
+// iPhone Safari only allows web push from an app opened from the Home Screen.
+export function needsHomeScreenInstall() {
+  return isIOS() && !isStandalone();
+}
+
+export async function currentSubscription() {
+  if (!isPushSupported()) return null;
+  const reg = await navigator.serviceWorker.getRegistration();
+  return reg ? reg.pushManager.getSubscription() : null;
+}
+
 export async function registerServiceWorker() {
   if (!isPushSupported()) return null;
   try {
@@ -35,6 +55,7 @@ export async function registerServiceWorker() {
 }
 
 export async function enablePush() {
+  if (needsHomeScreenInstall()) throw new Error("On iPhone, add iLoveWorks to your Home Screen first, then open it from the new icon.");
   if (!isPushSupported()) throw new Error("Push notifications aren't supported on this browser.");
   const perm = await Notification.requestPermission();
   if (perm !== "granted") throw new Error("Notifications were blocked.");

@@ -44,6 +44,7 @@ final class PushManager: ObservableObject {
         if FirebaseApp.app() == nil { FirebaseApp.configure() }
         #endif
         UNUserNotificationCenter.current().delegate = notificationDelegate
+        AlarmScheduler.registerCategory()
         #if canImport(FirebaseMessaging)
         Messaging.messaging().delegate = notificationDelegate
         #endif
@@ -185,7 +186,19 @@ nonisolated final class PushNotificationDelegate: NSObject, UNUserNotificationCe
     }
 
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse) async {
+        let category = response.notification.request.content.categoryIdentifier
+        let alarmId = response.notification.request.content.userInfo["alarm_id"] as? String
+        let action = response.actionIdentifier
         Task { @MainActor in
+            // Alarm alerts: Snooze re-rings in 10 min; Stop, a tap, or swiping it away ends it.
+            if category == "ILW_ALARM", let alarmId {
+                if action == "ILW_ALARM_SNOOZE" {
+                    await AlarmStore.shared.snooze(id: alarmId)
+                } else {
+                    await AlarmStore.shared.stop(id: alarmId)
+                }
+                return
+            }
             await ThemeStore.shared.refresh()
             NotificationCenter.default.post(name: .pushOpened, object: nil)
         }
