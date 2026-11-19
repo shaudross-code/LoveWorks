@@ -99,7 +99,10 @@ final class PushManager: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = .default
+        // Use custom alarm sound instead of default
+        content.sound = UNNotificationSound(named: UNNotificationSoundName(rawValue: "alarm.wav"))
+        content.categoryIdentifier = "ILW_ALARM"
+        content.userInfo = ["alarm_id": id]
         
         // Parse "HH:mm" or "HH:mm a"
         let cleanTime = timeString.replacingOccurrences(of: " AM", with: "").replacingOccurrences(of: " PM", with: "").replacingOccurrences(of: " am", with: "").replacingOccurrences(of: " pm", with: "")
@@ -145,11 +148,9 @@ final class PushManager: ObservableObject {
         #if canImport(FirebaseMessaging)
         Task {
             do {
-                if let token = try await Messaging.messaging().token() as String? {
-                    await MainActor.run { self.didReceive(fcmToken: token) }
-                }
+                try await Messaging.messaging().register()
             } catch {
-                print("Failed to get FCM token: \(error)")
+                print("Failed to register with FCM: \(error)")
             }
         }
         #endif
@@ -200,7 +201,6 @@ nonisolated final class PushNotificationDelegate: NSObject, UNUserNotificationCe
                 return
             }
             await ThemeStore.shared.refresh()
-            NotificationCenter.default.post(name: .pushOpened, object: nil)
         }
     }
 }
@@ -208,37 +208,10 @@ nonisolated final class PushNotificationDelegate: NSObject, UNUserNotificationCe
 #if canImport(FirebaseMessaging)
 extension PushNotificationDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken else { return }
-        Task { @MainActor in PushManager.shared.didReceive(fcmToken: fcmToken) }
-    }
-}
-#endif
-
-extension Notification.Name {
-    static let pushOpened = Notification.Name("iLoveWorksPushOpened")
-}
-
-#if canImport(UIKit)
-final class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        PushManager.shared.configure()
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default, options: [.mixWithOthers, .duckOthers])
-            try AVAudioSession.sharedInstance().setActive(true, options: .notifyOthersOnDeactivation)
-        } catch {
-            print("Failed to set audio session category: \(error)")
+        guard let t = fcmToken else { return }
+        Task { @MainActor in
+            PushManager.shared.didReceive(fcmToken: t)
         }
-        return true
-    }
-
-    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        #if canImport(FirebaseMessaging)
-        Messaging.messaging().apnsToken = deviceToken
-        #endif
-    }
-
-    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("APNs registration failed: \(error.localizedDescription)")
     }
 }
 #endif

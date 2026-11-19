@@ -405,7 +405,9 @@ struct AdminWorkersView: View {
                 }
             }
 #if os(iOS)
-            .navigationBarHidden(true)
+            #if os(iOS)
+         .navigationBarHidden(true)
+#endif
 #endif
             .sheet(item: $editingWorker) { worker in
                 EditWorkerModal(worker: worker, viewModel: viewModel)
@@ -857,7 +859,9 @@ struct AdminTasksView: View {
                 }
             }
 #if os(iOS)
-            .navigationBarHidden(true)
+            #if os(iOS)
+         .navigationBarHidden(true)
+#endif
 #endif
             .sheet(item: $editingTask) { task in
                 EditTaskModal(task: task, viewModel: viewModel)
@@ -1053,7 +1057,9 @@ struct AdminGoalsView: View {
                 }
             }
 #if os(iOS)
-            .navigationBarHidden(true)
+            #if os(iOS)
+         .navigationBarHidden(true)
+#endif
 #endif
             .sheet(item: $editingGoal) { goal in
                 EditGoalModal(goal: goal, isTrip: false, viewModel: viewModel)
@@ -1112,7 +1118,9 @@ struct AdminEssentialsView: View {
                 }
             }
 #if os(iOS)
-            .navigationBarHidden(true)
+            #if os(iOS)
+         .navigationBarHidden(true)
+#endif
 #endif
             .sheet(isPresented: $showingAdd) {
                 AddEssentialView(viewModel: viewModel)
@@ -1751,7 +1759,9 @@ struct AdminSettingsView: View {
                 .padding()
             }
         }
-        .navigationBarHidden(true)
+        #if os(iOS)
+         .navigationBarHidden(true)
+#endif
     }
 }
 
@@ -1843,8 +1853,11 @@ struct EditWorkerModal: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Theme.textMuted)
                             TextField("Email", text: $email)
-                                .textInputAutocapitalization(.never)
+                                .emailField()
+
+#if os(iOS)
                                 .keyboardType(.emailAddress)
+#endif
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)
@@ -2037,7 +2050,10 @@ struct EditTaskModal: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Theme.textMuted)
                             TextField("0.00", text: $price)
-                                .keyboardType(.decimalPad)
+                                
+#if os(iOS)
+.keyboardType(.decimalPad)
+#endif
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)
@@ -2242,7 +2258,10 @@ struct EditGoalModal: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Theme.textMuted)
                             TextField("0.00", text: $targetAmount)
-                                .keyboardType(.decimalPad)
+                                
+#if os(iOS)
+.keyboardType(.decimalPad)
+#endif
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)
@@ -2255,8 +2274,11 @@ struct EditGoalModal: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Theme.textMuted)
                             TextField("https://...", text: $productLink)
-                                .textInputAutocapitalization(.never)
+                                .emailField()
+
+#if os(iOS)
                                 .keyboardType(.URL)
+#endif
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)
@@ -2269,8 +2291,11 @@ struct EditGoalModal: View {
                                 .font(.system(size: 10, weight: .bold))
                                 .foregroundStyle(Theme.textMuted)
                             TextField("https://...", text: $imageUrl)
-                                .textInputAutocapitalization(.never)
+                                .emailField()
+
+#if os(iOS)
                                 .keyboardType(.URL)
+#endif
                                 .padding()
                                 .background(Theme.surface)
                                 .cornerRadius(12)

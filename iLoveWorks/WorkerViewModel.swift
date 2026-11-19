@@ -5,6 +5,7 @@
 
 import SwiftUI
 import Combine
+import CoreLocation
 
 class WorkerViewModel: ObservableObject {
     @Published var activeEntries: [TimeEntry] = []
@@ -36,6 +37,7 @@ class WorkerViewModel: ObservableObject {
     }
 
     func refresh() async {
+        APIClient.shared.bustCache()
         let api = APIClient.shared
         async let active: [TimeEntry]? = try? await api.request("/time/active")
         async let fetchedTasks: [TaskItem]? = try? await api.request("/tasks")

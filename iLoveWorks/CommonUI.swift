@@ -645,7 +645,7 @@ extension View {
 
     func emailField() -> some View {
         #if os(iOS)
-        return self.keyboardType(.emailAddress).textInputAutocapitalization(.never).autocorrectionDisabled()
+        return self.keyboardType(.emailAddress).autocapitalization(.none).disableAutocorrection(true)
         #else
         return self.autocorrectionDisabled()
         #endif

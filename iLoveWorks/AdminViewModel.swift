@@ -30,6 +30,7 @@ class AdminViewModel: ObservableObject {
     }
 
     func refreshDashboard() async {
+        APIClient.shared.bustCache()
         let api = APIClient.shared
         async let w: [User]? = try? await api.request("/workers")
         async let t: [TaskItem]? = try? await api.request("/tasks")

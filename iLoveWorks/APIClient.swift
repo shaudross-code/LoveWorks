@@ -102,6 +102,13 @@ final class APIClient {
         return String(data: data, encoding: .utf8)
     }
 
+    var cacheBuster = Int(Date().timeIntervalSince1970)
+
+    func bustCache() {
+        cacheBuster = Int(Date().timeIntervalSince1970)
+        URLCache.shared.removeAllCachedResponses()
+    }
+
     /// Absolute URL for /api/files/… paths (adds ?auth= so AsyncImage can load protected files).
     func fullURL(for path: String) -> String {
         if path.hasPrefix("http") { return path }
@@ -109,6 +116,7 @@ final class APIClient {
         if let token = token {
             full += (full.contains("?") ? "&" : "?") + "auth=\(token)"
         }
+        full += (full.contains("?") ? "&" : "?") + "cb=\(cacheBuster)"
         return full
     }
 }

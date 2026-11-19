@@ -100,7 +100,7 @@ struct WorkerDashboardView: View {
                         // Notifications & Logout
                         HStack(spacing: 16) {
                             Button(action: {
-                                Task { await sessionManager.logout() }
+                                sessionManager.logout()
                             }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "rectangle.portrait.and.arrow.right")
@@ -184,7 +184,7 @@ struct WorkerDashboardView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .pushOpened)) { _ in viewModel.loadData() }
+        .onReceive(NotificationCenter.default.publisher(for: Notification.Name("pushOpened"))) { _ in viewModel.loadData() }
     }
 }
 
@@ -403,7 +403,7 @@ struct WorkerDashboardMainView: View {
                                         run { try await viewModel.updateTaskStatus(taskId: task.id, status: task.status == "in_progress" ? "assigned" : "in_progress") }
                                     }, onSpeak: { speak($0) }, onSaveAlarm: { alarm in 
                                         run { try await viewModel.updateTaskAlarm(taskId: task.id, alarmTime: alarm, taskTitle: task.title) }
-                                    }, onSpeak: { speak($0) }, onAlarm: {
+                                    }, onAlarm: {
                                         alarmDraft = AlarmDraft(title: task.title, dueTime: task.dueTime, taskId: task.id)
                                     })
                                 }
