@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		7847BE6DB7FFFE318C00189D /* alarm.wav in Resources */ = {isa = PBXBuildFile; fileRef = E30ECC01A98F1C7A949E2A92 /* alarm.wav */; };
 		CE9F9B82300B846700BB12BB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9F9B81300B846700BB12BB /* FirebaseMessaging */; };
 /* End PBXBuildFile section */
 
@@ -31,6 +32,7 @@
 		CE9F9B49300B846500BB12BB /* iLoveWorks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iLoveWorks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E30ECC01A98F1C7A949E2A92 /* alarm.wav */ = {isa = PBXFileReference; includeInIndex = 1; name = alarm.wav; path = iLoveWorks/Sounds/alarm.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -54,11 +56,15 @@
 		};
 		CE9F9B5B300B846700BB12BB /* iLoveWorksTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = iLoveWorksTests;
 			sourceTree = "<group>";
 		};
 		CE9F9B65300B846700BB12BB /* iLoveWorksUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+			);
 			path = iLoveWorksUITests;
 			sourceTree = "<group>";
 		};
@@ -97,6 +103,7 @@
 				CE9F9B5B300B846700BB12BB /* iLoveWorksTests */,
 				CE9F9B65300B846700BB12BB /* iLoveWorksUITests */,
 				CE9F9B4A300B846500BB12BB /* Products */,
+				E30ECC01A98F1C7A949E2A92 /* alarm.wav */,
 			);
 			sourceTree = "<group>";
 		};
@@ -153,8 +160,6 @@
 				CE9F9B5B300B846700BB12BB /* iLoveWorksTests */,
 			);
 			name = iLoveWorksTests;
-			packageProductDependencies = (
-			);
 			productName = iLoveWorksTests;
 			productReference = CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -176,8 +181,6 @@
 				CE9F9B65300B846700BB12BB /* iLoveWorksUITests */,
 			);
 			name = iLoveWorksUITests;
-			packageProductDependencies = (
-			);
 			productName = iLoveWorksUITests;
 			productReference = CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -234,6 +237,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7847BE6DB7FFFE318C00189D /* alarm.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
