@@ -331,7 +331,8 @@ class TaskUpdate(BaseModel):
 
 
 class ClockInRequest(BaseModel):
-    activity: Optional[str] = "working"  # working | studying | break | cleaning | workout | parenting
+    activity: Optional[str] = "working"  # clocked_in | working | studying | break | cleaning | workout | parenting | self_care
+    source: Optional[str] = None  # "ios" = native app (starts its own lock-screen timer)
 
 
 class AnnouncementCreate(BaseModel):
@@ -1919,7 +1920,9 @@ async def set_theme(req: ThemeUpdate, admin: dict = Depends(require_admin)):
 
 
 # --- Tasks ---
-VALID_ACTIVITIES = {"working", "studying", "break", "cleaning", "workout", "parenting", "self_care"}
+VALID_ACTIVITIES = {"clocked_in", "working", "studying", "break", "cleaning", "workout", "parenting", "self_care"}
+ACTIVITY_LABELS = {"clocked_in": "Clocked In", "working": "Working", "studying": "Studying", "break": "Break", "cleaning": "Cleaning",
+                   "workout": "Workout", "parenting": "Parenting", "self_care": "Self Care"}
 VALID_FREQUENCIES = {"once", "daily", "weekly", "monthly"}
 VALID_PAYOUTS = {"per_task", "daily", "weekly", "monthly"}
 
@@ -2222,6 +2225,8 @@ async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(
     entry.pop("_id", None)
     # Evaluate streak awards
     await evaluate_clockin_streak(user["id"])
+    if req.source != "ios":
+        await _sync_live_activity(user)
     return entry
 
 
@@ -2230,6 +2235,7 @@ async def clock_out(
     user: dict = Depends(get_current_user),
     activity: Optional[str] = Query(default=None, description="If set, close only this activity's clock. Default: close all active clocks."),
     entry_id: Optional[str] = Query(default=None, description="If set, close only this specific entry."),
+    source: Optional[str] = Query(default=None, description='"ios" when the native app ends its own lock-screen timer'),
 ):
     query: dict = {"user_id": user["id"], "clock_out": None}
     if entry_id:
@@ -2271,6 +2277,8 @@ async def clock_out(
                 )
         except Exception as e:
             logger.warning(f"clock-out admin notify failed: {e}")
+    if source != "ios":
+        await _sync_live_activity(user)
     # Return single entry shape if exactly one was closed (backward compatible),
     # else return the list.
     if len(closed) == 1:
@@ -3117,6 +3125,97 @@ async def push_unregister_device(req: DeviceTokenRequest, user: dict = Depends(g
     return {"ok": True}
 
 
+# --- Lock-screen clock-in timer (iOS Live Activity) driven from the server via FCM ---
+class LiveActivityTokenRequest(BaseModel):
+    fcm_token: str
+    start_token: Optional[str] = None  # push-to-start token (lets the server open the timer)
+    activity_token: Optional[str] = None  # per-timer token (lets the server update/end it)
+    entry_id: Optional[str] = None
+
+
+@api_router.post("/push/live-activity")
+async def push_live_activity_token(req: LiveActivityTokenRequest, user: dict = Depends(get_current_user)):
+    now = now_utc().isoformat()
+    if req.start_token:
+        await db.device_tokens.update_one(
+            {"token": req.fcm_token, "user_id": user["id"]},
+            {"$set": {"la_start_token": req.start_token, "updated_at": now}},
+        )
+    if req.activity_token and req.entry_id:
+        await db.live_activities.update_one(
+            {"entry_id": req.entry_id, "fcm_token": req.fcm_token},
+            {"$set": {"user_id": user["id"], "activity_token": req.activity_token, "ended": False, "updated_at": now}},
+            upsert=True,
+        )
+    return {"ok": True, "fcm_ready": FCM_READY}
+
+
+def _live_activity_state(actives: list) -> dict:
+    on_break = any(a.get("activity") == "break" for a in actives)
+    key = "break" if on_break else (actives[0].get("activity") or "working")
+    return {"onBreak": on_break, "activityLabel": ACTIVITY_LABELS.get(key, "Working")}
+
+
+def _live_activity_message(fcm_token: str, la_token: str, event: str, state: dict, attributes: Optional[dict] = None):
+    ts = int(now_utc().timestamp())
+    aps: dict = {"timestamp": ts, "event": event, "content-state": state}
+    alert = None
+    if event == "start":
+        aps["attributes-type"] = "ClockInAttributes"
+        aps["attributes"] = attributes
+        alert = fb_messaging.ApsAlert(title="⏱ On the clock", body="Your timer is on the lock screen.")
+    if event == "end":
+        aps["dismissal-date"] = ts
+    return fb_messaging.Message(
+        token=fcm_token,
+        apns=fb_messaging.APNSConfig(
+            live_activity_token=la_token,
+            headers={"apns-priority": "10"},
+            payload=fb_messaging.APNSPayload(aps=fb_messaging.Aps(alert=alert, custom_data=aps)),
+        ),
+    )
+
+
+async def _send_live_activity(msg) -> bool:
+    try:
+        await asyncio.to_thread(fb_messaging.send, msg)
+        return True
+    except Exception as e:
+        logger.warning(f"live activity send failed: {e}")
+        return False
+
+
+async def _sync_live_activity(user: dict) -> int:
+    """Make every iPhone's lock-screen timer match the worker's running clocks. Returns pushes sent."""
+    if not FCM_READY:
+        return 0
+    actives = await db.time_entries.find({"user_id": user["id"], "clock_out": None}, {"_id": 0}).sort("clock_in", 1).to_list(50)
+    timers = await db.live_activities.find({"user_id": user["id"], "ended": False}, {"_id": 0}).to_list(50)
+    sent = 0
+    lead = actives[0] if actives else None
+    state = _live_activity_state(actives) if actives else {"onBreak": False, "activityLabel": "Clocked out"}
+    for t in timers:
+        event = "update" if lead and t["entry_id"] == lead["id"] else "end"
+        if await _send_live_activity(_live_activity_message(t["fcm_token"], t["activity_token"], event, state)):
+            sent += 1
+        if event == "end":
+            await db.live_activities.update_one({"entry_id": t["entry_id"], "fcm_token": t["fcm_token"]}, {"$set": {"ended": True}})
+    if lead:
+        has_timer = {t["fcm_token"] for t in timers if t["entry_id"] == lead["id"]}
+        attrs = {
+            "entryId": lead["id"], "workerName": user.get("name") or "",
+            "startedAt": datetime.fromisoformat(lead["clock_in"]).timestamp(),
+        }
+        devices = await db.device_tokens.find(
+            {"user_id": user["id"], "is_active": True, "la_start_token": {"$ne": None}}, {"_id": 0}
+        ).to_list(20)
+        for d in devices:
+            if d.get("la_start_token") and d["token"] not in has_timer:
+                if await _send_live_activity(_live_activity_message(d["token"], d["la_start_token"], "start", state, attrs)):
+                    sent += 1
+    return sent
+
+
 @api_router.post("/push/test")
 async def push_test(user: dict = Depends(get_current_user)):
     """Lets a user verify their push setup by sending themselves a test notification."""
@@ -3257,14 +3356,44 @@ _alarm_task_ref = {"task": None}
 
 class AlarmCreate(BaseModel):
     title: str = Field(min_length=1, max_length=120)
-    fire_at: str
+    fire_at: Optional[str] = None  # one-off alarms
     task_id: Optional[str] = None
     note: Optional[str] = Field(default=None, max_length=300)
     source: str = "web"  # "web" | "ios"
+    repeat_days: Optional[List[int]] = None  # repeating alarms: 0=Mon … 6=Sun
+    time_of_day: Optional[str] = None  # "HH:MM" in tz
+    tz: Optional[str] = None  # IANA name, e.g. America/Chicago
 
 
 class AlarmSnooze(BaseModel):
     minutes: int = Field(default=10, ge=1, le=240)
+
+
+def _next_repeat(days: list, hhmm: str, tz_name: str, after: datetime) -> datetime:
+    tz = ZoneInfo(tz_name)
+    h, m = (int(x) for x in hhmm.split(":"))
+    local = after.astimezone(tz)
+    for add in range(8):
+        d = (local + timedelta(days=add)).date()
+        if d.weekday() in days:
+            cand = datetime(d.year, d.month, d.day, h, m, tzinfo=tz)
+            if cand > after:
+                return cand.astimezone(timezone.utc)
+    raise ValueError("no repeat day")
+
+
+def _validate_repeat(req: AlarmCreate) -> None:
+    days = req.repeat_days or []
+    if not days or any(d not in range(7) for d in days):
+        raise HTTPException(status_code=400, detail="repeat_days must be weekdays 0 (Mon) to 6 (Sun)")
+    hhmm = req.time_of_day or ""
+    parts = hhmm.split(":")
+    if len(parts) != 2 or not all(p.isdigit() for p in parts) or not (0 <= int(parts[0]) < 24 and 0 <= int(parts[1]) < 60):
+        raise HTTPException(status_code=400, detail="time_of_day must be HH:MM")
+    try:
+        ZoneInfo(req.tz or "")
+    except Exception:
+        raise HTTPException(status_code=400, detail="tz must be a time zone name like America/Chicago")
 
 
 def _parse_fire_at(raw: str) -> datetime:
@@ -3278,7 +3407,8 @@ def _parse_fire_at(raw: str) -> datetime:
 
 
 def _alarm_out(a: dict) -> dict:
-    return {k: a.get(k) for k in ("id", "title", "note", "task_id", "fire_at", "status", "source", "created_at", "fired_at")}
+    return {k: a.get(k) for k in ("id", "title", "note", "task_id", "fire_at", "status", "source", "created_at", "fired_at",
+                                  "repeat_days", "time_of_day", "tz")}
 
 
 async def _own_alarm(alarm_id: str, user: dict) -> dict:
@@ -3290,8 +3420,14 @@ async def _own_alarm(alarm_id: str, user: dict) -> dict:
 
 @api_router.post("/alarms")
 async def create_alarm(req: AlarmCreate, user: dict = Depends(get_current_user)):
-    fire = _parse_fire_at(req.fire_at)
     now = now_utc()
+    if req.repeat_days:
+        _validate_repeat(req)
+        fire = _next_repeat(sorted(set(req.repeat_days)), req.time_of_day, req.tz, now)
+    else:
+        if not req.fire_at:
+            raise HTTPException(status_code=400, detail="Pick a time, or repeat days and a time.")
+        fire = _parse_fire_at(req.fire_at)
     if fire < now - timedelta(seconds=60):
         raise HTTPException(status_code=400, detail="That time has already passed.")
     if fire > now + timedelta(days=366):
@@ -3307,6 +3443,9 @@ async def create_alarm(req: AlarmCreate, user: dict = Depends(get_current_user))
         "id": str(uuid.uuid4()), "user_id": user["id"], "title": req.title.strip(),
         "note": (req.note or "").strip() or None, "task_id": req.task_id, "fire_at": iso_utc(fire),
         "source": req.source, "status": "scheduled", "created_at": now.isoformat(), "fired_at": None,
+        "repeat_days": sorted(set(req.repeat_days)) if req.repeat_days else None,
+        "time_of_day": req.time_of_day if req.repeat_days else None,
+        "tz": req.tz if req.repeat_days else None,
     }
     await db.alarms.insert_one(doc)
     return _alarm_out(doc)
@@ -3339,8 +3478,9 @@ async def snooze_alarm(alarm_id: str, req: AlarmSnooze, user: dict = Depends(get
 
 @api_router.post("/alarms/{alarm_id}/dismiss")
 async def dismiss_alarm(alarm_id: str, user: dict = Depends(get_current_user)):
-    await _own_alarm(alarm_id, user)
-    await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "done"}})
+    a = await _own_alarm(alarm_id, user)
+    if not a.get("repeat_days"):  # stopping a repeating alarm keeps the series
+        await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "done"}})
     return {"ok": True}
 
 
@@ -3362,7 +3502,14 @@ async def alarm_loop():
             now_q = iso_utc(now_utc())
             due = await db.alarms.find({"status": "scheduled", "fire_at": {"$lte": now_q}}, {"_id": 0}).to_list(200)
             for a in due:
-                res = await db.alarms.update_one({"id": a["id"], "status": "scheduled"}, {"$set": {"status": "fired", "fired_at": now_q}})
+                if a.get("repeat_days"):
+                    nxt = _next_repeat(a["repeat_days"], a["time_of_day"], a["tz"], now_utc())
+                    res = await db.alarms.update_one(
+                        {"id": a["id"], "status": "scheduled", "fire_at": a["fire_at"]},
+                        {"$set": {"fire_at": iso_utc(nxt), "fired_at": now_q}},
+                    )
+                else:
+                    res = await db.alarms.update_one({"id": a["id"], "status": "scheduled"}, {"$set": {"status": "fired", "fired_at": now_q}})
                 if res.modified_count:
                     await _fire_alarm(a)
         except Exception as e:
@@ -3428,6 +3575,8 @@ async def startup():
     await db.task_completions.create_index([("worker_id", 1), ("completed_at", 1)])
     await db.alarms.create_index([("status", 1), ("fire_at", 1)])
     await db.alarms.create_index([("user_id", 1), ("fire_at", 1)])
+    await db.live_activities.create_index([("entry_id", 1), ("fcm_token", 1)], unique=True)
+    await db.live_activities.create_index([("user_id", 1), ("ended", 1)])
     # Backfill completion events from tasks that are completed today (idempotent)
     async for t in db.tasks.find({"status": "completed", "completed_at": {"$ne": None}}, {"_id": 0}):
         if t.get("assignee_id"):

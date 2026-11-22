@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		CE9F9B82300B846700BB12BB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9F9B81300B846700BB12BB /* FirebaseMessaging */; };
+		CE9F9B9E300B846700BB12BB /* iLoveWorksWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -25,12 +26,34 @@
 			remoteGlobalIDString = CE9F9B48300B846500BB12BB;
 			remoteInfo = iLoveWorks;
 		};
+		CE9F9B9B300B846700BB12BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE9F9B41300B846400BB12BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE9F9B91300B846700BB12BB;
+			remoteInfo = iLoveWorksWidgets;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CE9F9B9D300B846700BB12BB /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CE9F9B9E300B846700BB12BB /* iLoveWorksWidgets.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		CE9F9B49300B846500BB12BB /* iLoveWorks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iLoveWorks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = iLoveWorksWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -40,6 +63,13 @@
 				"App-Info.plist",
 			);
 			target = CE9F9B48300B846500BB12BB /* iLoveWorks */;
+		};
+		CE9F9B97300B846700BB12BB /* Exceptions for "iLoveWorksWidgets" folder in "iLoveWorksWidgets" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -60,6 +90,19 @@
 		CE9F9B65300B846700BB12BB /* iLoveWorksUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = iLoveWorksUITests;
+			sourceTree = "<group>";
+		};
+		CE9F9B95300B846700BB12BB /* iLoveWorksWidgets */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE9F9B97300B846700BB12BB /* Exceptions for "iLoveWorksWidgets" folder in "iLoveWorksWidgets" target */,
+			);
+			path = iLoveWorksWidgets;
+			sourceTree = "<group>";
+		};
+		CE9F9B96300B846700BB12BB /* iLoveWorksShared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = iLoveWorksShared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -87,6 +130,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE9F9B93300B846700BB12BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -96,6 +146,8 @@
 				CE9F9B4B300B846500BB12BB /* iLoveWorks */,
 				CE9F9B5B300B846700BB12BB /* iLoveWorksTests */,
 				CE9F9B65300B846700BB12BB /* iLoveWorksUITests */,
+				CE9F9B95300B846700BB12BB /* iLoveWorksWidgets */,
+				CE9F9B96300B846700BB12BB /* iLoveWorksShared */,
 				CE9F9B4A300B846500BB12BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -106,6 +158,7 @@
 				CE9F9B49300B846500BB12BB /* iLoveWorks.app */,
 				CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */,
 				CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */,
+				CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -120,13 +173,16 @@
 				CE9F9B45300B846500BB12BB /* Sources */,
 				CE9F9B46300B846500BB12BB /* Frameworks */,
 				CE9F9B47300B846500BB12BB /* Resources */,
+				CE9F9B9D300B846700BB12BB /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CE9F9B9C300B846700BB12BB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CE9F9B4B300B846500BB12BB /* iLoveWorks */,
+				CE9F9B96300B846700BB12BB /* iLoveWorksShared */,
 			);
 			name = iLoveWorks;
 			packageProductDependencies = (
@@ -182,6 +238,29 @@
 			productReference = CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE9F9B98300B846700BB12BB /* Build configuration list for PBXNativeTarget "iLoveWorksWidgets" */;
+			buildPhases = (
+				CE9F9B92300B846700BB12BB /* Sources */,
+				CE9F9B93300B846700BB12BB /* Frameworks */,
+				CE9F9B94300B846700BB12BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CE9F9B95300B846700BB12BB /* iLoveWorksWidgets */,
+				CE9F9B96300B846700BB12BB /* iLoveWorksShared */,
+			);
+			name = iLoveWorksWidgets;
+			packageProductDependencies = (
+			);
+			productName = iLoveWorksWidgets;
+			productReference = CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -202,6 +281,9 @@
 					CE9F9B61300B846700BB12BB = {
 						CreatedOnToolsVersion = 26.6;
 						TestTargetID = CE9F9B48300B846500BB12BB;
+					};
+					CE9F9B91300B846700BB12BB = {
+						CreatedOnToolsVersion = 26.6;
 					};
 				};
 			};
@@ -225,6 +307,7 @@
 				CE9F9B48300B846500BB12BB /* iLoveWorks */,
 				CE9F9B57300B846700BB12BB /* iLoveWorksTests */,
 				CE9F9B61300B846700BB12BB /* iLoveWorksUITests */,
+				CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */,
 			);
 		};
 /* End PBXProject section */
@@ -245,6 +328,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CE9F9B60300B846700BB12BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE9F9B94300B846700BB12BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -275,6 +365,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE9F9B92300B846700BB12BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -287,6 +384,12 @@
 			isa = PBXTargetDependency;
 			target = CE9F9B48300B846500BB12BB /* iLoveWorks */;
 			targetProxy = CE9F9B63300B846700BB12BB /* PBXContainerItemProxy */;
+		};
+		CE9F9B9C300B846700BB12BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */;
+			targetProxy = CE9F9B9B300B846700BB12BB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -613,6 +716,66 @@
 			};
 			name = Release;
 		};
+		CE9F9B99300B846700BB12BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3TKQ757JMH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iLoveWorksWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iLoveWorks;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TUE.iLoveWorks.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CE9F9B9A300B846700BB12BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3TKQ757JMH;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iLoveWorksWidgets/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iLoveWorks;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TUE.iLoveWorks.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -648,6 +811,15 @@
 			buildConfigurations = (
 				CE9F9B73300B846700BB12BB /* Debug */,
 				CE9F9B74300B846700BB12BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE9F9B98300B846700BB12BB /* Build configuration list for PBXNativeTarget "iLoveWorksWidgets" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE9F9B99300B846700BB12BB /* Debug */,
+				CE9F9B9A300B846700BB12BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

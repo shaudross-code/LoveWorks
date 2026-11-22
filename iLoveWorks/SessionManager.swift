@@ -51,11 +51,18 @@ class SessionManager: ObservableObject {
         Task { await ThemeStore.shared.refresh() }
         PushManager.shared.signedIn()
         Task { await AlarmStore.shared.sync() }
+        #if canImport(ActivityKit) && os(iOS)
+        LiveActivityManager.shared.workerName = currentUser?.name ?? ""
+        LiveActivityManager.shared.startObserving()
+        #endif
     }
 
     func logout() {
         currentUser = nil
         AlarmStore.shared.clearLocal()
+        #if canImport(ActivityKit) && os(iOS)
+        Task { await LiveActivityManager.shared.endAll() }
+        #endif
         Task {
             await PushManager.shared.signedOut()
             _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")

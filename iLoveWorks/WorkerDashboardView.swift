@@ -14,6 +14,7 @@ struct ActivityInfo: Identifiable {
     let bg: Color
 
     static let all = [
+        ActivityInfo(id: "clocked_in", label: "Clocked In", icon: "clock.fill", color: .white, bg: Theme.primary),
         ActivityInfo(id: "working", label: "Working", icon: "briefcase.fill", color: .white, bg: Theme.lovePink),
         ActivityInfo(id: "break", label: "Break", icon: "cup.and.saucer.fill", color: .white, bg: .blue),
         ActivityInfo(id: "cleaning", label: "Cleaning", icon: "bubbles.and.sparkles.fill", color: .white, bg: .green),
@@ -24,7 +25,7 @@ struct ActivityInfo: Identifiable {
     ]
 
     static func info(for id: String?) -> ActivityInfo {
-        all.first(where: { $0.id == id }) ?? all[0]
+        all.first(where: { $0.id == id }) ?? all[1]
     }
 }
 

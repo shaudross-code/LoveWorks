@@ -107,6 +107,9 @@ final class PushManager: ObservableObject {
             do {
                 let _: EmptyResponse = try await APIClient.shared.send("/push/register-device", json: ["token": fcmToken, "platform": "ios"])
                 registered = true
+                #if canImport(ActivityKit) && os(iOS)
+                await LiveActivityManager.shared.flush()
+                #endif
             } catch {
                 print("Push token registration failed: \(error)")
             }

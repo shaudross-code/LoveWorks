@@ -61,16 +61,19 @@ class WorkerViewModel: ObservableObject {
 
         tick()
         startTimer()
+        #if canImport(ActivityKit) && os(iOS)
+        if resTasks != nil { await LiveActivityManager.shared.sync(active: activeEntries) }
+        #endif
     }
 
     func clockIn(activity: String) async throws {
-        let _: TimeEntry = try await APIClient.shared.send("/time/clock-in", json: ["activity": activity])
+        let _: TimeEntry = try await APIClient.shared.send("/time/clock-in", json: ["activity": activity, "source": "ios"])
         await refresh()
     }
 
     func clockOut(entryId: String? = nil) async throws {
-        var endpoint = "/time/clock-out"
-        if let id = entryId { endpoint += "?entry_id=\(id)" }
+        var endpoint = "/time/clock-out?source=ios"
+        if let id = entryId { endpoint += "&entry_id=\(id)" }
         let _: EmptyResponse = try await APIClient.shared.request(endpoint, method: "POST")
         await refresh()
     }

@@ -69,10 +69,10 @@ struct AlarmRowView: View {
 
     var body: some View {
         HStack(spacing: 14) {
-            Image(systemName: "alarm.fill").foregroundStyle(Theme.primary)
+            Image(systemName: alarm.isRepeating ? "repeat" : "alarm.fill").foregroundStyle(Theme.primary)
             VStack(alignment: .leading, spacing: 3) {
                 Text(alarm.title).font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.textMain).lineLimit(2)
-                Text(Self.label(alarm.fireAt)).font(.system(size: 12)).foregroundStyle(Theme.textMuted)
+                Text(Self.label(alarm)).font(.system(size: 12)).foregroundStyle(Theme.textMuted)
             }
             Spacer()
             Button(action: onCancel) {
@@ -86,9 +86,14 @@ struct AlarmRowView: View {
         .overlay(RoundedRectangle(cornerRadius: 16).stroke(Theme.border, lineWidth: 1))
     }
 
-    static func label(_ iso: String) -> String {
-        guard let d = APIDate.parse(iso) else { return iso }
-        return d.formatted(date: .abbreviated, time: .shortened)
+    static func label(_ alarm: AlarmItem) -> String {
+        let next = APIDate.parse(alarm.fireAt)?.formatted(date: .abbreviated, time: .shortened) ?? alarm.fireAt
+        guard alarm.isRepeating, let days = alarm.repeatDays, let tod = alarm.timeOfDay else { return next }
+        let parts = tod.split(separator: ":").compactMap { Int($0) }
+        let time = parts.count >= 2
+            ? (Calendar.current.date(bySettingHour: parts[0], minute: parts[1], second: 0, of: Date())?.formatted(date: .omitted, time: .shortened) ?? tod)
+            : tod
+        return "\(AlarmItem.repeatSummary(days)) · \(time) · next \(next)"
     }
 }
 
@@ -150,7 +155,12 @@ struct AlarmEditorView: View {
             Form {
                 Section("Alarm") {
                     TextField("What's it for?", text: $draft.title)
-                    DatePicker("Rings at", selection: $draft.date, in: Date()..., displayedComponents: [.date, .hourAndMinute])
+                    RepeatDaysPicker(days: $draft.repeatDays)
+                    if draft.repeatDays.isEmpty {
+                        DatePicker("Rings at", selection: $draft.date, in: Date()..., displayedComponents: [.date, .hourAndMinute])
+                    } else {
+                        DatePicker("Rings at", selection: $draft.date, displayedComponents: [.hourAndMinute])
+                    }
                     TextField("Note (optional)", text: $note)
                 }
                 Section {
@@ -187,7 +197,8 @@ struct AlarmEditorView: View {
                     title: draft.title.trimmingCharacters(in: .whitespaces),
                     at: draft.date,
                     note: trimmedNote.isEmpty ? nil : trimmedNote,
-                    taskId: draft.taskId
+                    taskId: draft.taskId,
+                    repeatDays: draft.repeatDays
                 )
                 dismiss()
             } catch {
@@ -195,5 +206,49 @@ struct AlarmEditorView: View {
             }
             saving = false
         }
+    }
+}
+
+/// M T W T F S S toggles (0 = Monday) plus a one-tap Weekdays shortcut.
+struct RepeatDaysPicker: View {
+    @Binding var days: [Int]
+
+    private var isWeekdays: Bool { days.sorted() == [0, 1, 2, 3, 4] }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(days.isEmpty ? "Repeat: never" : "Repeat: \(AlarmItem.repeatSummary(days))")
+                    .font(.system(size: 14))
+                Spacer()
+                Button(isWeekdays ? "Clear" : "Weekdays") {
+                    days = isWeekdays ? [] : [0, 1, 2, 3, 4]
+                }
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Theme.primary)
+                .buttonStyle(.borderless)
+            }
+            HStack(spacing: 6) {
+                ForEach(0..<7, id: \.self) { d in
+                    let on = days.contains(d)
+                    Button(action: { toggle(d) }) {
+                        Text(AlarmItem.dayLetters[d])
+                            .font(.system(size: 13, weight: .bold))
+                            .frame(maxWidth: .infinity, minHeight: 34)
+                            .background(on ? Theme.primary : Theme.surface)
+                            .foregroundStyle(on ? Color.black : Theme.textMuted)
+                            .clipShape(Circle())
+                    }
+                    .buttonStyle(.borderless)
+                    .accessibilityLabel(AlarmItem.dayNames[d])
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func toggle(_ d: Int) {
+        if let i = days.firstIndex(of: d) { days.remove(at: i) } else { days.append(d); days.sort() }
     }
 }

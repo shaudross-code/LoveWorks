@@ -8,27 +8,60 @@ import { formatApiError } from "@/lib/api";
 import PushStatus from "@/components/PushStatus";
 import {
   listAlarms, createAlarm, cancelAlarm, announceAlarmsChanged, defaultFireDate, toLocalInput, fmtAlarmTime,
-  ALARMS_CHANGED, OPEN_ALARM_DIALOG,
+  ALARMS_CHANGED, OPEN_ALARM_DIALOG, DAY_LABELS, WEEKDAYS, deviceTz, repeatSummary, fmtTimeOfDay,
 } from "@/lib/alarms";
+
+function DayPicker({ days, onChange }) {
+  const toggle = (d) => onChange(days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort());
+  const isWeekdays = days.length === 5 && WEEKDAYS.every((d) => days.includes(d));
+  return (
+    <div data-testid="alarm-repeat-picker">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-xs uppercase tracking-widest text-zinc-500">Repeat</span>
+        <button type="button" data-testid="alarm-weekdays-btn" onClick={() => onChange(isWeekdays ? [] : WEEKDAYS)}
+          className={`text-xs rounded-full px-3 h-7 border transition-colors ${isWeekdays ? "bg-yellow-400 text-black border-yellow-400" : "border-yellow-400/30 text-yellow-300 hover:bg-yellow-400/10"}`}>
+          Weekdays
+        </button>
+      </div>
+      <div className="flex gap-1.5">
+        {DAY_LABELS.map((label, d) => (
+          <button type="button" key={label} data-testid={`alarm-day-${d}`} aria-pressed={days.includes(d)} onClick={() => toggle(d)}
+            className={`flex-1 h-9 rounded-full text-xs font-semibold transition-colors ${days.includes(d) ? "bg-yellow-400 text-black" : "bg-white/5 text-zinc-400 hover:bg-white/10"}`}>
+            {label[0]}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function AlarmDialog({ open, prefill, onClose }) {
   const [title, setTitle] = useState("");
   const [when, setWhen] = useState("");
   const [note, setNote] = useState("");
+  const [days, setDays] = useState([]);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     if (!open) return;
     setTitle(prefill.title || "");
     setNote("");
+    setDays([]);
     setWhen(toLocalInput(defaultFireDate(prefill.due_time)));
   }, [open, prefill]);
+
+  const repeating = days.length > 0;
+  const timeOfDay = when.slice(11, 16);
 
   const save = async () => {
     if (!title.trim() || !when) return toast.error("Add a name and a time.");
     setBusy(true);
     try {
-      await createAlarm({ title: title.trim(), fire_at: new Date(when).toISOString(), note: note.trim() || null, task_id: prefill.task_id || null });
-      toast.success(`Alarm set for ${fmtAlarmTime(new Date(when).toISOString())}`);
+      const base = { title: title.trim(), note: note.trim() || null, task_id: prefill.task_id || null };
+      const body = repeating
+        ? { ...base, repeat_days: days, time_of_day: timeOfDay, tz: deviceTz() }
+        : { ...base, fire_at: new Date(when).toISOString() };
+      const a = await createAlarm(body);
+      toast.success(repeating ? `Alarm set: ${repeatSummary(days)} at ${fmtTimeOfDay(timeOfDay)}` : `Alarm set for ${fmtAlarmTime(a.fire_at)}`);
       announceAlarmsChanged();
       onClose();
     } catch (e) { toast.error(formatApiError(e)); } finally { setBusy(false); }
@@ -40,7 +73,10 @@ function AlarmDialog({ open, prefill, onClose }) {
         <DialogHeader><DialogTitle className="flex items-center gap-2"><AlarmClock className="w-5 h-5 text-yellow-400" /> Set an alarm</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <Input data-testid="alarm-title-input" placeholder="What's it for?" value={title} maxLength={120} onChange={(e) => setTitle(e.target.value)} />
-          <Input data-testid="alarm-time-input" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />
+          <DayPicker days={days} onChange={setDays} />
+          {repeating
+            ? <Input data-testid="alarm-time-of-day-input" type="time" value={timeOfDay} onChange={(e) => setWhen(`${when.slice(0, 11)}${e.target.value}`)} />
+            : <Input data-testid="alarm-time-input" type="datetime-local" value={when} onChange={(e) => setWhen(e.target.value)} />}
           <Input data-testid="alarm-note-input" placeholder="Note (optional)" value={note} maxLength={300} onChange={(e) => setNote(e.target.value)} />
         </div>
         <DialogFooter>
@@ -59,7 +95,11 @@ function AlarmItem({ a, onCancel }) {
       <AlarmClock className={`w-4 h-4 shrink-0 ${a.status === "scheduled" ? "text-yellow-400" : "text-zinc-600"}`} />
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium truncate">{a.title}</div>
-        <div className="text-xs text-zinc-500">{fmtAlarmTime(a.fire_at)}{a.status === "fired" ? " · rang" : ""}</div>
+        <div className="text-xs text-zinc-500">
+          {a.repeat_days?.length
+            ? <span data-testid={`alarm-repeat-${a.id}`}>{repeatSummary(a.repeat_days)} · {fmtTimeOfDay(a.time_of_day)} · next {fmtAlarmTime(a.fire_at)}</span>
+            : <>{fmtAlarmTime(a.fire_at)}{a.status === "fired" ? " · rang" : ""}</>}
+        </div>
       </div>
       {a.status === "scheduled" && (
         <button data-testid={`alarm-cancel-${a.id}`} onClick={() => onCancel(a.id)} aria-label="Cancel alarm"

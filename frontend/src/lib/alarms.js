@@ -37,3 +37,22 @@ export function defaultFireDate(dueTime) {
 export function fmtAlarmTime(iso) {
   return new Date(iso).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 }
+
+export const DAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]; // 0=Mon, matches the server
+export const WEEKDAYS = [0, 1, 2, 3, 4];
+export const deviceTz = () => Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+export function repeatSummary(days) {
+  const s = [...days].sort().join(",");
+  if (s === "0,1,2,3,4") return "Weekdays";
+  if (s === "5,6") return "Weekends";
+  if (days.length === 7) return "Every day";
+  return [...days].sort().map((d) => DAY_LABELS[d]).join(", ");
+}
+
+export function fmtTimeOfDay(hhmm) {
+  const [h, m] = hhmm.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h, m, 0, 0);
+  return d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
