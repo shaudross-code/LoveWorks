@@ -25,9 +25,11 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, EmailStr, Field
 try:
     from pywebpush import webpush, WebPushException
+    from py_vapid import Vapid
     PUSH_AVAILABLE = True
 except Exception:  # pragma: no cover
     webpush = None
+    Vapid = None
     WebPushException = Exception
     PUSH_AVAILABLE = False
 
@@ -84,6 +86,39 @@ api_router = APIRouter(prefix="/api")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+def _load_vapid_signer():
+    """pywebpush can't read PEM strings, so load the key here (PEM with real or escaped line breaks, or raw base64)
+    and make sure it pairs with VAPID_PUBLIC_KEY. Returns (signer, problem)."""
+    import re
+    import base64
+    from cryptography.hazmat.primitives import serialization
+    raw = VAPID_PRIVATE_KEY.strip().strip('"').strip("'")
+    if not PUSH_AVAILABLE:
+        return None, "pywebpush isn't installed"
+    if not (raw and VAPID_PUBLIC_KEY):
+        return None, "VAPID keys are missing"
+    try:
+        pem = raw.replace("\\n", "\n")
+        m = re.search(r"-----BEGIN ([A-Z ]+)-----", pem)
+        if m:
+            body = re.sub(r"-----(BEGIN|END) [A-Z ]+-----|\s", "", pem)
+            lines = "\n".join(body[i:i + 64] for i in range(0, len(body), 64))
+            signer = Vapid.from_pem(f"-----BEGIN {m.group(1)}-----\n{lines}\n-----END {m.group(1)}-----\n".encode())
+        else:
+            signer = Vapid.from_string(private_key=raw)
+    except Exception as e:
+        return None, f"VAPID_PRIVATE_KEY can't be read ({e.__class__.__name__})"
+    pub = signer.public_key.public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+    if base64.urlsafe_b64encode(pub).rstrip(b"=").decode() != VAPID_PUBLIC_KEY.strip().rstrip("="):
+        return None, "VAPID_PRIVATE_KEY doesn't pair with VAPID_PUBLIC_KEY"
+    return signer, ""
+
+
+VAPID_SIGNER, VAPID_PROBLEM = _load_vapid_signer()
+if VAPID_PROBLEM:
+    logger.error(f"Web push is off: {VAPID_PROBLEM}")
 
 
 # --- Helpers ---
@@ -386,7 +421,7 @@ async def _scoped_worker_ids(user: dict) -> list:
 
 
 # --- Notification & award helpers ---
-async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None, native: bool = True) -> dict:
+async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Optional[str] = None, meta: Optional[dict] = None, native: bool = True, push: bool = True) -> dict:
     doc = {
         "id": str(uuid.uuid4()),
         "user_id": user_id,
@@ -400,6 +435,8 @@ async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Opt
     }
     await db.notifications.insert_one(doc)
     doc.pop("_id", None)
+    if not push:
+        return doc
     # Fire-and-forget Web Push (browser OS-level notification)
     try:
         await send_web_push(user_id, title, body or "", link=link, meta=doc.get("meta") or {})
@@ -414,13 +451,19 @@ async def notify(user_id: str, ntype: str, title: str, body: str = "", link: Opt
     return doc
 
 
-async def send_web_push(user_id: str, title: str, body: str, link: Optional[str] = None, meta: Optional[dict] = None) -> None:
-    """Send a Web Push to every active subscription for this user."""
-    if not (PUSH_AVAILABLE and VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY):
-        return
-    subs = await db.push_subscriptions.find({"user_id": user_id, "is_active": True}, {"_id": 0}).to_list(50)
+async def send_web_push(user_id: str, title: str, body: str, link: Optional[str] = None, meta: Optional[dict] = None,
+                        endpoint: Optional[str] = None) -> dict:
+    """Send a Web Push to every active subscription for this user (or just `endpoint`). Returns delivery counts."""
+    result = {"configured": bool(VAPID_SIGNER and VAPID_PUBLIC_KEY), "devices": 0, "sent": 0, "errors": []}
+    if not result["configured"]:
+        return result
+    q = {"user_id": user_id, "is_active": True}
+    if endpoint:
+        q["endpoint"] = endpoint
+    subs = await db.push_subscriptions.find(q, {"_id": 0}).to_list(50)
+    result["devices"] = len(subs)
     if not subs:
-        return
+        return result
     payload = _json.dumps({"title": title, "body": body, "link": link or "/", "meta": meta or {}})
     dead: list = []
     for s in subs:
@@ -428,31 +471,39 @@ async def send_web_push(user_id: str, title: str, body: str, link: Optional[str]
             webpush(
                 subscription_info=s["subscription"],
                 data=payload,
-                vapid_private_key=VAPID_PRIVATE_KEY,
+                vapid_private_key=VAPID_SIGNER,
                 vapid_claims={"sub": VAPID_SUBJECT},
                 ttl=60 * 60 * 12,  # 12h
             )
         except WebPushException as e:
-            status = getattr(getattr(e, "response", None), "status_code", None)
+            resp = getattr(e, "response", None)
+            status = getattr(resp, "status_code", None)
+            result["errors"].append(f"{status or ''} {(getattr(resp, 'text', '') or str(e))[:160]}".strip())
             if status in (404, 410):
                 dead.append(s["endpoint"])
             else:
                 logger.warning(f"webpush failed: {e}")
         except Exception as e:
+            result["errors"].append(str(e)[:160])
             logger.warning(f"webpush error: {e}")
+        else:
+            result["sent"] += 1
     if dead:
         await db.push_subscriptions.update_many(
             {"endpoint": {"$in": dead}}, {"$set": {"is_active": False}}
         )
+    return result
 
 
-async def send_native_push(user_id: str, title: str, body: str, link: Optional[str] = None) -> None:
-    """Send an FCM push to every active native device token for this user."""
+async def send_native_push(user_id: str, title: str, body: str, link: Optional[str] = None) -> dict:
+    """Send an FCM push to every active native device token for this user. Returns delivery counts."""
+    result = {"configured": bool(FCM_READY), "devices": 0, "sent": 0, "errors": []}
     if not FCM_READY:
-        return
+        return result
     docs = await db.device_tokens.find({"user_id": user_id, "is_active": True}, {"_id": 0}).to_list(20)
+    result["devices"] = len(docs)
     if not docs:
-        return
+        return result
     dead: list = []
     for d in docs:
         msg = fb_messaging.Message(
@@ -466,10 +517,15 @@ async def send_native_push(user_id: str, title: str, body: str, link: Optional[s
             await asyncio.to_thread(fb_messaging.send, msg)
         except fb_messaging.UnregisteredError:
             dead.append(d["token"])
+            result["errors"].append("device no longer registered")
         except Exception as e:
+            result["errors"].append(str(e)[:160])
             logger.warning(f"fcm send failed: {e}")
+        else:
+            result["sent"] += 1
     if dead:
         await db.device_tokens.update_many({"token": {"$in": dead}}, {"$set": {"is_active": False}})
+    return result
 
 
 async def grant_award(user_id: str, code: str) -> Optional[dict]:
@@ -3084,7 +3140,7 @@ class PushSubscribeRequest(BaseModel):
 
 @api_router.get("/push/public-key")
 async def push_public_key():
-    return {"key": VAPID_PUBLIC_KEY, "available": bool(VAPID_PUBLIC_KEY and PUSH_AVAILABLE)}
+    return {"key": VAPID_PUBLIC_KEY, "available": bool(VAPID_PUBLIC_KEY and VAPID_SIGNER), "problem": VAPID_PROBLEM or None}
 
 
 @api_router.post("/push/subscribe")
@@ -3249,17 +3305,34 @@ def _sync_live_activity_bg(user: dict) -> None:
     asyncio.create_task(run())
 
 
+class PushTestRequest(BaseModel):
+    endpoint: Optional[str] = None  # web: only test this browser's subscription
+
+
+def _push_test_message(web: dict, native: dict, endpoint: Optional[str]) -> str:
+    if web["sent"] or native["sent"]:
+        return "Sent. It should appear in a few seconds."
+    if endpoint and not web["configured"]:
+        return f"Web alerts aren't set up on the server: {VAPID_PROBLEM or 'missing push keys'}."
+    if web["errors"] or native["errors"]:
+        return f"The push service rejected the alert: {(web['errors'] or native['errors'])[0]}"
+    if endpoint:
+        return "This device isn't signed up for alerts on the server. Tap Turn on alerts again."
+    return "No devices are signed up for alerts on this account."
+
+
 @api_router.post("/push/test")
-async def push_test(user: dict = Depends(get_current_user)):
-    """Lets a user verify their push setup by sending themselves a test notification."""
-    await notify(
-        user["id"], "test",
-        "🔔 Push test",
-        "If you saw this as an OS notification, you're all set.",
-        link="/worker",
-        meta={"test": True},
-    )
-    return {"ok": True}
+async def push_test(req: Optional[PushTestRequest] = None, user: dict = Depends(get_current_user)):
+    """Sends the user a test alert and reports whether any device actually accepted it."""
+    endpoint = req.endpoint if req else None
+    title, body = "🔔 Push test", "If you saw this as an OS notification, you're all set."
+    await notify(user["id"], "test", title, body, link="/worker", meta={"test": True}, push=False)
+    web = await send_web_push(user["id"], title, body, link="/worker", meta={"test": True}, endpoint=endpoint)
+    native = {"configured": bool(FCM_READY), "devices": 0, "sent": 0, "errors": []} if endpoint else await send_native_push(user["id"], title, body, link="/worker")
+    ok = bool(web["sent"] or native["sent"])
+    if not ok:
+        logger.warning(f"push test not delivered for {user['id']}: web={web} native={native}")
+    return {"ok": ok, "message": _push_test_message(web, native, endpoint), "web": web, "native": native}
 
 
 # --- Background scheduler: task due-time reminders ---

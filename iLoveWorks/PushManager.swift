@@ -123,8 +123,19 @@ final class PushManager: ObservableObject {
     }
 
     func sendTest() async throws {
-        let _: EmptyResponse = try await APIClient.shared.request("/push/test", method: "POST")
+        let r: PushTestResult = try await APIClient.shared.request("/push/test", method: "POST")
+        if !r.ok { throw PushTestError(message: r.message ?? "The alert couldn't be delivered.") }
     }
+}
+
+struct PushTestResult: Decodable {
+    let ok: Bool
+    let message: String?
+}
+
+struct PushTestError: LocalizedError {
+    let message: String
+    var errorDescription: String? { message }
 }
 
 /// Firebase + notification-center callbacks. Kept off the main actor; hands results back to PushManager.

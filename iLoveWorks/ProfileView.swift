@@ -91,7 +91,7 @@ struct ProfileView: View {
                 try await PushManager.shared.sendTest()
                 testMessage = "Sent"
             } catch {
-                testMessage = "Failed"
+                testMessage = error.localizedDescription
             }
         }
     }

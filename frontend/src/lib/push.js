@@ -54,24 +54,35 @@ export async function registerServiceWorker() {
   }
 }
 
+const sameKey = (buf, key) => {
+  if (!buf) return true; // browser doesn't expose it; trust the existing subscription
+  const a = new Uint8Array(buf);
+  return a.length === key.length && a.every((v, i) => v === key[i]);
+};
+
+// Makes sure this browser's subscription matches the server's key and is saved on the server.
+async function syncSubscription() {
+  const reg = await registerServiceWorker();
+  if (!reg) throw new Error("Service worker failed to register.");
+  const { data } = await api.get("/push/public-key");
+  if (!data?.key || !data.available) throw new Error(`Web alerts aren't set up on the server${data?.problem ? `: ${data.problem}` : " yet"}.`);
+  const key = urlBase64ToUint8Array(data.key);
+  let sub = await reg.pushManager.getSubscription();
+  if (sub && !sameKey(sub.options?.applicationServerKey, key)) {
+    await sub.unsubscribe();
+    sub = null;
+  }
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: key });
+  await api.post("/push/subscribe", { subscription: sub.toJSON() });
+  return sub;
+}
+
 export async function enablePush() {
   if (needsHomeScreenInstall()) throw new Error("On iPhone, add iLoveWorks to your Home Screen first, then open it from the new icon.");
   if (!isPushSupported()) throw new Error("Push notifications aren't supported on this browser.");
   const perm = await Notification.requestPermission();
   if (perm !== "granted") throw new Error("Notifications were blocked.");
-  const reg = await registerServiceWorker();
-  if (!reg) throw new Error("Service worker failed to register.");
-  const { data } = await api.get("/push/public-key");
-  if (!data?.key) throw new Error("Server isn't configured for push.");
-  let sub = await reg.pushManager.getSubscription();
-  if (!sub) {
-    sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(data.key),
-    });
-  }
-  await api.post("/push/subscribe", { subscription: sub.toJSON() });
-  return sub;
+  return syncSubscription();
 }
 
 export async function disablePush() {
@@ -86,5 +97,12 @@ export async function disablePush() {
 }
 
 export async function sendTestPush() {
-  await api.post("/push/test");
+  const sub = await syncSubscription();
+  const { data } = await api.post("/push/test", { endpoint: sub.endpoint });
+  if (data?.ok) return;
+  if (data?.web?.errors?.some((e) => /^(404|410)\b/.test(e))) {
+    await sub.unsubscribe();
+    throw new Error("This device's alert sign-up had expired. Tap Turn on alerts to sign up again.");
+  }
+  throw new Error(data?.message || "The alert couldn't be delivered.");
 }
