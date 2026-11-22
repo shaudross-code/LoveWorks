@@ -1,11 +1,11 @@
 # Iteration 13: due_day_of_week bug fix + Holiday theme API
-import os
 import pytest
 import requests
+import creds as C  # noqa: E402
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL").rstrip("/")
-ADMIN = {"email": "admin@loveworks.com", "password": "admin123"}
-WORKER = {"email": "lovetest@loveworks.com", "password": "Love123!"}
+BASE_URL = C.BASE_URL
+ADMIN = dict(C.ADMIN)
+WORKER = dict(C.WORKER)
 
 
 def _login(creds):
@@ -140,7 +140,7 @@ class TestTheme:
         assert r.status_code == 200 and r.json()["effective"] == "halloween"
 
     def test_sandbox_isolated(self):
-        s, _ = _login({"email": "reviewer@loveworks.com", "password": "iLoveWorks2026!"})
+        s, _ = _login(dict(C.REVIEWER))
         r = s.get(f"{BASE_URL}/api/theme")
         assert r.status_code == 200
         assert r.json()["mode"] in ("auto", "default") or r.json()["effective"]

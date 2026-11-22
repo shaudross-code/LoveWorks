@@ -1,19 +1,20 @@
 # Iteration 14: code-review fixes — lockout reset, file sandbox ACL, theme local date,
 # task PATCH/DELETE sandbox scoping, assignee + status validation
 import io
-import os
 import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 from pymongo import MongoClient
 from PIL import Image
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL").rstrip("/")
-ADMIN = {"email": "admin@loveworks.com", "password": "admin123"}
-REVIEWER = {"email": "reviewer@loveworks.com", "password": "iLoveWorks2026!"}
-WORKER = {"email": "lovetest@loveworks.com", "password": "Love123!"}
+BASE_URL = C.BASE_URL
+ADMIN = dict(C.ADMIN)
+REVIEWER = dict(C.REVIEWER)
+WORKER = dict(C.WORKER)
 
 
 def _env(key):
@@ -54,10 +55,10 @@ def reviewer():
 def real_worker(admin):
     s, _ = admin
     email = f"test_iter14_{uuid.uuid4().hex[:6]}@example.com"
-    r = s.post(f"{BASE_URL}/api/workers", json={"email": email, "password": "Pass1234!", "name": "TEST_Real14"})
+    r = s.post(f"{BASE_URL}/api/workers", json={"email": email, "password": TMP_PW, "name": "TEST_Real14"})
     assert r.status_code in (200, 201), r.text
     w = r.json()
-    yield {**w, "email": email, "password": "Pass1234!"}
+    yield {**w, "email": email, "password": TMP_PW}
     s.delete(f"{BASE_URL}/api/workers/{w['id']}")
     mdb.login_attempts.delete_many({"identifier": {"$regex": email}})
 
@@ -66,10 +67,10 @@ def real_worker(admin):
 def sb_worker(reviewer):
     s, _ = reviewer
     email = f"test_iter14_sb_{uuid.uuid4().hex[:6]}@example.com"
-    r = s.post(f"{BASE_URL}/api/workers", json={"email": email, "password": "Pass1234!", "name": "TEST_Sandbox14"})
+    r = s.post(f"{BASE_URL}/api/workers", json={"email": email, "password": TMP_PW, "name": "TEST_Sandbox14"})
     assert r.status_code in (200, 201), r.text
     w = r.json()
-    yield {**w, "email": email, "password": "Pass1234!"}
+    yield {**w, "email": email, "password": TMP_PW}
     s.delete(f"{BASE_URL}/api/workers/{w['id']}")
 
 

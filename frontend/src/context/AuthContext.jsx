@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
-import api, { formatApiError } from "@/lib/api";
+import api, { authToken, formatApiError } from "@/lib/api";
 import { syncNativePushToken } from "@/lib/nativePush";
 
 const AuthContext = createContext(null);
@@ -28,7 +28,7 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       const { data } = await api.post("/auth/login", { email, password });
-      if (data?.access_token) localStorage.setItem("access_token", data.access_token);
+      authToken.set(data?.access_token);
       setUser(data.user);
       return { ok: true, user: data.user };
     } catch (e) {
@@ -38,7 +38,7 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     try { await api.post("/auth/logout"); } catch { /* noop */ }
-    localStorage.removeItem("access_token");
+    authToken.clear();
     setUser(false);
   };
 

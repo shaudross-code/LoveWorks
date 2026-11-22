@@ -10,11 +10,12 @@ from zoneinfo import ZoneInfo
 
 import pytest
 import requests
+import creds as C  # noqa: E402
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv("/app/backend/.env")
-API = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") + "/api"
+API = C.BASE_URL + "/api"
 TZ = "America/Chicago"
 FAKE_FCM = "TEST_fake_fcm_token_live_activity"
 
@@ -33,7 +34,7 @@ def _login(email, pw):
 
 @pytest.fixture(scope="module")
 def worker():
-    h, u = _login("lovetest@loveworks.com", "Love123!")
+    h, u = _login(C.WORKER["email"], C.WORKER["password"])
     requests.post(f"{API}/time/clock-out", headers=h, timeout=20)  # start clean
     return h, u
 

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import api, { formatApiError } from "@/lib/api";
+import api, { authToken, formatApiError } from "@/lib/api";
 import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ export default function Profile() {
     try {
       await api.delete("/me", { data: { password: delPassword } });
       toast.success("Account deleted. Goodbye 👋");
-      localStorage.removeItem("access_token");
+      authToken.clear();
       setUser(false);
       nav("/login", { replace: true });
     } catch (e) { toast.error(formatApiError(e)); }

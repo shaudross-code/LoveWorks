@@ -4,16 +4,16 @@ Scope: verify the newly added features from the review request against the deplo
 REACT_APP_BACKEND_URL. All test-created data uses the TEST_ prefix and is cleaned up
 via class-scoped teardown fixtures.
 """
-import os
 import uuid
 import pytest
 import requests
+import creds as C  # noqa: E402
 
-BASE = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
+BASE = C.BASE_URL
 assert BASE, "REACT_APP_BACKEND_URL is required"
 
-ADMIN = {"email": "admin@clockwork.com", "password": "admin123"}
-WORKER = {"email": "lovetest@loveworks.com", "password": "Love123!"}
+ADMIN = dict(C.ADMIN)
+WORKER = dict(C.WORKER)
 
 
 def _login(creds):
@@ -52,7 +52,7 @@ class TestPWA:
         r = requests.get(f"{BASE}/manifest.json", timeout=15)
         assert r.status_code == 200
         j = r.json()
-        assert j["short_name"] == "LoveWorks"
+        assert j["short_name"] == "iLoveWorks"
         assert j["start_url"] == "/"
         assert any(i["sizes"] == "192x192" for i in j["icons"])
         assert any(i["sizes"] == "512x512" for i in j["icons"])

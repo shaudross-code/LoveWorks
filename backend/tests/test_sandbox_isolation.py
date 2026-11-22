@@ -1,17 +1,18 @@
 """Sandbox isolation tests for reviewer vs owner accounts (iteration_7)."""
-import os
 import random
 import string
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://labor-admin-hub.preview.emergentagent.com").rstrip("/")
+BASE_URL = C.BASE_URL
 API = f"{BASE_URL}/api"
 
-OWNER = ("admin@loveworks.com", "admin123")
-REVIEWER = ("reviewer@loveworks.com", "iLoveWorks2026!")
-DEMO_WORKER = ("demo@loveworks.com", "DemoWorker2026!")
-REAL_WORKER = ("lovetest@loveworks.com", "Love123!")
+OWNER = (C.ADMIN["email"], C.ADMIN["password"])
+REVIEWER = (C.REVIEWER["email"], C.REVIEWER["password"])
+DEMO_WORKER = (C.DEMO_WORKER["email"], C.DEMO_WORKER["password"])
+REAL_WORKER = (C.WORKER["email"], C.WORKER["password"])
 
 
 def login(email, password):
@@ -126,13 +127,13 @@ class TestOwnerIsolation:
         r = requests.get(f"{API}/tasks", headers=owner_h, timeout=15)
         assert r.status_code == 200
         titles = {t.get("title") for t in r.json()}
-        assert "Vacuum the living room" not in titles, f"sandbox task leaked into owner"
+        assert "Vacuum the living room" not in titles, "sandbox task leaked into owner"
 
     def test_goals_no_sandbox(self, owner_h):
         r = requests.get(f"{API}/goals", headers=owner_h, timeout=15)
         assert r.status_code == 200
         titles = {g.get("title") for g in r.json()}
-        assert not (titles & {"New Headphones", "Weekend Lake Trip"}), f"sandbox goal leak"
+        assert not (titles & {"New Headphones", "Weekend Lake Trip"}), "sandbox goal leak"
 
     def test_essentials_no_sandbox(self, owner_h):
         r = requests.get(f"{API}/essentials", headers=owner_h, timeout=15)
@@ -158,7 +159,7 @@ class TestSandboxWorkerCreation:
     def test_create_sb_worker_isolated(self, rev_h, owner_h):
         email = f"sbtest+{rnd()}@loveworks.com"
         r = requests.post(f"{API}/workers", headers=rev_h,
-                          json={"email": email, "password": "Test1234!", "name": "SB Test"}, timeout=15)
+                          json={"email": email, "password": TMP_PW, "name": "SB Test"}, timeout=15)
         assert r.status_code in (200, 201), r.text
         new_id = r.json().get("id")
         assert new_id

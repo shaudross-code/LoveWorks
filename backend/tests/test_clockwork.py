@@ -1,20 +1,21 @@
 """ClockWork end-to-end backend tests.
 Covers auth, workers, tasks, time entries, payroll.
 """
-import os
 import time
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://labor-admin-hub.preview.emergentagent.com").rstrip("/")
+BASE_URL = C.BASE_URL
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "admin@clockwork.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = C.ADMIN["email"]
+ADMIN_PASSWORD = C.ADMIN["password"]
 
 # Use unique worker email per test session to avoid collisions
 WORKER_EMAIL = f"test_worker_{int(time.time())}@clockwork.com"
-WORKER_PASSWORD = "worker123"
+WORKER_PASSWORD = TMP_PW
 WORKER_NAME = "Test Worker"
 
 
@@ -95,13 +96,13 @@ class TestWorkers:
 
     def test_duplicate_worker_email_rejected(self, admin_session, worker_creds):
         r = admin_session.post(f"{API}/workers", json={
-            "email": worker_creds["email"], "password": "x123456", "name": "Dup"
+            "email": worker_creds["email"], "password": TMP_PW, "name": "Dup"
         })
         assert r.status_code == 400
 
     def test_non_admin_cannot_create_worker(self, worker_session):
         r = worker_session.post(f"{API}/workers", json={
-            "email": f"forbidden_{int(time.time())}@x.com", "password": "abc123", "name": "Nope"
+            "email": f"forbidden_{int(time.time())}@x.com", "password": TMP_PW, "name": "Nope"
         })
         assert r.status_code == 403
 

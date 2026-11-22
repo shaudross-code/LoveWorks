@@ -1,16 +1,11 @@
 import { User } from "lucide-react";
+import { fileUrl } from "@/lib/api";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-
-/**
- * <Avatar url="/api/files/..." name="Sam" size={40} />
- * Renders an image (with ?auth=<token>) or initials placeholder.
- */
+// <Avatar url="/api/files/..." name="Sam" size={40} /> shows the photo or the first initial.
 export default function Avatar({ url, name = "", size = 40, className = "" }) {
   const dim = { width: size, height: size };
   const initial = (name?.trim()?.[0] || "?").toUpperCase();
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-  const src = url ? `${BACKEND_URL}${url}${token ? `?auth=${token}` : ""}` : null;
+  const src = fileUrl(url);
 
   return (
     <div

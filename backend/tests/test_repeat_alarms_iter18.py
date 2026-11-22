@@ -11,11 +11,12 @@ from zoneinfo import ZoneInfo
 
 import pytest
 import requests
+import creds as C  # noqa: E402
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv("/app/backend/.env")
-API = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") + "/api"
+API = C.BASE_URL + "/api"
 TZ = "America/Chicago"
 
 
@@ -33,12 +34,12 @@ def _login(email, pw):
 
 @pytest.fixture(scope="module")
 def worker():
-    return _login("lovetest@loveworks.com", "Love123!")
+    return _login(C.WORKER["email"], C.WORKER["password"])
 
 
 @pytest.fixture(scope="module")
 def admin():
-    return _login("admin@loveworks.com", "admin123")
+    return _login(C.ADMIN["email"], C.ADMIN["password"])
 
 
 @pytest.fixture(scope="module")

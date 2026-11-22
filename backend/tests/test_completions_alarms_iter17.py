@@ -8,11 +8,12 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 import requests
+import creds as C  # noqa: E402
 from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv("/app/backend/.env")
-API = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") + "/api"
+API = C.BASE_URL + "/api"
 
 
 def _db(fn):
@@ -32,22 +33,22 @@ def _login(email, pw):
 
 @pytest.fixture(scope="module")
 def admin():
-    return _login("admin@loveworks.com", "admin123")
+    return _login(C.ADMIN["email"], C.ADMIN["password"])
 
 
 @pytest.fixture(scope="module")
 def worker():
-    return _login("lovetest@loveworks.com", "Love123!")
+    return _login(C.WORKER["email"], C.WORKER["password"])
 
 
 @pytest.fixture(scope="module")
 def sb_admin():
-    return _login("reviewer@loveworks.com", "iLoveWorks2026!")
+    return _login(C.REVIEWER["email"], C.REVIEWER["password"])
 
 
 @pytest.fixture(scope="module")
 def sb_worker():
-    return _login("demo@loveworks.com", "DemoWorker2026!")
+    return _login(C.DEMO_WORKER["email"], C.DEMO_WORKER["password"])
 
 
 @pytest.fixture(scope="module")
@@ -60,10 +61,10 @@ def created():
 def cleanup(created):
     yield
     try:
-        ah, _ = _login("admin@loveworks.com", "admin123")
+        ah, _ = _login(C.ADMIN["email"], C.ADMIN["password"])
         for t in created["tasks"]:
             requests.delete(f"{API}/tasks/{t}", headers=ah, timeout=20)
-        sh, _ = _login("reviewer@loveworks.com", "iLoveWorks2026!")
+        sh, _ = _login(C.REVIEWER["email"], C.REVIEWER["password"])
         for t in created["sb_tasks"]:
             requests.delete(f"{API}/tasks/{t}", headers=sh, timeout=20)
     except Exception:

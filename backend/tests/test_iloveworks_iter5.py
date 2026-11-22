@@ -1,14 +1,15 @@
 """iLoveWorks iter5 tests: delete account, clock-out alert, idle fields, branding, privacy."""
-import os
 import time
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 import pytest
 
-BASE = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
+BASE = C.BASE_URL
 API = f"{BASE}/api"
 
-ADMIN = {"email": "admin@clockwork.com", "password": "admin123"}
-KEEP_WORKER = {"email": "lovetest@loveworks.com", "password": "Love123!"}
+ADMIN = dict(C.ADMIN)
+KEEP_WORKER = dict(C.WORKER)
 
 
 def _login(email, password):
@@ -92,7 +93,7 @@ class TestClockOutAlert:
 # ---------- Delete account ----------
 class TestDeleteAccount:
     email = f"deltest_{int(time.time())}@loveworks.com"
-    password = "Delete123!"
+    password = TMP_PW
     worker_id = None
 
     def test_admin_cannot_delete_self(self, admin):

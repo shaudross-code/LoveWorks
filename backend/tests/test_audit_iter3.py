@@ -8,7 +8,6 @@ admin goal-assignment flow.
 Every test seeds rows with stable identifiers prefixed with 'AUDIT-' and cleans up
 at the end. The pre-existing admin (admin@clockwork.com) is never mutated.
 """
-import os
 import sys
 import time
 import uuid
@@ -16,25 +15,27 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 from pymongo import MongoClient
 from zoneinfo import ZoneInfo
 
 sys.path.insert(0, "/app/backend")
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://labor-admin-hub.preview.emergentagent.com").rstrip("/")
+BASE_URL = C.BASE_URL
 API = f"{BASE_URL}/api"
-ADMIN_EMAIL = "admin@clockwork.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = C.ADMIN["email"]
+ADMIN_PASSWORD = C.ADMIN["password"]
 APP_TZ = ZoneInfo("America/Chicago")
 
 # Direct DB for seeding completions at specific timestamps + cleanup
-mongo = MongoClient("mongodb://localhost:27017")
-db = mongo["clockwork_db"]
+mongo = MongoClient(C.MONGO_URL)
+db = mongo[C.DB_NAME]
 
 TAG = "AUDIT-iter3"
 RUN = uuid.uuid4().hex[:6]
 WORKER_EMAIL = f"audit-worker-{RUN}@clockwork.com"
-WORKER_PASSWORD = "Worker123!"
+WORKER_PASSWORD = TMP_PW
 
 
 # ----------------------------- fixtures -----------------------------
@@ -337,7 +338,7 @@ class TestTaskLifecycleNotifs:
         # create a 2nd worker for the reassignment leg
         WORKER2_EMAIL = f"audit-worker2-{RUN}@clockwork.com"
         r = admin_session.post(f"{API}/workers", json={
-            "email": WORKER2_EMAIL, "password": "Worker123!", "name": f"Audit Worker2 {RUN}"
+            "email": WORKER2_EMAIL, "password": TMP_PW, "name": f"Audit Worker2 {RUN}"
         }, timeout=15)
         assert r.status_code in (200, 201)
         w2 = r.json()

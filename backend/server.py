@@ -20,7 +20,7 @@ import bcrypt
 import payroll_sheet as psheet
 import jwt
 import requests
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Header, Query
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Query
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, EmailStr, Field
@@ -271,46 +271,53 @@ def get_object(path: str):
 
 
 
-async def get_current_user(request: Request) -> dict:
+def _request_token(request: Request) -> Optional[str]:
+    """Web: httpOnly cookie. Native apps: Bearer header. Legacy <img> links: ?auth=."""
     token = request.cookies.get("access_token")
-    if not token:
-        auth_header = request.headers.get("Authorization", "")
-        if auth_header.startswith("Bearer "):
-            token = auth_header[7:]
-    if not token:
-        # fallback: ?auth=<token> query param (used by <img> tags)
-        token = request.query_params.get("auth")
-    if not token:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+    if token:
+        return token
+    auth_header = request.headers.get("Authorization", "")
+    if auth_header.startswith("Bearer "):
+        return auth_header[7:]
+    return request.query_params.get("auth")
+
+
+def _decode_access_token(token: str) -> dict:
     try:
         payload = jwt.decode(token, get_jwt_secret(), algorithms=[JWT_ALGORITHM])
-        if payload.get("type") != "access":
-            raise HTTPException(status_code=401, detail="Invalid token type")
-        user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0})
-        if not user:
-            raise HTTPException(status_code=401, detail="User not found")
-        user.pop("password_hash", None)
-        # Best-effort presence touch (throttled to once per 30s per user)
-        try:
-            last = user.get("last_seen_at")
-            should_touch = True
-            if last:
-                try:
-                    if (now_utc() - datetime.fromisoformat(last)).total_seconds() < 30:
-                        should_touch = False
-                except Exception:
-                    pass
-            if should_touch:
-                ts = now_utc().isoformat()
-                await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen_at": ts}})
-                user["last_seen_at"] = ts
-        except Exception:
-            pass
-        return user
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token expired")
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    if payload.get("type") != "access":
+        raise HTTPException(status_code=401, detail="Invalid token type")
+    return payload
+
+
+async def _touch_last_seen(user: dict) -> None:
+    """Best-effort presence touch, throttled to once per 30s per user."""
+    last = _as_utc(user.get("last_seen_at"))
+    if last and (now_utc() - last).total_seconds() < 30:
+        return
+    ts = now_utc().isoformat()
+    try:
+        await db.users.update_one({"id": user["id"]}, {"$set": {"last_seen_at": ts}})
+    except Exception:
+        return
+    user["last_seen_at"] = ts
+
+
+async def get_current_user(request: Request) -> dict:
+    token = _request_token(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    payload = _decode_access_token(token)
+    user = await db.users.find_one({"id": payload["sub"]}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    user.pop("password_hash", None)
+    await _touch_last_seen(user)
+    return user
 
 
 async def require_admin(user: dict = Depends(get_current_user)) -> dict:
@@ -468,32 +475,41 @@ async def send_web_push(user_id: str, title: str, body: str, link: Optional[str]
     payload = _json.dumps({"title": title, "body": body, "link": link or "/", "meta": meta or {}})
     dead: list = []
     for s in subs:
-        try:
-            webpush(
-                subscription_info=s["subscription"],
-                data=payload,
-                vapid_private_key=VAPID_SIGNER,
-                vapid_claims={"sub": VAPID_SUBJECT},
-                ttl=60 * 60 * 12,  # 12h
-            )
-        except WebPushException as e:
-            resp = getattr(e, "response", None)
-            status = getattr(resp, "status_code", None)
-            result["errors"].append(f"{status or ''} {(getattr(resp, 'text', '') or str(e))[:160]}".strip())
-            if status in (404, 410):
-                dead.append(s["endpoint"])
-            else:
-                logger.warning(f"webpush failed: {e}")
-        except Exception as e:
-            result["errors"].append(str(e)[:160])
-            logger.warning(f"webpush error: {e}")
-        else:
+        error, gone = _send_one_web_push(s["subscription"], payload)
+        if error is None:
             result["sent"] += 1
+            continue
+        result["errors"].append(error)
+        if gone:
+            dead.append(s["endpoint"])
     if dead:
         await db.push_subscriptions.update_many(
             {"endpoint": {"$in": dead}}, {"$set": {"is_active": False}}
         )
     return result
+
+
+def _send_one_web_push(subscription: dict, payload: str) -> tuple:
+    """(None, False) when delivered, else (error text, subscription_gone)."""
+    try:
+        webpush(
+            subscription_info=subscription,
+            data=payload,
+            vapid_private_key=VAPID_SIGNER,
+            vapid_claims={"sub": VAPID_SUBJECT},
+            ttl=60 * 60 * 12,  # 12h
+        )
+    except WebPushException as e:
+        resp = getattr(e, "response", None)
+        status = getattr(resp, "status_code", None)
+        gone = status in (404, 410)
+        if not gone:
+            logger.warning(f"webpush failed: {e}")
+        return f"{status or ''} {(getattr(resp, 'text', '') or str(e))[:160]}".strip(), gone
+    except Exception as e:
+        logger.warning(f"webpush error: {e}")
+        return str(e)[:160], False
+    return None, False
 
 
 async def send_native_push(user_id: str, title: str, body: str, link: Optional[str] = None) -> dict:
@@ -699,38 +715,51 @@ async def update_profile(req: ProfileUpdate, user: dict = Depends(get_current_us
     return serialize_user(updated)
 
 
-@api_router.post("/me/avatar")
-async def upload_avatar(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+IMAGE_EXT = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
+
+
+async def _store_image(file: UploadFile, folder: str, owner_id: str, uploader_id: str,
+                       required: bool = True) -> Optional[str]:
+    """Validate an uploaded image, put it in object storage and record it in `files`. Returns its storage path."""
     content_type = (file.content_type or "").lower()
     if content_type not in ALLOWED_IMAGE_TYPES:
         raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
     data = await file.read()
-    if len(data) == 0:
-        raise HTTPException(status_code=400, detail="Empty file")
+    if not data:
+        if required:
+            raise HTTPException(status_code=400, detail="Empty file")
+        return None
     if len(data) > MAX_AVATAR_BYTES:
         raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
-    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
-    ext = ext_map.get(content_type, "jpg")
-    path = f"{APP_NAME}/avatars/{user['id']}/{uuid.uuid4()}.{ext}"
+    path = f"{APP_NAME}/{folder}/{owner_id}/{uuid.uuid4()}.{IMAGE_EXT.get(content_type, 'jpg')}"
     try:
         result = put_object(path, data, content_type)
     except Exception as e:
-        logger.exception("Avatar upload failed")
+        logger.exception("Image upload failed")
         raise HTTPException(status_code=502, detail=f"Storage error: {e}")
     stored_path = result.get("path", path)
-    # soft-delete previous avatar reference if any
-    old = (await db.users.find_one({"id": user["id"]}, {"_id": 0, "avatar_path": 1})) or {}
-    if old.get("avatar_path"):
-        await db.files.update_many({"storage_path": old["avatar_path"]}, {"$set": {"is_deleted": True}})
     await db.files.insert_one({
         "id": str(uuid.uuid4()),
-        "user_id": user["id"],
+        "user_id": uploader_id,
         "storage_path": stored_path,
         "content_type": content_type,
         "size": result.get("size", len(data)),
         "is_deleted": False,
         "created_at": now_utc().isoformat(),
     })
+    return stored_path
+
+
+async def _retire_file(path: Optional[str]) -> None:
+    if path:
+        await db.files.update_many({"storage_path": path}, {"$set": {"is_deleted": True}})
+
+
+@api_router.post("/me/avatar")
+async def upload_avatar(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    stored_path = await _store_image(file, "avatars", user["id"], user["id"])
+    old = (await db.users.find_one({"id": user["id"]}, {"_id": 0, "avatar_path": 1})) or {}
+    await _retire_file(old.get("avatar_path"))
     await db.users.update_one({"id": user["id"]}, {"$set": {"avatar_path": stored_path}})
     updated = await db.users.find_one({"id": user["id"]}, {"_id": 0, "password_hash": 0})
     return serialize_user(updated)
@@ -867,92 +896,83 @@ def _validate_allocation(v) -> Optional[float]:
     return n
 
 
+class GoalCreateQuery(BaseModel):
+    title: Optional[str] = None
+    product_link: Optional[str] = None
+    deadline: Optional[str] = None
+    target_amount: Optional[float] = None
+    period: Optional[str] = None
+    allocation_percent: Optional[float] = None
+    assignee_id: Optional[str] = None
+    kind: Optional[str] = "goal"
+
+
+async def _resolve_owner(user: dict, assignee_id: Optional[str], what: str) -> str:
+    """Admins may create an item for one of their workers; everyone else always owns what they create."""
+    if not assignee_id:
+        return user["id"]
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail=f"Only admin can assign {what} to others")
+    if not await db.users.find_one({"id": assignee_id, "role": "worker", **_sb(user)}):
+        raise HTTPException(status_code=404, detail="Worker not found")
+    return assignee_id
+
+
+def _goal_fields(q: GoalCreateQuery) -> dict:
+    if not q.title or not q.title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    kind = (q.kind or "goal").lower()
+    if kind not in {"goal", "trip"}:
+        raise HTTPException(status_code=400, detail="kind must be 'goal' or 'trip'")
+    return {
+        "kind": kind,
+        "title": q.title.strip(),
+        "product_link": (q.product_link or "").strip() or None,
+        "deadline": _parse_deadline(q.deadline),
+        "target_amount": float(q.target_amount) if q.target_amount is not None else None,
+        "period": _validate_goal_period(q.period) or "weekly",
+        "allocation_percent": _validate_allocation(q.allocation_percent) if q.allocation_percent is not None else 100.0,
+    }
+
+
+async def _notify_goal_assigned(goal: dict) -> None:
+    trip = goal["kind"] == "trip"
+    target_str = f" · target ${goal['target_amount']:.0f}" if goal.get("target_amount") else ""
+    await notify(
+        goal["owner_id"], "goal_assigned",
+        f"{'✈️' if trip else '🎯'} New {'trip' if trip else 'goal'}: {goal['title']}",
+        f"Set by your admin{target_str}",
+        link="/worker",
+        meta={"goal_id": goal["id"], "kind": goal["kind"]},
+    )
+
+
 @api_router.post("/goals")
 async def create_goal(
-    title: str = Query(default=None),
-    product_link: Optional[str] = Query(default=None),
-    deadline: Optional[str] = Query(default=None),
-    target_amount: Optional[float] = Query(default=None),
-    period: Optional[str] = Query(default=None),
-    allocation_percent: Optional[float] = Query(default=None),
-    assignee_id: Optional[str] = Query(default=None),
-    kind: Optional[str] = Query(default="goal", description="'goal' or 'trip'"),
+    q: GoalCreateQuery = Depends(),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
-    if not title or not title.strip():
-        raise HTTPException(status_code=400, detail="Title is required")
-    kind = (kind or "goal").lower()
-    if kind not in {"goal", "trip"}:
-        raise HTTPException(status_code=400, detail="kind must be 'goal' or 'trip'")
-    # Admin can assign a goal to a worker; workers always own their own goal
-    owner_id = user["id"]
-    assigned_by_admin = False
-    if assignee_id and user["role"] == "admin":
-        worker = await db.users.find_one({"id": assignee_id, "role": "worker", **_sb(user)})
-        if not worker:
-            raise HTTPException(status_code=404, detail="Worker not found")
-        owner_id = assignee_id
-        assigned_by_admin = True
-    elif assignee_id and user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Only admin can assign goals to others")
-    image_path = None
-    if file is not None:
-        content_type = (file.content_type or "").lower()
-        if content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
-        data = await file.read()
-        if len(data) > MAX_AVATAR_BYTES:
-            raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
-        if data:
-            ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
-            ext = ext_map.get(content_type, "jpg")
-            path = f"{APP_NAME}/goals/{owner_id}/{uuid.uuid4()}.{ext}"
-            try:
-                result = put_object(path, data, content_type)
-            except Exception as e:
-                raise HTTPException(status_code=502, detail=f"Storage error: {e}")
-            image_path = result.get("path", path)
-            await db.files.insert_one({
-                "id": str(uuid.uuid4()),
-                "user_id": user["id"],
-                "storage_path": image_path,
-                "content_type": content_type,
-                "size": result.get("size", len(data)),
-                "is_deleted": False,
-                "created_at": now_utc().isoformat(),
-            })
+    fields = _goal_fields(q)
+    owner_id = await _resolve_owner(user, q.assignee_id, "goals")
+    image_path = await _store_image(file, "goals", owner_id, user["id"], required=False) if file is not None else None
+    assigned = owner_id != user["id"]
     goal = {
         "id": str(uuid.uuid4()),
         "owner_id": owner_id,
-        "kind": kind,
-        "title": title.strip(),
-        "product_link": (product_link or "").strip() or None,
+        **fields,
         "image_path": image_path,
-        "deadline": _parse_deadline(deadline),
-        "target_amount": float(target_amount) if target_amount is not None else None,
-        "period": _validate_goal_period(period) or "weekly",
-        "allocation_percent": _validate_allocation(allocation_percent) if allocation_percent is not None else 100.0,
         "status": "open",
         "appreciation": None,
         "completed_at": None,
         "completed_by": None,
-        "assigned_by": user["id"] if assigned_by_admin else None,
+        "assigned_by": user["id"] if assigned else None,
         "created_at": now_utc().isoformat(),
     }
     await db.goals.insert_one(goal)
     goal.pop("_id", None)
-    if assigned_by_admin and owner_id != user["id"]:
-        target_str = f" · target ${float(target_amount):.0f}" if target_amount else ""
-        emoji = "✈️" if kind == "trip" else "🎯"
-        label = "trip" if kind == "trip" else "goal"
-        await notify(
-            owner_id, "goal_assigned",
-            f"{emoji} New {label}: {goal['title']}",
-            f"Set by your admin{target_str}",
-            link="/worker",
-            meta={"goal_id": goal["id"], "kind": kind},
-        )
+    if assigned:
+        await _notify_goal_assigned(goal)
     return _attach_goal_image_url(goal)
 
 
@@ -1033,31 +1053,39 @@ def _as_utc(s: Optional[str]) -> Optional[datetime]:
     return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
 
 
-async def _week_breakdown(worker_ids: list, start: datetime, weeks: int = 1) -> dict:
-    """{worker_id: [week, ...]} from `start` (local Monday). Each week has 7 day slots with the tasks completed
-    (price as recorded at completion), pay and clocked hours split at local midnight. One source for every screen."""
-    end = start + timedelta(days=7 * weeks)
-    now = now_utc()
-    first_day = start.date()
-    out = {wid: [{"week_start": (start + timedelta(days=7 * w)).date().isoformat(),
-                  "days": [{"date": (start + timedelta(days=7 * w + i)).date().isoformat(),
-                            "count": 0, "earned": 0.0, "hours": 0.0, "tasks": []} for i in range(7)]}
-                 for w in range(weeks)] for wid in worker_ids}
-    if not worker_ids:
-        return out
+def _empty_weeks(start: datetime, weeks: int) -> list:
+    return [{"week_start": (start + timedelta(days=7 * w)).date().isoformat(),
+             "days": [{"date": (start + timedelta(days=7 * w + i)).date().isoformat(),
+                       "count": 0, "earned": 0.0, "hours": 0.0, "tasks": []} for i in range(7)]}
+            for w in range(weeks)]
 
-    def slot(wid: str, local_dt: datetime):
-        idx = (local_dt.date() - first_day).days
-        if wid not in out or not 0 <= idx < 7 * weeks:
-            return None
-        return out[wid][idx // 7]["days"][idx % 7]
 
+def _day_slot(out: dict, first_day: date, wid: str, local_dt: datetime) -> Optional[dict]:
+    weeks_list = out.get(wid)
+    idx = (local_dt.date() - first_day).days
+    if weeks_list is None or not 0 <= idx < 7 * len(weeks_list):
+        return None
+    return weeks_list[idx // 7]["days"][idx % 7]
+
+
+def _split_by_local_day(in_dt: datetime, out_dt: datetime, start: datetime, end: datetime):
+    """Yield (local chunk start, hours) for a shift clipped to [start, end) and split at local midnight."""
+    cur = max(in_dt, start).astimezone(APP_TZ)
+    stop = min(out_dt, end).astimezone(APP_TZ)
+    while cur < stop:
+        day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        chunk_end = min(stop, day_end)
+        yield cur, max(0, (chunk_end - cur).total_seconds()) / 3600.0
+        cur = chunk_end
+
+
+async def _add_week_completions(out: dict, worker_ids: list, start: datetime, end: datetime) -> None:
     comps = await db.task_completions.find(
         {"worker_id": {"$in": worker_ids}, "completed_at": {"$gte": iso_utc(start), "$lt": iso_utc(end)}}, {"_id": 0},
     ).sort("completed_at", 1).to_list(100000)
     for c in comps:
         done = _as_utc(c.get("completed_at"))
-        sl = done and slot(c["worker_id"], done.astimezone(APP_TZ))
+        sl = done and _day_slot(out, start.date(), c["worker_id"], done.astimezone(APP_TZ))
         if sl is None:
             continue
         price = float(c.get("price") or 0)
@@ -1066,35 +1094,46 @@ async def _week_breakdown(worker_ids: list, start: datetime, weeks: int = 1) -> 
         sl["tasks"].append({"task_id": c.get("task_id"), "title": c.get("title", ""), "price": round(price, 2),
                             "completed_at": c["completed_at"]})
 
+
+async def _add_week_hours(out: dict, worker_ids: list, start: datetime, end: datetime) -> None:
     # every shift overlapping the range, including ones that started before it or are still running
     entries = await db.time_entries.find(
         {"user_id": {"$in": worker_ids}, "clock_in": {"$lt": iso_utc(end)},
          "$or": [{"clock_out": None}, {"clock_out": {"$gt": iso_utc(start)}}]},
         {"_id": 0, "user_id": 1, "clock_in": 1, "clock_out": 1},
     ).to_list(50000)
+    now = now_utc()
     for e in entries:
         in_dt = _as_utc(e.get("clock_in"))
         if not in_dt:
             continue
-        out_dt = _as_utc(e.get("clock_out")) or now
-        cur = max(in_dt, start).astimezone(APP_TZ)
-        stop = min(out_dt, end).astimezone(APP_TZ)
-        while cur < stop:
-            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            chunk_end = min(stop, day_end)
-            sl = slot(e["user_id"], cur)
+        for chunk_start, hours in _split_by_local_day(in_dt, _as_utc(e.get("clock_out")) or now, start, end):
+            sl = _day_slot(out, start.date(), e["user_id"], chunk_start)
             if sl is not None:
-                sl["hours"] += max(0, (chunk_end - cur).total_seconds()) / 3600.0
-            cur = chunk_end
+                sl["hours"] += hours
 
+
+def _finish_week(wk: dict) -> None:
+    for d in wk["days"]:
+        d["earned"] = round(d["earned"], 2)
+        d["hours"] = round(d["hours"], 2)
+    wk["tasks_completed"] = sum(d["count"] for d in wk["days"])
+    wk["earned"] = round(sum(d["earned"] for d in wk["days"]), 2)
+    wk["hours"] = round(sum(d["hours"] for d in wk["days"]), 2)
+
+
+async def _week_breakdown(worker_ids: list, start: datetime, weeks: int = 1) -> dict:
+    """{worker_id: [week, ...]} from `start` (local Monday). Each week has 7 day slots with the tasks completed
+    (price as recorded at completion), pay and clocked hours split at local midnight. One source for every screen."""
+    end = start + timedelta(days=7 * weeks)
+    out = {wid: _empty_weeks(start, weeks) for wid in worker_ids}
+    if not worker_ids:
+        return out
+    await _add_week_completions(out, worker_ids, start, end)
+    await _add_week_hours(out, worker_ids, start, end)
     for weeks_list in out.values():
         for wk in weeks_list:
-            for d in wk["days"]:
-                d["earned"] = round(d["earned"], 2)
-                d["hours"] = round(d["hours"], 2)
-            wk["tasks_completed"] = sum(d["count"] for d in wk["days"])
-            wk["earned"] = round(sum(d["earned"] for d in wk["days"]), 2)
-            wk["hours"] = round(sum(d["hours"] for d in wk["days"]), 2)
+            _finish_week(wk)
     return out
 
 
@@ -1238,34 +1277,8 @@ async def upload_goal_image(goal_id: str, file: UploadFile = File(...), user: di
         raise HTTPException(status_code=404, detail="Goal not found")
     if not _can_edit_doc(user, goal):
         raise HTTPException(status_code=403, detail="Not your goal")
-    content_type = (file.content_type or "").lower()
-    if content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(status_code=400, detail="Only JPEG, PNG, WEBP, or GIF images are allowed")
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=400, detail="Empty file")
-    if len(data) > MAX_AVATAR_BYTES:
-        raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
-    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
-    ext = ext_map.get(content_type, "jpg")
-    path = f"{APP_NAME}/goals/{goal['owner_id']}/{uuid.uuid4()}.{ext}"
-    try:
-        result = put_object(path, data, content_type)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
-    image_path = result.get("path", path)
-    await db.files.insert_one({
-        "id": str(uuid.uuid4()),
-        "user_id": user["id"],
-        "storage_path": image_path,
-        "content_type": content_type,
-        "size": result.get("size", len(data)),
-        "is_deleted": False,
-        "created_at": now_utc().isoformat(),
-    })
-    # Soft-delete the previous image
-    if goal.get("image_path"):
-        await db.files.update_one({"storage_path": goal["image_path"]}, {"$set": {"is_deleted": True}})
+    image_path = await _store_image(file, "goals", goal["owner_id"], user["id"])
+    await _retire_file(goal.get("image_path"))
     await db.goals.update_one({"id": goal_id}, {"$set": {"image_path": image_path}})
     updated = await db.goals.find_one({"id": goal_id}, {"_id": 0})
     return _attach_goal_image_url(updated)
@@ -1484,77 +1497,47 @@ async def list_essentials(
     return rows
 
 
+class EssentialCreateQuery(BaseModel):
+    title: str
+    price: float
+    category: Optional[str] = "other"
+    quantity: Optional[int] = 1
+    note: Optional[str] = None
+    assignee_id: Optional[str] = None
+    recurring: Optional[bool] = False
+    due_date: Optional[str] = None
+
+
+def _essential_fields(q: EssentialCreateQuery) -> dict:
+    if not q.title.strip():
+        raise HTTPException(status_code=400, detail="Title is required")
+    cat = (q.category or "other").lower()
+    return {
+        "title": q.title.strip(),
+        "price": _essential_price(q.price),
+        "quantity": int(q.quantity) if q.quantity and q.quantity >= 1 else 1,
+        "category": cat if cat in ESSENTIAL_CATEGORIES else "other",
+        "note": (q.note or "").strip() or None,
+        "recurring": bool(q.recurring),
+        "due_date": _parse_deadline(q.due_date) if q.due_date else None,
+    }
+
+
 @api_router.post("/essentials")
 async def create_essential(
-    title: str = Query(...),
-    price: float = Query(...),
-    category: Optional[str] = Query(default="other"),
-    quantity: Optional[int] = Query(default=1),
-    note: Optional[str] = Query(default=None),
-    assignee_id: Optional[str] = Query(default=None),
-    recurring: Optional[bool] = Query(default=False),
-    due_date: Optional[str] = Query(default=None),
+    q: EssentialCreateQuery = Depends(),
     file: Optional[UploadFile] = File(default=None),
     user: dict = Depends(get_current_user),
 ):
-    if not title or not title.strip():
-        raise HTTPException(status_code=400, detail="Title is required")
-    if price < 0:
-        raise HTTPException(status_code=400, detail="Price must be >= 0")
-    if quantity is None or quantity < 1:
-        quantity = 1
-    cat = (category or "other").lower()
-    if cat not in ESSENTIAL_CATEGORIES:
-        cat = "other"
-
-    owner_id = user["id"]
-    if assignee_id and user["role"] == "admin":
-        worker = await db.users.find_one({"id": assignee_id, "role": "worker", **_sb(user)})
-        if not worker:
-            raise HTTPException(status_code=404, detail="Worker not found")
-        owner_id = assignee_id
-    elif assignee_id and user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Only admin can assign essentials to others")
-
-    image_path = None
-    if file is not None:
-        content_type = (file.content_type or "").lower()
-        if content_type not in ALLOWED_IMAGE_TYPES:
-            raise HTTPException(status_code=400, detail="Only JPEG/PNG/WEBP/GIF images allowed")
-        data = await file.read()
-        if data:
-            if len(data) > MAX_AVATAR_BYTES:
-                raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
-            ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
-            ext = ext_map.get(content_type, "jpg")
-            path = f"{APP_NAME}/essentials/{owner_id}/{uuid.uuid4()}.{ext}"
-            try:
-                result = put_object(path, data, content_type)
-            except Exception as e:
-                raise HTTPException(status_code=502, detail=f"Storage error: {e}")
-            image_path = result.get("path", path)
-            await db.files.insert_one({
-                "id": str(uuid.uuid4()),
-                "user_id": user["id"],
-                "storage_path": image_path,
-                "content_type": content_type,
-                "size": result.get("size", len(data)),
-                "is_deleted": False,
-                "created_at": now_utc().isoformat(),
-            })
-
+    fields = _essential_fields(q)
+    owner_id = await _resolve_owner(user, q.assignee_id, "essentials")
+    image_path = await _store_image(file, "essentials", owner_id, user["id"], required=False) if file is not None else None
     doc = {
         "id": str(uuid.uuid4()),
         "owner_id": owner_id,
-        "title": title.strip(),
-        "price": float(price),
-        "quantity": int(quantity),
-        "category": cat,
-        "note": (note or "").strip() or None,
+        **fields,
         "image_path": image_path,
         "purchased": False,
-        "recurring": bool(recurring),
-        "due_date": _parse_deadline(due_date) if due_date else None,
         "completed_at": None,
         "created_by": user["id"],
         "created_at": now_utc().isoformat(),
@@ -1575,6 +1558,45 @@ class EssentialUpdate(BaseModel):
     due_date: Optional[str] = None  # ISO YYYY-MM-DD; "" or null clears
 
 
+def _essential_price(v: float) -> float:
+    if v < 0:
+        raise HTTPException(status_code=400, detail="Price must be >= 0")
+    return float(v)
+
+
+def _essential_quantity(v: int) -> int:
+    if v < 1:
+        raise HTTPException(status_code=400, detail="Quantity must be >= 1")
+    return int(v)
+
+
+def _essential_category(v: str) -> str:
+    cat = v.lower()
+    if cat not in ESSENTIAL_CATEGORIES:
+        raise HTTPException(status_code=400, detail="Invalid category")
+    return cat
+
+
+_ESSENTIAL_UPDATE_RULES = {
+    "title": lambda v: v.strip(),
+    "price": _essential_price,
+    "quantity": _essential_quantity,
+    "category": _essential_category,
+    "note": lambda v: v.strip() or None,
+    "recurring": bool,
+    "due_date": lambda v: _parse_deadline(v) if v else None,
+}
+
+
+def _essential_changes(req: EssentialUpdate) -> dict:
+    given = req.model_dump(exclude_none=True)
+    update = {k: rule(given[k]) for k, rule in _ESSENTIAL_UPDATE_RULES.items() if k in given}
+    if "purchased" in given:
+        update["purchased"] = bool(given["purchased"])
+        update["completed_at"] = now_utc().isoformat() if given["purchased"] else None
+    return update
+
+
 @api_router.patch("/essentials/{essential_id}")
 async def update_essential(essential_id: str, req: EssentialUpdate, user: dict = Depends(get_current_user)):
     doc = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
@@ -1582,26 +1604,7 @@ async def update_essential(essential_id: str, req: EssentialUpdate, user: dict =
         raise HTTPException(status_code=404, detail="Essential not found")
     if not _can_edit_doc(user, doc):
         raise HTTPException(status_code=403, detail="Not yours")
-    update: dict = {}
-    if req.title is not None: update["title"] = req.title.strip()
-    if req.price is not None:
-        if req.price < 0: raise HTTPException(status_code=400, detail="Price must be >= 0")
-        update["price"] = float(req.price)
-    if req.quantity is not None:
-        if req.quantity < 1: raise HTTPException(status_code=400, detail="Quantity must be >= 1")
-        update["quantity"] = int(req.quantity)
-    if req.category is not None:
-        cat = req.category.lower()
-        if cat not in ESSENTIAL_CATEGORIES: raise HTTPException(status_code=400, detail="Invalid category")
-        update["category"] = cat
-    if req.note is not None: update["note"] = req.note.strip() or None
-    if req.purchased is not None:
-        update["purchased"] = bool(req.purchased)
-        update["completed_at"] = now_utc().isoformat() if req.purchased else None
-    if req.recurring is not None:
-        update["recurring"] = bool(req.recurring)
-    if req.due_date is not None:
-        update["due_date"] = _parse_deadline(req.due_date) if req.due_date else None
+    update = _essential_changes(req)
     if not update:
         raise HTTPException(status_code=400, detail="Nothing to update")
     await db.essentials.update_one({"id": essential_id}, {"$set": update})
@@ -1616,29 +1619,8 @@ async def upload_essential_image(essential_id: str, file: UploadFile = File(...)
         raise HTTPException(status_code=404, detail="Essential not found")
     if not _can_edit_doc(user, doc):
         raise HTTPException(status_code=403, detail="Not yours")
-    content_type = (file.content_type or "").lower()
-    if content_type not in ALLOWED_IMAGE_TYPES:
-        raise HTTPException(status_code=400, detail="Only JPEG/PNG/WEBP/GIF allowed")
-    data = await file.read()
-    if not data:
-        raise HTTPException(status_code=400, detail="Empty file")
-    if len(data) > MAX_AVATAR_BYTES:
-        raise HTTPException(status_code=400, detail="Image too large (max 3 MB)")
-    ext_map = {"image/jpeg": "jpg", "image/jpg": "jpg", "image/png": "png", "image/webp": "webp", "image/gif": "gif"}
-    ext = ext_map.get(content_type, "jpg")
-    path = f"{APP_NAME}/essentials/{doc['owner_id']}/{uuid.uuid4()}.{ext}"
-    try:
-        result = put_object(path, data, content_type)
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"Storage error: {e}")
-    image_path = result.get("path", path)
-    await db.files.insert_one({
-        "id": str(uuid.uuid4()), "user_id": user["id"], "storage_path": image_path,
-        "content_type": content_type, "size": result.get("size", len(data)),
-        "is_deleted": False, "created_at": now_utc().isoformat(),
-    })
-    if doc.get("image_path"):
-        await db.files.update_one({"storage_path": doc["image_path"]}, {"$set": {"is_deleted": True}})
+    image_path = await _store_image(file, "essentials", doc["owner_id"], user["id"])
+    await _retire_file(doc.get("image_path"))
     await db.essentials.update_one({"id": essential_id}, {"$set": {"image_path": image_path}})
     updated = await db.essentials.find_one({"id": essential_id}, {"_id": 0})
     return _attach_essential_image_url(updated)

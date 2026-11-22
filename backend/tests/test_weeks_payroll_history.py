@@ -7,11 +7,12 @@ from zoneinfo import ZoneInfo
 
 import pytest
 import requests
+import creds as C  # noqa: E402
 from dotenv import load_dotenv
 from pymongo import MongoClient
 
 load_dotenv("/app/backend/.env")
-API = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") + "/api"
+API = C.BASE_URL + "/api"
 TZ = ZoneInfo(os.environ.get("WEEK_TZ") or "UTC")
 db = MongoClient(os.environ["MONGO_URL"])[os.environ["DB_NAME"]]
 
@@ -28,7 +29,7 @@ def _monday(d):
 
 @pytest.fixture(scope="module")
 def ctx():
-    admin = _login("admin@loveworks.com", "admin123")
+    admin = _login(C.ADMIN["email"], C.ADMIN["password"])
     email = f"test_weeks_{uuid.uuid4().hex[:8]}@loveworks.com"
     r = requests.post(f"{API}/workers", json={"email": email, "password": "Weeks123!", "name": "Weeks Test"}, headers=admin, timeout=20)
     r.raise_for_status()

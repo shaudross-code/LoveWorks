@@ -13,8 +13,7 @@ os.environ["WEEK_TZ"] = "America/Chicago"
 
 from zoneinfo import ZoneInfo  # noqa: E402
 from server import (  # noqa: E402
-    _start_of_day, _start_of_week, _start_of_month, _start_of_year,
-    APP_TZ, iso_utc, db, now_utc,
+    _start_of_week, _start_of_month, APP_TZ, iso_utc, db, now_utc,
 )
 
 CHI = ZoneInfo("America/Chicago")

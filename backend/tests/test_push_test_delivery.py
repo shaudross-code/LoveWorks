@@ -2,14 +2,15 @@ import base64
 import os
 
 import requests
+import creds as C  # noqa: E402
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import ec
 
-API = os.environ["REACT_APP_BACKEND_URL"].rstrip("/") + "/api"
+API = C.BASE_URL + "/api"
 
 
 def _auth():
-    r = requests.post(f"{API}/auth/login", json={"email": "lovetest@loveworks.com", "password": "Love123!"}, timeout=20)
+    r = requests.post(f"{API}/auth/login", json=dict(C.WORKER), timeout=20)
     return {"Authorization": f"Bearer {r.json()['access_token']}"}
 
 

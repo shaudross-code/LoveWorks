@@ -1,10 +1,11 @@
 # Iteration 9: My Sizes feature — worker self-service, admin edit + notifications, sandbox isolation, cascade delete
-import os
 import uuid
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL").rstrip("/")
+BASE_URL = C.BASE_URL
 API = f"{BASE_URL}/api"
 LOVE_ID = "2ccdb3b8-6f97-459c-9cc9-ebf49917c90d"
 
@@ -18,23 +19,23 @@ def login(email, pw):
 
 @pytest.fixture(scope="module")
 def admin_h():
-    return login("admin@loveworks.com", "admin123")
+    return login(C.ADMIN["email"], C.ADMIN["password"])
 
 
 @pytest.fixture(scope="module")
 def love_h():
-    return login("lovetest@loveworks.com", "Love123!")
+    return login(C.WORKER["email"], C.WORKER["password"])
 
 
 @pytest.fixture(scope="module")
 def throwaway(admin_h):
     """Throwaway worker used for self-service & destructive tests."""
     email = f"test_sizes_{uuid.uuid4().hex[:8]}@example.com"
-    r = requests.post(f"{API}/workers", json={"email": email, "password": "Passw0rd!x", "name": "TEST Sizes Worker"}, headers=admin_h)
+    r = requests.post(f"{API}/workers", json={"email": email, "password": TMP_PW, "name": "TEST Sizes Worker"}, headers=admin_h)
     assert r.status_code in (200, 201), r.text
     w = r.json()
     wid = w.get("id") or w.get("user", {}).get("id")
-    h = login(email, "Passw0rd!x")
+    h = login(email, TMP_PW)
     yield {"id": wid, "h": h, "email": email}
     requests.delete(f"{API}/workers/{wid}", headers=admin_h)
 
@@ -161,12 +162,12 @@ class TestAdminSizes:
 # --- Sandbox isolation ---
 class TestSandbox:
     def test_reviewer_cannot_read_real(self):
-        h = login("reviewer@loveworks.com", "iLoveWorks2026!")
+        h = login(C.REVIEWER["email"], C.REVIEWER["password"])
         assert requests.get(f"{API}/workers/{LOVE_ID}/sizes", headers=h).status_code == 404
         assert requests.put(f"{API}/workers/{LOVE_ID}/sizes", json={"values": {}}, headers=h).status_code == 404
 
     def test_demo_seeded_and_isolated(self, admin_h):
-        dh = login("demo@loveworks.com", "DemoWorker2026!")
+        dh = login(C.DEMO_WORKER["email"], C.DEMO_WORKER["password"])
         d = requests.get(f"{API}/sizes/me", headers=dh).json()
         assert d["fit"] == "mens" and d["values"].get("shoe_us") == 10.5 and len(d["values"]) >= 15
         demo_id = d["user_id"]
@@ -177,7 +178,7 @@ class TestSandbox:
 class TestCascade:
     def test_delete_worker_removes_sizes(self, admin_h):
         email = f"test_cascade_{uuid.uuid4().hex[:8]}@example.com"
-        r = requests.post(f"{API}/workers", json={"email": email, "password": "Passw0rd!x", "name": "TEST Cascade"}, headers=admin_h)
+        r = requests.post(f"{API}/workers", json={"email": email, "password": TMP_PW, "name": "TEST Cascade"}, headers=admin_h)
         assert r.status_code in (200, 201)
         wid = r.json().get("id") or r.json().get("user", {}).get("id")
         assert requests.put(f"{API}/workers/{wid}/sizes", json={"fit": "womens", "values": {"height": 160}}, headers=admin_h).status_code == 200

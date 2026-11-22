@@ -6,14 +6,14 @@ Iteration 6 tests:
 - Malicious origin does not receive credentialed CORS approval
 """
 
-import os
 import requests
+import creds as C  # noqa: E402
 import pytest
 
-BASE_URL = os.environ["REACT_APP_BACKEND_URL"].rstrip("/")
+BASE_URL = C.BASE_URL
 
-ADMIN = {"email": "admin@clockwork.com", "password": "admin123"}
-WORKER = {"email": "lovetest@loveworks.com", "password": "Love123!"}
+ADMIN = dict(C.ADMIN)
+WORKER = dict(C.WORKER)
 
 
 def _login(creds):
@@ -48,7 +48,7 @@ BACKEND_DIRECT = "http://localhost:8001"
     "ionic://localhost",
     "http://localhost",
     "http://localhost:3000",
-    "https://labor-admin-hub.preview.emergentagent.com",
+    C.BASE_URL,
     "https://labor-admin-hub.emergent.host",
 ])
 def test_cors_preflight_backend_direct_echoes_origin(origin):

@@ -9,27 +9,28 @@ Covers:
 - /api/push/public-key, /api/push/subscribe (upsert), /api/push/unsubscribe
 - reminder_loop fires task_due_soon with dedup via last_reminder_date
 """
-import os
 import time
 import datetime as dt
 import pytest
 import requests
+import creds as C  # noqa: E402
+TMP_PW = C.new_password()
 from pymongo import MongoClient
 
-BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "").rstrip("/")
+BASE_URL = C.BASE_URL
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "admin@clockwork.com"
-ADMIN_PASSWORD = "admin123"
+ADMIN_EMAIL = C.ADMIN["email"]
+ADMIN_PASSWORD = C.ADMIN["password"]
 
 WORKER1_EMAIL = f"notif_w1_{int(time.time())}@clockwork.com"
 WORKER2_EMAIL = f"notif_w2_{int(time.time())}@clockwork.com"
-WORKER_PASSWORD = "worker123"
+WORKER_PASSWORD = TMP_PW
 
 
 # ----- DB helpers (used only for reminder dedup reset + scheduling a near-future task) -----
-MONGO_URL = os.environ.get("MONGO_URL", "mongodb://localhost:27017")
-DB_NAME = os.environ.get("DB_NAME", "clockwork_db")
+MONGO_URL = C.MONGO_URL
+DB_NAME = C.DB_NAME
 _mongo = MongoClient(MONGO_URL)
 _db = _mongo[DB_NAME]
 
