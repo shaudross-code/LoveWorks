@@ -5,7 +5,7 @@ import Avatar from "@/components/Avatar";
 import NotificationBell from "@/components/NotificationBell";
 import { HolidayBadge } from "@/components/HolidayDecor";
 import AlarmWatcher from "@/components/AlarmWatcher";
-import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler } from "lucide-react";
+import { LayoutDashboard, Users, ClipboardList, BadgeDollarSign, LogOut, ChevronRight, UserCircle2, Target, Megaphone, Plane, ShoppingBag, Heart, Ruler, HeartPulse } from "lucide-react";
 
 const items = [
   { to: "/admin",                label: "Overview",       icon: LayoutDashboard, testid: "nav-overview" },
@@ -15,6 +15,7 @@ const items = [
   { to: "/admin/trips",          label: "Trips",          icon: Plane,           testid: "nav-trips" },
   { to: "/admin/essentials",     label: "Essentials",     icon: ShoppingBag,     testid: "nav-essentials" },
   { to: "/admin/payroll",        label: "Payroll",        icon: BadgeDollarSign, testid: "nav-payroll" },
+  { to: "/admin/health",         label: "Crew Health",    icon: HeartPulse,      testid: "nav-health" },
   { to: "/admin/announcements",  label: "Announcements",  icon: Megaphone,       testid: "nav-announcements" },
   { to: "/admin/sizes",          label: "My Sizes",       icon: Ruler,           testid: "nav-sizes" },
   { to: "/admin/profile",        label: "Profile",        icon: UserCircle2,     testid: "nav-profile" },

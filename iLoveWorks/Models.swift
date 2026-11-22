@@ -177,6 +177,7 @@ struct WeeklyDay: Codable {
 struct WeeklyActivityResponse: Codable {
     let streakDays: Int
     let completionsByDay: [WeeklyDay]
+    let weekEarned: Double?
 }
 
 struct WorkerStatus: Codable, Identifiable {
@@ -221,6 +222,8 @@ struct PayrollRow: Codable, Identifiable {
     let tasksEarnings: Double
     let totalHours: Double
     let currentlyClockedIn: Bool?
+    let paidTotal: Double?
+    let owed: Double?
 
     var id: String { worker.id }
 }

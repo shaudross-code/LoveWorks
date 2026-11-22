@@ -23,6 +23,7 @@ final class ScaleBluetooth: NSObject, ObservableObject {
     @Published private(set) var reading: ScaleReading?
     @Published private(set) var foundName: String?
     @Published private(set) var savedName = UserDefaults.standard.string(forKey: Keys.name)
+    @Published private(set) var authorization = CBManager.authorization
 
     private enum Keys {
         static let id = "ilw.scale.id"
@@ -57,6 +58,16 @@ final class ScaleBluetooth: NSObject, ObservableObject {
     func cancel() {
         stop()
         phase = .idle
+    }
+
+    /// Shows iOS's Bluetooth prompt without starting a weigh-in (setup checklist).
+    func requestPermission() {
+        if central == nil { central = CBCentralManager(delegate: self, queue: .main) }
+        refreshAuthorization()
+    }
+
+    func refreshAuthorization() {
+        authorization = CBManager.authorization
     }
 
     func forget() {
@@ -155,6 +166,7 @@ final class ScaleBluetooth: NSObject, ObservableObject {
 
 extension ScaleBluetooth: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        refreshAuthorization()
         handle(central.state)
     }
 

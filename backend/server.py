@@ -759,6 +759,7 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
     uid = user["id"]
     await db.tasks.delete_many({"assignee_id": uid})
     await db.task_completions.delete_many({"worker_id": uid})
+    await db.payouts.delete_many({"worker_id": uid})
     await db.alarms.delete_many({"user_id": uid})
     await db.health_daily.delete_many({"user_id": uid})
     await db.time_entries.delete_many({"user_id": uid})
@@ -1007,6 +1008,93 @@ async def _rollover_recurring_tasks(now: datetime) -> int:
         )
         n += res.modified_count
     return n
+
+
+# --- Week math shared by dashboards, payroll and history (APP_TZ, weeks start Monday 00:00 local) ---
+def _parse_week(week: Optional[str]) -> datetime:
+    """Monday 00:00 local of the week containing `week` (YYYY-MM-DD); this week when empty."""
+    if not week:
+        return _start_of_week(now_utc())
+    try:
+        d = date.fromisoformat(week)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="week must be YYYY-MM-DD")
+    return _start_of_week(datetime(d.year, d.month, d.day, 12, tzinfo=APP_TZ))
+
+
+def _as_utc(s: Optional[str]) -> Optional[datetime]:
+    if not s:
+        return None
+    try:
+        dt = datetime.fromisoformat(s)
+    except (TypeError, ValueError):
+        return None
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+async def _week_breakdown(worker_ids: list, start: datetime, weeks: int = 1) -> dict:
+    """{worker_id: [week, ...]} from `start` (local Monday). Each week has 7 day slots with the tasks completed
+    (price as recorded at completion), pay and clocked hours split at local midnight. One source for every screen."""
+    end = start + timedelta(days=7 * weeks)
+    now = now_utc()
+    first_day = start.date()
+    out = {wid: [{"week_start": (start + timedelta(days=7 * w)).date().isoformat(),
+                  "days": [{"date": (start + timedelta(days=7 * w + i)).date().isoformat(),
+                            "count": 0, "earned": 0.0, "hours": 0.0, "tasks": []} for i in range(7)]}
+                 for w in range(weeks)] for wid in worker_ids}
+    if not worker_ids:
+        return out
+
+    def slot(wid: str, local_dt: datetime):
+        idx = (local_dt.date() - first_day).days
+        if wid not in out or not 0 <= idx < 7 * weeks:
+            return None
+        return out[wid][idx // 7]["days"][idx % 7]
+
+    comps = await db.task_completions.find(
+        {"worker_id": {"$in": worker_ids}, "completed_at": {"$gte": iso_utc(start), "$lt": iso_utc(end)}}, {"_id": 0},
+    ).sort("completed_at", 1).to_list(100000)
+    for c in comps:
+        done = _as_utc(c.get("completed_at"))
+        sl = done and slot(c["worker_id"], done.astimezone(APP_TZ))
+        if sl is None:
+            continue
+        price = float(c.get("price") or 0)
+        sl["count"] += 1
+        sl["earned"] += price
+        sl["tasks"].append({"task_id": c.get("task_id"), "title": c.get("title", ""), "price": round(price, 2),
+                            "completed_at": c["completed_at"]})
+
+    # every shift overlapping the range, including ones that started before it or are still running
+    entries = await db.time_entries.find(
+        {"user_id": {"$in": worker_ids}, "clock_in": {"$lt": iso_utc(end)},
+         "$or": [{"clock_out": None}, {"clock_out": {"$gt": iso_utc(start)}}]},
+        {"_id": 0, "user_id": 1, "clock_in": 1, "clock_out": 1},
+    ).to_list(50000)
+    for e in entries:
+        in_dt = _as_utc(e.get("clock_in"))
+        if not in_dt:
+            continue
+        out_dt = _as_utc(e.get("clock_out")) or now
+        cur = max(in_dt, start).astimezone(APP_TZ)
+        stop = min(out_dt, end).astimezone(APP_TZ)
+        while cur < stop:
+            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+            chunk_end = min(stop, day_end)
+            sl = slot(e["user_id"], cur)
+            if sl is not None:
+                sl["hours"] += max(0, (chunk_end - cur).total_seconds()) / 3600.0
+            cur = chunk_end
+
+    for weeks_list in out.values():
+        for wk in weeks_list:
+            for d in wk["days"]:
+                d["earned"] = round(d["earned"], 2)
+                d["hours"] = round(d["hours"], 2)
+            wk["tasks_completed"] = sum(d["count"] for d in wk["days"])
+            wk["earned"] = round(sum(d["earned"] for d in wk["days"]), 2)
+            wk["hours"] = round(sum(d["hours"] for d in wk["days"]), 2)
+    return out
 
 
 async def _earnings_buckets_for_users(user_ids: list, ref: datetime) -> dict:
@@ -1650,6 +1738,7 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
         raise HTTPException(status_code=404, detail="Worker not found")
     await db.tasks.delete_many({"assignee_id": worker_id})
     await db.task_completions.delete_many({"worker_id": worker_id})
+    await db.payouts.delete_many({"worker_id": worker_id})
     await db.alarms.delete_many({"user_id": worker_id})
     await db.health_daily.delete_many({"user_id": worker_id})
     await db.time_entries.delete_many({"user_id": worker_id})
@@ -2412,17 +2501,136 @@ async def payroll(admin: dict = Depends(require_admin)):
         else:
             active_by_worker[wid] = True
 
+    paid_by_worker: dict[str, float] = {}
+    async for p in db.payouts.find({"worker_id": {"$in": worker_ids}}, {"_id": 0, "worker_id": 1, "amount": 1}):
+        paid_by_worker[p["worker_id"]] = paid_by_worker.get(p["worker_id"], 0.0) + float(p.get("amount") or 0)
+
     return [
         {
             "worker": serialize_user(w),
             "tasks_completed": completed_count_by_worker.get(w["id"], 0),
             "tasks_earnings": round(earnings_by_worker.get(w["id"], 0.0), 2),
+            "paid_total": round(paid_by_worker.get(w["id"], 0.0), 2),
+            "owed": round(earnings_by_worker.get(w["id"], 0.0) - paid_by_worker.get(w["id"], 0.0), 2),
             "total_seconds": seconds_by_worker.get(w["id"], 0),
             "total_hours": round(seconds_by_worker.get(w["id"], 0) / 3600.0, 2),
             "currently_clocked_in": active_by_worker.get(w["id"], False),
         }
         for w in workers
     ]
+
+
+# --- Weekly payroll + paid tracking. A payout stores the amount at the moment it was marked paid. ---
+class PayoutRequest(BaseModel):
+    worker_ids: Optional[List[str]] = None  # None = everyone with pay that week
+    note: Optional[str] = Field(default=None, max_length=300)
+
+
+def _payout_out(p: Optional[dict]) -> Optional[dict]:
+    if not p:
+        return None
+    return {k: p.get(k) for k in ("amount", "tasks_completed", "hours", "paid_at", "paid_by_name", "note")}
+
+
+@api_router.get("/payroll/week")
+async def payroll_week(week: Optional[str] = None, admin: dict = Depends(require_admin)):
+    ws = _parse_week(week)
+    wk = ws.date().isoformat()
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    ids = [w["id"] for w in workers]
+    bd = await _week_breakdown(ids, ws)
+    payouts = {p["worker_id"]: p for p in await db.payouts.find({"worker_id": {"$in": ids}, "week_start": wk}, {"_id": 0}).to_list(1000)}
+    rows = []
+    for w in workers:
+        week_data = bd[w["id"]][0]
+        p = payouts.get(w["id"])
+        rows.append({
+            "worker": serialize_user(w),
+            "tasks_completed": week_data["tasks_completed"],
+            "earned": week_data["earned"],
+            "hours": week_data["hours"],
+            "days": [{k: d[k] for k in ("date", "count", "earned", "hours")} for d in week_data["days"]],
+            "payout": _payout_out(p),
+            "changed_since_paid": bool(p and abs(float(p.get("amount") or 0) - week_data["earned"]) >= 0.005),
+        })
+    rows.sort(key=lambda r: (-r["earned"], (r["worker"]["name"] or "").lower()))
+    earned = round(sum(r["earned"] for r in rows), 2)
+    paid = round(sum(r["payout"]["amount"] for r in rows if r["payout"]), 2)
+    return {
+        "week_start": wk,
+        "week_last_day": (ws + timedelta(days=6)).date().isoformat(),
+        "is_current": ws == _start_of_week(now_utc()),
+        "is_future": ws > _start_of_week(now_utc()),
+        "rows": rows,
+        "totals": {"earned": earned, "paid": paid,
+                   "unpaid": round(sum(r["earned"] for r in rows if not r["payout"]), 2),
+                   "tasks_completed": sum(r["tasks_completed"] for r in rows),
+                   "hours": round(sum(r["hours"] for r in rows), 2)},
+    }
+
+
+@api_router.post("/payroll/week/{week}/paid")
+async def mark_week_paid(week: str, req: PayoutRequest, admin: dict = Depends(require_admin)):
+    ws = _parse_week(week)
+    if ws > _start_of_week(now_utc()):
+        raise HTTPException(status_code=400, detail="That week hasn't started yet")
+    wk = ws.date().isoformat()
+    scoped = await _scoped_worker_ids(admin)
+    ids = [i for i in (req.worker_ids if req.worker_ids is not None else scoped) if i in scoped]
+    bd = await _week_breakdown(ids, ws)
+    now = now_utc().isoformat()
+    marked = 0
+    for wid in ids:
+        week_data = bd[wid][0]
+        if req.worker_ids is None and week_data["earned"] <= 0:
+            continue
+        res = await db.payouts.update_one(
+            {"worker_id": wid, "week_start": wk},
+            {"$setOnInsert": {
+                "id": str(uuid.uuid4()), "worker_id": wid, "week_start": wk,
+                "amount": week_data["earned"], "tasks_completed": week_data["tasks_completed"], "hours": week_data["hours"],
+                "paid_at": now, "paid_by": admin["id"], "paid_by_name": admin.get("name"), "note": req.note,
+            }},
+            upsert=True,
+        )
+        marked += 1 if res.upserted_id else 0
+    return {"ok": True, "marked": marked}
+
+
+@api_router.delete("/payroll/week/{week}/paid/{worker_id}")
+async def unmark_week_paid(week: str, worker_id: str, admin: dict = Depends(require_admin)):
+    if worker_id not in await _scoped_worker_ids(admin):
+        raise HTTPException(status_code=404, detail="Worker not found")
+    wk = _parse_week(week).date().isoformat()
+    res = await db.payouts.delete_one({"worker_id": worker_id, "week_start": wk})
+    return {"ok": True, "removed": res.deleted_count}
+
+
+# --- Week-by-week task history (worker: own; admin: any of their workers) ---
+async def _history_weeks(worker_id: str, weeks: int, before: Optional[str]) -> dict:
+    weeks = min(max(weeks, 1), 26)
+    newest = _parse_week(before) - timedelta(days=7) if before else _start_of_week(now_utc())
+    start = newest - timedelta(days=7 * (weeks - 1))
+    bd = (await _week_breakdown([worker_id], start, weeks))[worker_id]
+    payouts = {p["week_start"]: p for p in await db.payouts.find(
+        {"worker_id": worker_id, "week_start": {"$gte": bd[0]["week_start"], "$lte": bd[-1]["week_start"]}}, {"_id": 0}).to_list(100)}
+    for wk in bd:
+        wk["week_last_day"] = (date.fromisoformat(wk["week_start"]) + timedelta(days=6)).isoformat()
+        wk["payout"] = _payout_out(payouts.get(wk["week_start"]))
+    older = await db.task_completions.find_one({"worker_id": worker_id, "completed_at": {"$lt": iso_utc(start)}}, {"_id": 1})
+    return {"weeks": list(reversed(bd)), "next_before": bd[0]["week_start"], "has_more": older is not None}
+
+
+@api_router.get("/me/history/weeks")
+async def my_history_weeks(weeks: int = 8, before: Optional[str] = None, user: dict = Depends(get_current_user)):
+    return await _history_weeks(user["id"], weeks, before)
+
+
+@api_router.get("/admin/workers/{worker_id}/history/weeks")
+async def worker_history_weeks(worker_id: str, weeks: int = 8, before: Optional[str] = None, admin: dict = Depends(require_admin)):
+    if worker_id not in await _scoped_worker_ids(admin):
+        raise HTTPException(status_code=404, detail="Worker not found")
+    return await _history_weeks(worker_id, weeks, before)
 
 
 # --- Admin live worker monitor ---
@@ -2465,59 +2673,13 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
         {"_id": 0, "assignee_id": 1, "daily_hours": 1, "estimated_hours": 1, "frequency": 1, "title": 1, "status": 1, "price": 1},
     ).to_list(10000)
 
-    # Completed this week, for per-weekday counts
-    completed_week = await _completion_events(worker_ids, week_start_q)
-    completions_by_day: dict = {wid: [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)] for wid in worker_ids}
-    for t in completed_week:
-        try:
-            done = datetime.fromisoformat(t["completed_at"])
-            if done.tzinfo is None:
-                done = done.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-        wid = t.get("assignee_id")
-        if wid not in completions_by_day:
-            continue
-        dow = done.astimezone(APP_TZ).weekday()
-        slot = completions_by_day[wid][dow]
-        slot["count"] += 1
-        slot["earned"] += float(t.get("price") or 0)
-        if len(slot["titles"]) < 5:
-            slot["titles"].append(t.get("title", ""))
-
-    # Hours clocked per weekday this week
-    for e in entries_week:
-        wid = e.get("user_id")
-        if wid not in completions_by_day:
-            continue
-        try:
-            in_dt = datetime.fromisoformat(e["clock_in"])
-            if in_dt.tzinfo is None:
-                in_dt = in_dt.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-        if e.get("clock_out"):
-            try:
-                out_dt = datetime.fromisoformat(e["clock_out"])
-                if out_dt.tzinfo is None:
-                    out_dt = out_dt.replace(tzinfo=timezone.utc)
-            except Exception:
-                out_dt = now
-        else:
-            out_dt = now
-        # Convert to local so day boundaries match wall-clock weekdays
-        seg_start = max(in_dt, week_start).astimezone(APP_TZ)
-        out_l = out_dt.astimezone(APP_TZ)
-        cur = seg_start
-        # split across local day boundaries so hours land on the right weekday
-        while cur < out_l:
-            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            chunk_end = min(out_l, day_end)
-            secs = max(0, int((chunk_end - cur).total_seconds()))
-            dow = cur.weekday()
-            if 0 <= dow <= 6:
-                completions_by_day[wid][dow]["hours"] += secs / 3600.0
-            cur = chunk_end
+    # Per-weekday tasks, pay and hours this week (same numbers as payroll and history)
+    week_bd = await _week_breakdown(worker_ids, week_start)
+    completions_by_day: dict = {
+        wid: [{"count": d["count"], "earned": d["earned"], "hours": d["hours"], "titles": [t["title"] for t in d["tasks"][:5]]}
+              for d in weeks[0]["days"]]
+        for wid, weeks in week_bd.items()
+    }
 
     # Compute streak (consecutive days ending today w/ any completion)
     def _compute_streak(slots: list) -> int:
@@ -2716,56 +2878,12 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
 async def my_weekly_activity(user: dict = Depends(get_current_user)):
     """Returns the requesting user's own weekly completion strip + streak (in APP_TZ)."""
     now = now_utc()
-    today_start = _start_of_day(now)
     week_start = _start_of_week(now)
-    week_start_q = iso_utc(week_start)
     uid = user["id"]
 
-    completed = await _completion_events([uid], week_start_q)
-    entries = await db.time_entries.find(
-        {"user_id": uid, "clock_in": {"$gte": week_start_q}},
-        {"_id": 0, "clock_in": 1, "clock_out": 1},
-    ).to_list(2000)
-    slots = [{"count": 0, "earned": 0.0, "hours": 0.0, "titles": []} for _ in range(7)]
-    for t in completed:
-        try:
-            done = datetime.fromisoformat(t["completed_at"])
-            if done.tzinfo is None:
-                done = done.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-        slot = slots[done.astimezone(APP_TZ).weekday()]
-        slot["count"] += 1
-        slot["earned"] += float(t.get("price") or 0)
-        if len(slot["titles"]) < 5:
-            slot["titles"].append(t.get("title", ""))
-    for e in entries:
-        try:
-            in_dt = datetime.fromisoformat(e["clock_in"])
-            if in_dt.tzinfo is None:
-                in_dt = in_dt.replace(tzinfo=timezone.utc)
-        except Exception:
-            continue
-        if e.get("clock_out"):
-            try:
-                out_dt = datetime.fromisoformat(e["clock_out"])
-                if out_dt.tzinfo is None:
-                    out_dt = out_dt.replace(tzinfo=timezone.utc)
-            except Exception:
-                out_dt = now
-        else:
-            out_dt = now
-        # Convert to local TZ for day-boundary splitting
-        cur = max(in_dt, week_start).astimezone(APP_TZ)
-        out_l = out_dt.astimezone(APP_TZ)
-        while cur < out_l:
-            day_end = (cur + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-            chunk_end = min(out_l, day_end)
-            secs = max(0, int((chunk_end - cur).total_seconds()))
-            dow = cur.weekday()
-            if 0 <= dow <= 6:
-                slots[dow]["hours"] += secs / 3600.0
-            cur = chunk_end
+    wk = (await _week_breakdown([uid], week_start))[uid][0]
+    slots = [{"count": d["count"], "earned": d["earned"], "hours": d["hours"], "titles": [t["title"] for t in d["tasks"][:5]]}
+             for d in wk["days"]]
     today_idx = now.astimezone(APP_TZ).weekday()
     streak = 0
     for k in range(today_idx + 1):
@@ -2775,6 +2893,9 @@ async def my_weekly_activity(user: dict = Depends(get_current_user)):
             break
     return {
         "streak_days": streak,
+        "week_start": wk["week_start"],
+        "week_earned": wk["earned"],
+        "week_tasks": wk["tasks_completed"],
         "completions_by_day": [
             {"day": d, "count": s["count"], "earned": round(s["earned"], 2), "hours": round(s["hours"], 2), "titles": s["titles"]}
             for d, s in zip(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"], slots)
@@ -3561,6 +3682,57 @@ async def _shared_health_map(worker_ids: list) -> dict:
     return out
 
 
+@api_router.get("/admin/health/crew")
+async def admin_health_crew(week: Optional[str] = None, admin: dict = Depends(require_admin)):
+    """Every worker's calories and weight for one week. Workers who turned sharing off show as not shared."""
+    ws = _parse_week(week)
+    dates = [(ws + timedelta(days=i)).date().isoformat() for i in range(7)]
+    workers = await db.users.find({"role": "worker", **_sb(admin)}, {"_id": 0, "password_hash": 0}).to_list(1000)
+    shared = [w["id"] for w in workers if w.get("share_health_with_admin", True)]
+    docs = await db.health_daily.find(
+        {"user_id": {"$in": shared}, "date": {"$gte": dates[0], "$lte": dates[-1]}}, {"_id": 0}).to_list(10000)
+    before = {r["_id"]: r for r in await db.health_daily.aggregate([
+        {"$match": {"user_id": {"$in": shared}, "date": {"$lt": dates[0]}, "weight_kg": {"$ne": None}}},
+        {"$sort": {"date": -1}},
+        {"$group": {"_id": "$user_id", "weight_kg": {"$first": "$weight_kg"}, "date": {"$first": "$date"},
+                    "weight_source": {"$first": "$weight_source"}}},
+    ]).to_list(1000)}
+    by_user: dict = {}
+    for d in docs:
+        by_user.setdefault(d["user_id"], {})[d["date"]] = d
+    rows = []
+    for w in workers:
+        if w["id"] not in shared:
+            rows.append({"worker": serialize_user(w), "shared": False})
+            continue
+        mine = by_user.get(w["id"], {})
+        days = [{"date": dt, "active_kcal": mine[dt].get("active_kcal"), "total_kcal": mine[dt].get("total_kcal"),
+                 "weight_kg": mine[dt].get("weight_kg")} if dt in mine else {"date": dt} for dt in dates]
+        cal_days = [d for d in days if (d.get("active_kcal") or 0) > 0 or (d.get("total_kcal") or 0) > 0]
+        weights = [(d["date"], d["weight_kg"], mine[d["date"]].get("weight_source")) for d in days if d.get("weight_kg") is not None]
+        prior = before.get(w["id"])
+        baseline = prior["weight_kg"] if prior else (weights[0][1] if len(weights) > 1 else None)
+        latest = weights[-1] if weights else ((prior["date"], prior["weight_kg"], prior.get("weight_source")) if prior else None)
+        active_total = sum(d.get("active_kcal") or 0 for d in days)
+        total_total = sum(d.get("total_kcal") or 0 for d in days)
+        rows.append({
+            "worker": serialize_user(w),
+            "shared": True,
+            "days": days,
+            "days_with_data": len(cal_days),
+            "active_total": round(active_total),
+            "total_total": round(total_total),
+            "active_avg": round(active_total / len(cal_days)) if cal_days else None,
+            "total_avg": round(total_total / len(cal_days)) if cal_days else None,
+            "latest_weight_kg": latest and latest[1],
+            "latest_weight_date": latest and latest[0],
+            "weight_source": latest and latest[2],
+            "weight_change_kg": round(weights[-1][1] - baseline, 2) if weights and baseline is not None else None,
+            "updated_at": max((mine[dt].get("updated_at") or "" for dt in mine), default=None) or None,
+        })
+    return {"week_start": dates[0], "week_last_day": dates[-1], "is_current": ws == _start_of_week(now_utc()), "rows": rows}
+
+
 # --- Alarms: user-set reminders. Web gets a server push at fire time; the iOS app rings locally ---
 ALARM_LOOP_SECONDS = 15
 _alarm_task_ref = {"task": None}
@@ -3918,6 +4090,7 @@ async def startup():
     await db.live_activities.create_index([("entry_id", 1), ("fcm_token", 1)], unique=True)
     await db.live_activities.create_index([("user_id", 1), ("ended", 1)])
     await db.health_daily.create_index([("user_id", 1), ("date", 1)], unique=True)
+    await db.payouts.create_index([("worker_id", 1), ("week_start", 1)], unique=True)
     # Backfill completion events from tasks that are completed today (idempotent)
     async for t in db.tasks.find({"status": "completed", "completed_at": {"$ne": None}}, {"_id": 0}):
         if t.get("assignee_id"):

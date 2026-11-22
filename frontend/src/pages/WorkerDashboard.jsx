@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import GoalsCard from "@/components/GoalsCard";
 import SpeakButton from "@/components/SpeakButton";
 import WeeklyStrip from "@/components/WeeklyStrip";
-import PushPrompt from "@/components/PushPrompt";
+import SetupChecklist from "@/components/SetupChecklist";
 import AlarmsPanel from "@/components/AlarmsPanel";
 import HealthCard from "@/components/HealthCard";
 import { openAlarmDialog } from "@/lib/alarms";
@@ -97,10 +97,8 @@ export default function WorkerDashboard() {
     return total / 3600;
   }, [entries, actives, now]);
 
-  const earnings = useMemo(
-    () => tasks.filter(t => t.status === "completed").reduce((s, t) => s + Number(t.price), 0),
-    [tasks]
-  );
+  // Same number as payroll: every completion this week at the price it had when it was done
+  const earnings = Number(weekly.week_earned || 0);
 
   // Deadlines / weekly potential
   const dl = useMemo(() => {
@@ -169,7 +167,7 @@ export default function WorkerDashboard() {
 
   return (
     <div className="space-y-10">
-      <PushPrompt />
+      <SetupChecklist />
       <AlarmsPanel />
       <HealthCard />
       {/* Hero — clock in / activity */}
@@ -204,7 +202,7 @@ export default function WorkerDashboard() {
               <Tile testid="shift-timer"      label={actives.length > 1 ? "Earliest timer" : "Shift timer"}    value={primary ? formatDuration(liveSeconds) : "00:00:00"} />
               <Tile testid="today-hours"      label="Today"          value={`${todayHours.toFixed(2)}h`} />
               <Tile testid="open-task-count"  label="Open tasks"     value={groups.open.length} />
-              <Tile testid="earnings-total"   label="Earned"         value={`$${earnings.toFixed(2)}`} accent="text-yellow-400" />
+              <Tile testid="earnings-total"   label="Earned this week" value={`$${earnings.toFixed(2)}`} accent="text-yellow-400" />
               <Tile testid="weekly-potential" label="This week potential" value={`$${dl.weeklyPotential.toFixed(2)}`}
                     accent="text-yellow-400" icon={TrendingUp} sub={`if you finish ${dl.dueThisWeek.length + dl.dueToday.length} due tasks`} />
               <Tile testid="open-total"       label="All open value" value={`$${dl.openTotal.toFixed(2)}`} sub="across all open tasks" />

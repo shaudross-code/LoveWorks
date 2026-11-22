@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import api from "@/lib/api";
 import { Clock } from "lucide-react";
 import { activityOf } from "@/lib/activities";
+import WeekHistory from "@/components/WeekHistory";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 function fmt(dt) { if (!dt) return "—"; return new Date(dt).toLocaleString(); }
 function dur(secs) {
@@ -21,10 +23,17 @@ export default function WorkerHistory() {
     <div className="space-y-8">
       <div>
         <div className="text-xs uppercase tracking-widest text-yellow-400">History</div>
-        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Time entries.</h1>
-        <p className="mt-2 text-zinc-400">Every shift, accounted for. Total time logged: <span className="text-white font-semibold">{dur(total)}</span>.</p>
+        <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Your weeks.</h1>
+        <p className="mt-2 text-zinc-400">Tasks you finished each day, what each week paid, and every shift. Total time logged: <span className="text-white font-semibold">{dur(total)}</span>.</p>
       </div>
 
+      <Tabs defaultValue="weeks">
+        <TabsList className="bg-zinc-900 border border-zinc-800 rounded-full p-1">
+          <TabsTrigger data-testid="history-tab-weeks" value="weeks" className="rounded-full data-[state=active]:bg-yellow-400 data-[state=active]:text-black">Weeks</TabsTrigger>
+          <TabsTrigger data-testid="history-tab-shifts" value="shifts" className="rounded-full data-[state=active]:bg-yellow-400 data-[state=active]:text-black">Shifts</TabsTrigger>
+        </TabsList>
+        <TabsContent value="weeks" className="mt-6"><WeekHistory path="/me/history/weeks" /></TabsContent>
+        <TabsContent value="shifts" className="mt-6">
       <div className="bg-[#121214] border border-yellow-400/15 rounded-2xl divide-y divide-yellow-400/5">
         {entries.length === 0 && (
           <div className="p-10 text-center">
@@ -52,6 +61,8 @@ export default function WorkerHistory() {
           );
         })}
       </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

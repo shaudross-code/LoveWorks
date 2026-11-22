@@ -74,7 +74,7 @@ struct AdminDashboardMainView: View {
                         AdminStatCard(label: "HOURS LOGGED", value: String(format: "%.1f", viewModel.statsHoursLogged), icon: "clock.fill")
                         AdminStatCard(label: "TASKS ASSIGNED", value: "\(viewModel.statsTasksAssigned)", icon: "doc.plaintext.fill")
                         AdminStatCard(label: "COMPLETED", value: "\(viewModel.statsCompletedCount)", icon: "checkmark.seal.fill", accent: .green)
-                        AdminStatCard(label: "TOTAL PAYROLL", value: "$\(Int(viewModel.statsTotalPayroll))", icon: "dollarsign.circle.fill")
+                        AdminStatCard(label: "STILL OWED", value: "$\(Int(viewModel.statsTotalPayroll))", icon: "dollarsign.circle.fill")
                     }
                     .padding(.horizontal)
                     
@@ -1184,9 +1184,14 @@ struct AdminPayrollView: View {
                         
                         Spacer()
                         
-                        Text("$\(String(format: "%.2f", row.tasksEarnings))")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(Theme.success)
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("$\(String(format: "%.2f", row.tasksEarnings))")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundStyle(Theme.success)
+                            Text("owed $\(String(format: "%.2f", row.owed ?? row.tasksEarnings))")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.textMuted)
+                        }
                     }
                     .padding(.vertical, 8)
                     .listRowBackground(Theme.surface)

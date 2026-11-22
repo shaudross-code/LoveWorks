@@ -19,6 +19,7 @@ class WorkerViewModel: ObservableObject {
     @Published var unreadNotificationsCount: Int = 0
     @Published var weeklyActivity: [WeeklyDay] = []
     @Published var streakDays: Int = 0
+    @Published var weekEarned: Double = 0
     @Published var loadError: String?
 
     @Published var liveSeconds: Int = 0
@@ -55,7 +56,11 @@ class WorkerViewModel: ObservableObject {
         if let v = await fetchedEssentials { essentials = v }
         if let v = await fetchedAnnouncements { announcements = v }
         if let v = await fetchedNotifs { notifications = v.items; unreadNotificationsCount = v.unread }
-        if let v = await fetchedActivity { weeklyActivity = v.completionsByDay; streakDays = v.streakDays }
+        if let v = await fetchedActivity {
+            weeklyActivity = v.completionsByDay
+            streakDays = v.streakDays
+            weekEarned = v.weekEarned ?? v.completionsByDay.reduce(0) { $0 + $1.earned }
+        }
         if let v = await fetchedAwards { awards = v.items }
         loadError = resTasks == nil ? "Couldn't reach iLoveWorks. Pull down to try again." : nil
 

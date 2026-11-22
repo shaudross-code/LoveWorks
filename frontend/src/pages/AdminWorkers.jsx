@@ -4,13 +4,14 @@ import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil, Ruler, Watch } from "lucide-react";
+import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil, Ruler, Watch, CalendarDays } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { activityOf } from "@/lib/activities";
 import WeeklyStrip from "@/components/WeeklyStrip";
 import WorkerHealthChip from "@/components/WorkerHealthChip";
 import WorkerSizesDialog from "@/components/sizes/WorkerSizesDialog";
+import WeekHistory from "@/components/WeekHistory";
 
 function timeAgo(iso) {
   if (!iso) return "never";
@@ -46,6 +47,7 @@ export default function AdminWorkers() {
   const [editForm, setEditForm] = useState({ name: "", email: "", password: "" });
   const [editBusy, setEditBusy] = useState(false);
   const [sizesFor, setSizesFor] = useState(null); // worker whose sizes are open
+  const [weeksFor, setWeeksFor] = useState(null);
   const closeSizes = useCallback(() => setSizesFor(null), []);
   const [now, setNow] = useState(Date.now());
 
@@ -216,6 +218,10 @@ export default function AdminWorkers() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0 ml-auto">
+                  <button data-testid={`weeks-worker-${w.id}`} onClick={() => setWeeksFor(w)}
+                    className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] border border-yellow-400/20 text-zinc-300 hover:border-yellow-400/60 hover:text-yellow-300 transition" aria-label="View weeks">
+                    <CalendarDays className="w-3.5 h-3.5" /> Weeks
+                  </button>
                   <button data-testid={`sizes-worker-${w.id}`} onClick={() => setSizesFor(w)}
                     className="inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] border border-yellow-400/20 text-zinc-300 hover:border-yellow-400/60 hover:text-yellow-300 transition" aria-label="View sizes">
                     <Ruler className="w-3.5 h-3.5" /> Sizes
@@ -343,6 +349,14 @@ export default function AdminWorkers() {
       </Dialog>
 
       <WorkerSizesDialog worker={sizesFor} onClose={closeSizes} />
+      <Dialog open={!!weeksFor} onOpenChange={(o) => { if (!o) setWeeksFor(null); }}>
+        <DialogContent data-testid="worker-weeks-dialog" className="bg-[#0c0c0e] border-yellow-400/20 text-white rounded-2xl max-w-2xl max-h-[85vh] overflow-y-auto" aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle className="font-display text-2xl">{weeksFor?.name}: week by week</DialogTitle>
+          </DialogHeader>
+          {weeksFor && <WeekHistory path={`/admin/workers/${weeksFor.id}/history/weeks`} />}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminWorkers from "@/pages/AdminWorkers";
 import AdminTasks from "@/pages/AdminTasks";
 import AdminPayroll from "@/pages/AdminPayroll";
+import AdminHealth from "@/pages/AdminHealth";
 import Profile from "@/pages/Profile";
 import AdminGoals from "@/pages/AdminGoals";
 import AdminTrips from "@/pages/AdminTrips";
@@ -63,6 +64,9 @@ function App() {
             } />
             <Route path="/admin/payroll" element={
               <ProtectedRoute role="admin"><AdminLayout><AdminPayroll /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/health" element={
+              <ProtectedRoute role="admin"><AdminLayout><AdminHealth /></AdminLayout></ProtectedRoute>
             } />
             <Route path="/admin/goals" element={
               <ProtectedRoute role="admin"><AdminLayout><AdminGoals /></AdminLayout></ProtectedRoute>

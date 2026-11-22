@@ -46,7 +46,7 @@ class AdminViewModel: ObservableObject {
         if let v = await p {
             payroll = v
             statsHoursLogged = v.reduce(0) { $0 + $1.totalHours }
-            statsTotalPayroll = v.reduce(0) { $0 + $1.tasksEarnings }
+            statsTotalPayroll = v.reduce(0) { $0 + ($1.owed ?? $1.tasksEarnings) }
         }
         if let v = await ws {
             workerStatuses = v

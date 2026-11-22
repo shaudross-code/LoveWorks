@@ -72,6 +72,7 @@ struct WorkerDashboardMainView: View {
     @State private var showingPicker = false
     @State private var actionError: String?
     @State private var alarmDraft: AlarmDraft?
+    @State private var showingSetup = false
 
     let speechSynthesizer = AVSpeechSynthesizer()
 
@@ -123,6 +124,11 @@ struct WorkerDashboardMainView: View {
                             .padding(.horizontal)
                     }
 
+                    #if os(iOS) && canImport(HealthKit) && canImport(WatchConnectivity) && canImport(CoreBluetooth)
+                    SetupChecklistCard(onOpen: { showingSetup = true })
+                        .padding(.horizontal)
+                    #endif
+
                     // Hero Section
                     VStack(alignment: .leading, spacing: 20) {
                         VStack(alignment: .leading, spacing: 20) {
@@ -159,15 +165,14 @@ struct WorkerDashboardMainView: View {
                                 .font(.system(size: 32, weight: .bold))
                                 .foregroundStyle(Theme.textMain)
 
-                            let earnings = viewModel.tasks.filter { $0.isCompleted }.reduce(0) { $0 + $1.price }
                             let deadlines = viewModel.deadlines
 
                             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible()), GridItem(.flexible())], spacing: 10) {
                                 Tile(label: "SHIFT", value: Fmt.clock(viewModel.liveSeconds))
                                 Tile(label: "TODAY", value: String(format: "%.2fh", viewModel.todayHours))
                                 Tile(label: "OPEN", value: "\(viewModel.tasks.filter { !$0.isCompleted }.count)")
-                                Tile(label: "EARNED", value: "$\(Int(earnings))", icon: nil, accentColor: Theme.lovePink)
-                                Tile(label: "THIS WEEK", value: "$\(Int(deadlines.weeklyPotential))", icon: nil, accentColor: Theme.primary)
+                                Tile(label: "EARNED", value: "$\(Int(viewModel.weekEarned))", icon: nil, accentColor: Theme.lovePink)
+                                Tile(label: "POTENTIAL", value: "$\(Int(deadlines.weeklyPotential))", icon: nil, accentColor: Theme.primary)
                                 Tile(label: "STREAK", value: "\(viewModel.streakDays)d", icon: "flame.fill", accentColor: .orange)
                             }
 
@@ -319,6 +324,15 @@ struct WorkerDashboardMainView: View {
             NotificationsView(notifications: viewModel.notifications) { viewModel.markNotificationsRead() }
         }
         .sheet(item: $alarmDraft) { AlarmEditorView(draft: $0) }
+        #if os(iOS) && canImport(HealthKit) && canImport(WatchConnectivity) && canImport(CoreBluetooth)
+        .sheet(isPresented: $showingSetup) { SetupPromptView() }
+        .task {
+            // once per new feature set, after the login prompts have settled
+            try? await Task.sleep(for: .seconds(1.5))
+            await SetupSteps.refresh()
+            if SetupSteps.shouldAutoPrompt(userId: sessionManager.currentUser?.id) { showingSetup = true }
+        }
+        #endif
     }
 
     private var deadlinesSection: some View {
