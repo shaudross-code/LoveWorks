@@ -74,7 +74,7 @@ export default function WishlistPage({ kind }) {
       <div className="grid md:grid-cols-2 gap-4">
         {visible.length === 0 && <Empty copy={copy} />}
         {visible.map((g) => (
-          <WishlistCard key={g.id} g={g} onReact={react} onReopen={() => reopen(g)}
+          <WishlistCard key={g.id} g={g} editLabel={copy.editTitle} onReact={react} onReopen={() => reopen(g)}
             onEdit={() => dialog.open("edit", g)} onDelete={() => dialog.open("delete", g)} onCelebrate={() => dialog.open("complete", g)} />
         ))}
       </div>

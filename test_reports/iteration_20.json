@@ -1,0 +1,39 @@
+{
+  "summary": "Frontend regression check after the refactor and the move to cookie sign-in, at desktop 1920 plus a quick mobile 390 pass of the worker dashboard. Everything requested passed: cookie login, reload, refresh and logout for admin and worker; role guards both ways; Admin Tasks (filter tabs and full create/edit/complete/delete with every form field); Admin Goals and Trips (assign to Love Tester, edit, progress, celebrate dialog, delete, Trips owner filter); Admin Essentials (create/edit/mark purchased/delete, owner filter); the worker dashboard (clock in/out with the timer ticking, deadlines, Start, Complete and reopen on a test task, GoalsCard create/edit/delete); worker Trips and Essentials; and every other admin and worker page. No page errors, error screens or blank screens. The only console errors were the expected 401s from /api/auth/me before login. Dialogs close on Escape and on an outside click, and reopening edit for a different task, goal or trip shows that item's data. Nothing was saved to localStorage; access_token and refresh_token are httpOnly, Secure cookies. All test data was removed afterwards.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "startup seed (server.py:4248-4265)", "issue": "The admin seed resets an existing admin's password whenever it differs from ADMIN_PASSWORD. The auth playbook says the seed must never change an existing admin's password. ADMIN_PASSWORD also falls back to the hardcoded default 'admin123' (line 4248). This was here before the refactor."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "EssentialForm (components/essentials/EssentialForm.jsx:54)", "issue": "When a worker adds an essential, the 'For (optional)' field defaults to the first peer (workers[0] from /peers, currently Ms Ross) instead of 'Keep on my list'. A worker who doesn't change it puts the item on someone else's list. Admins also default to workers[0]. The old AdminEssentials.jsx did the same, so this is not a regression. Suggested fix: emptyEssential('') for workers.", "selector": "[data-testid='essential-assignee']", "priority": "MEDIUM"},
+      {"component": "WishlistCard (components/wishlist/WishlistCard.jsx:35)", "issue": "On the Trips pages the button still says 'Edit goal'; it should come from the copy (e.g. 'Edit trip'). This was there before the refactor.", "selector": "[data-testid^='edit-goal-']", "priority": "LOW"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Admin Trips/Essentials/Tasks", "issues": ["The top-right Sonner toast briefly covers the main page button ('Assign trip to worker' / 'Add essential') at 1920 width."]}
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [
+    "EssentialForm: default 'For' to 'Keep on my list' (empty assignee) instead of workers[0], at least for workers.",
+    "WishlistCard: take the edit button label from the copy so Trips shows 'Edit trip'.",
+    "GoalsCard.jsx:130/171 still reads localStorage 'access_token' directly to build image URLs; switch to fileUrl() from lib/api for consistency (the website works through cookies, so nothing is broken).",
+    "Optional, backend: make the admin seed create-only so it never resets an existing admin's password, and drop the 'admin123' fallback."
+  ],
+  "critical_code_review_comments": [
+    "lib/api.js:27 sets withCredentials false, so cookies only travel because the site and API share an origin. A cross-origin web host would fall back to a Bearer token. This is documented in the code comment and is fine for this preview and deployment.",
+    "GoalsCard.jsx (323 lines) was not refactored: it keeps its own dialog state, file handling and status logic, duplicating wishlist/GoalFields, GoalProgress and lib/wishlist statusOf. It is a good candidate for reusing useDialogState and GoalFields.",
+    "useOutsideClose depends on onClose; callers must memoise it, or the listener is re-attached on every render (harmless, but churny).",
+    "Inline price editing on the admin task row is not in the current or the pre-refactor code (it was removed much earlier). Price is changed through the Edit dialog, which was verified (7.25 -> 9.50). Not a regression."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (frontend-only request; playbook auth checks passed except seed_admin)", "frontend": "100% of requested flows"},
+  "test_credentials": "admin@loveworks.com/admin123, lovetest@loveworks.com/Love123! (from /app/memory/test_credentials.md)",
+  "seed_data_creation": "Created and then deleted (by id): tasks TEST_RefactorTask (6496b4bf...) and TEST_WorkerFlowTask (2f463efc...); goal TEST_Refactor_goal; trips TEST_Refactor_trip and TEST_WorkerTrip; essential TEST_RefactorEssential; worker goal TEST_WorkerGoal. Afterwards no TEST_ tasks, goals, trips or essentials of mine remain. Side effects that remain: one clock-in/out time entry of about 5 seconds for Love Tester (no delete UI), and a login_attempts lockout record for the made-up email TEST_bruteforce_x@loveworks.com from the brute-force check. Ms Ross's data was not touched. Leftover data from earlier runs is still there and was not deleted: UI_Test_Goal_1780818431 (owned by Ms Ross), TEST_AdminOwnGoal and 'Demo: Bluetooth speaker' (owned by the admin).",
+  "retest_needed": false,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Cookie auth checks: login gives httpOnly, Secure access_token and refresh_token cookies; after deleting the access_token cookie and reloading, the session renews through /auth/refresh. Brute-force lockout returns 429 on the 6th attempt. CORS does not send allow-origin for an unknown origin. Useful testids: task-row-/edit-task-/mark-complete-/delete-task-; tab-{all|assigned|in_progress|completed}; assignee-option-{id}; admin-goal-/edit-goal-/delete-goal-/celebrate-goal-, confirm-delete; trips-owner-filter / trips-owner-{id}; essentials-owner-{id}, confirm-delete-essential; clock-in-btn, activity-clocked_in, clock-out-btn, shift-timer; worker-start-/toggle-task-; open-create-goal/goal-title/submit-goal; logout-btn. Love Tester id 2ccdb3b8-6f97-459c-9cc9-ebf49917c90d; Ms Ross id 0c724a85-... (do not use). The AssignGoalForm and EssentialForm worker selects default to workers[0] = Ms Ross, so always pick Love Tester explicitly."
+}

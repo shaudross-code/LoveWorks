@@ -23,7 +23,7 @@ function OwnerLine({ g }) {
   );
 }
 
-function CardActions({ g, onEdit, onDelete, onCelebrate, onReopen }) {
+function CardActions({ g, editLabel, onEdit, onDelete, onCelebrate, onReopen }) {
   return (
     <div className="mt-4 flex items-center gap-2 justify-end flex-wrap">
       <Button data-testid={`delete-goal-${g.id}`} onClick={onDelete} variant="ghost"
@@ -32,7 +32,7 @@ function CardActions({ g, onEdit, onDelete, onCelebrate, onReopen }) {
       </Button>
       <Button data-testid={`edit-goal-${g.id}`} onClick={onEdit} variant="ghost"
         className="text-zinc-300 hover:text-yellow-400 rounded-full h-9 px-4 border border-yellow-400/20">
-        <Pencil className="w-4 h-4 mr-2" /> Edit goal
+        <Pencil className="w-4 h-4 mr-2" /> {editLabel}
       </Button>
       {g.status === "open" ? (
         <Button data-testid={`celebrate-goal-${g.id}`} onClick={onCelebrate}
@@ -50,7 +50,7 @@ function CardActions({ g, onEdit, onDelete, onCelebrate, onReopen }) {
 }
 
 // Admin/worker card for one goal or trip.
-export default function WishlistCard({ g, onReact, ...actions }) {
+export default function WishlistCard({ g, onReact, editLabel = "Edit goal", ...actions }) {
   const { Icon, cls, label } = statusBadge(statusOf(g));
   const done = g.status === "completed";
   return (
@@ -91,7 +91,7 @@ export default function WishlistCard({ g, onReact, ...actions }) {
         </div>
       )}
       <div className="mt-3"><Reactions goal={g} onChange={onReact} /></div>
-      <CardActions g={g} {...actions} />
+      <CardActions g={g} editLabel={editLabel} {...actions} />
     </div>
   );
 }

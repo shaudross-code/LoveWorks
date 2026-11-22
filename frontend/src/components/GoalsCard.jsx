@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import api, { formatApiError } from "@/lib/api";
+import { useCallback, useEffect, useRef, useState } from "react";
+import api, { fileUrl, formatApiError } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -13,7 +13,6 @@ import { toast } from "sonner";
 import Reactions from "@/components/Reactions";
 import CongratsModal from "@/components/CongratsModal";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const PERIODS = [
   { value: "once",    label: "One-time" },
   { value: "daily",   label: "Daily" },
@@ -52,14 +51,13 @@ export default function GoalsCard() {
   const [congrats, setCongrats] = useState(null);
   const fileRef = useRef(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     const { data } = await api.get("/goals?kind=goal");
     setGoals(data);
-    // Find newest unacknowledged completed goal and pop the modal
     const unack = data.find((g) => g.status === "completed" && g.completed_at && !g.acknowledged_at);
-    if (unack && (!congrats || congrats.id !== unack.id)) setCongrats(unack);
-  };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+    if (unack) setCongrats((c) => (c?.id === unack.id ? c : unack));
+  }, []);
+  useEffect(() => { load(); }, [load]);
 
   const openCreate = () => { setForm(EMPTY); setFile(null); setDialog({ mode: "create" }); };
   const openEdit = (g) => {
@@ -127,8 +125,6 @@ export default function GoalsCard() {
     setFile(f);
   };
 
-  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-
   return (
     <section data-testid="goals-card">
       <div className="flex items-end justify-between mb-4">
@@ -168,7 +164,7 @@ export default function GoalsCard() {
               <div className="flex gap-4">
                 <div className="shrink-0 w-24 h-24 rounded-xl overflow-hidden bg-zinc-900 border border-yellow-400/10 grid place-items-center">
                   {g.image_url ? (
-                    <img alt={g.title} src={`${BACKEND_URL}${g.image_url}${token ? `?auth=${token}` : ""}`} className="w-full h-full object-cover" />
+                    <img alt={g.title} src={fileUrl(g.image_url)} className="w-full h-full object-cover" />
                   ) : (
                     <Target className="w-7 h-7 text-zinc-700" />
                   )}

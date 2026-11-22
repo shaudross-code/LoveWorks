@@ -176,3 +176,10 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
 - **Production URL is baked into mobile builds via `frontend/.env.production`** — never delete this file. If prod URL changes, edit it and re-run `yarn build && npx cap sync`.
 - **craco.config.js env-order bug (fixed 2026-07-26)**: `require("dotenv").config()` at the top of craco.config.js loaded `.env` (preview URL) before CRA's `.env.production` handling, so production builds silently baked the PREVIEW url. Fix: craco.config.js now loads `.env.production` first when `NODE_ENV=production`. Sanity check after any build: `grep -c "preview.emergentagent" build/static/js/main.*.js` must be 0 (note: grepping for "labor-admin-hub" is a false positive — the preview domain contains it too).
 - **Store builds require a fresh production deploy first**: reviewer account seed + capacitor:// CORS origins only exist after redeploying the backend. Verified 2026-07-26 that production still lacked both (reviewer login 401, capacitor origin preflight 400) until user redeploys.
+
+## 2026-11-22 — Refactor verification
+- Full frontend regression after code-quality refactor + HttpOnly cookie auth: 100% pass (/app/test_reports/iteration_20.json).
+- Fixed: Essentials "For" now defaults to "Keep on my list"; Trips cards say "Edit trip"; GoalsCard image URLs use fileUrl() (no localStorage token) and its load uses useCallback (no stale closure / lint warning).
+- Open: production Web Push needs valid VAPID_PRIVATE_KEY in production secrets (user action, no code change).
+- Optional backlog: admin seed resets an existing admin's password when it differs from ADMIN_PASSWORD (pre-existing behaviour).
+- Next: My Sizes Phase 2 (admin crew size table + CSV, stale-size requests, size history) on web + iPhone.

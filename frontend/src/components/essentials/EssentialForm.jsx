@@ -51,7 +51,7 @@ function AssigneeSelect({ form, setForm, workers }) {
 export default function EssentialForm({ item: initial, workers, onDone, reload }) {
   const editing = Boolean(initial);
   const [item, setItem] = useState(initial);
-  const [form, setForm] = useState(() => (editing ? essentialToForm(initial) : emptyEssential(workers[0]?.id || "")));
+  const [form, setForm] = useState(() => (editing ? essentialToForm(initial) : emptyEssential()));
   const [busy, setBusy] = useState(false);
   const field = bindField(form, setForm);
   const patchItem = (patch) => { setItem((it) => ({ ...it, ...patch })); reload(); };
