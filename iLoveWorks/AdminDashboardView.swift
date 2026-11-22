@@ -283,6 +283,7 @@ struct AdminWorkersView: View {
 
 struct AdminWorkerCard: View {
     let status: WorkerStatus
+    @State private var showingWeeks = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -319,6 +320,17 @@ struct AdminWorkerCard: View {
                 }
                 
                 Spacer()
+
+                Button { showingWeeks = true } label: {
+                    Label("Weeks", systemImage: "calendar")
+                        .font(.system(size: 12, weight: .semibold))
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Theme.secondary)
+                        .foregroundStyle(Theme.textMain)
+                        .cornerRadius(12)
+                }
+                .accessibilityIdentifier("worker-weeks-\(status.worker.id)")
                 
                 if status.streakDays >= 1 {
                     HStack(spacing: 4) {
@@ -358,6 +370,13 @@ struct AdminWorkerCard: View {
         .background(Theme.surface)
         .cornerRadius(24)
         .overlay(RoundedRectangle(cornerRadius: 24).stroke(Theme.border, lineWidth: 1))
+        .sheet(isPresented: $showingWeeks) {
+            NavigationStack {
+                WeekHistoryView(path: "/admin/workers/\(status.worker.id)/history/weeks")
+                    .navigationTitle(status.worker.name)
+                    .inlineNavigationTitle()
+            }
+        }
     }
 }
 
@@ -952,6 +971,9 @@ struct AdminMoreView: View {
                         NavigationLink(destination: AdminPayrollView(viewModel: viewModel)) {
                             Label("Payroll", systemImage: "dollarsign.circle.fill")
                         }
+                        NavigationLink(destination: AdminCrewHealthView()) {
+                            Label("Crew Health", systemImage: "heart.text.square.fill")
+                        }
                         NavigationLink(destination: AdminAnnouncementsView(viewModel: viewModel)) {
                             Label("Announcements", systemImage: "megaphone.fill")
                         }
@@ -1140,69 +1162,6 @@ struct AddAnnouncementView: View {
                     Button("Cancel") { dismiss() }
                 }
             }
-        }
-    }
-}
-
-struct AdminPayrollView: View {
-    @ObservedObject var viewModel: AdminViewModel
-    
-    var body: some View {
-        ZStack {
-            Theme.background.ignoresSafeArea()
-            
-            List {
-                ForEach(viewModel.payroll) { row in
-                    HStack(spacing: 16) {
-                        if let urlString = row.worker.avatarUrl, let url = URL(string: APIClient.shared.fullURL(for: urlString)) {
-                            AsyncImage(url: url) { image in
-                                image.resizable().aspectRatio(contentMode: .fill)
-                            } placeholder: {
-                                Circle().fill(Theme.secondary)
-                            }
-                            .frame(width: 44, height: 44)
-                            .clipShape(Circle())
-                        } else {
-                            Circle()
-                                .fill(Theme.secondary)
-                                .frame(width: 44, height: 44)
-                                .overlay(
-                                    Text(String(row.worker.name.prefix(1)))
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(Theme.textMain)
-                                )
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(row.worker.name)
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundStyle(Theme.textMain)
-                            Text("\(row.tasksCompleted) tasks completed • \(String(format: "%.1f", row.totalHours))h worked")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Theme.textMuted)
-                        }
-                        
-                        Spacer()
-                        
-                        VStack(alignment: .trailing, spacing: 2) {
-                            Text("$\(String(format: "%.2f", row.tasksEarnings))")
-                                .font(.system(size: 18, weight: .bold))
-                                .foregroundStyle(Theme.success)
-                            Text("owed $\(String(format: "%.2f", row.owed ?? row.tasksEarnings))")
-                                .font(.system(size: 11))
-                                .foregroundStyle(Theme.textMuted)
-                        }
-                    }
-                    .padding(.vertical, 8)
-                    .listRowBackground(Theme.surface)
-                    .listRowSeparatorTint(Theme.border)
-                }
-            }
-            .scrollContentBackground(.hidden)
-        }
-        .navigationTitle("Payroll")
-        .onAppear {
-            viewModel.loadDashboard()
         }
     }
 }

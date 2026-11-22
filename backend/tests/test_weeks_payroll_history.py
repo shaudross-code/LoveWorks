@@ -1,5 +1,6 @@
 """Week math, weekly payroll + paid marks, week history and crew health — all must agree."""
 import os
+import time
 import uuid
 from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
@@ -53,6 +54,14 @@ def ctx():
                                 "duration_seconds": 4 * 3600})
     yield {"admin": admin, "worker": worker, "wid": wid, "this_mon": this_mon.isoformat(), "last_mon": last_mon.isoformat(),
            "wed": (last_mon + timedelta(days=2)).isoformat(), "sun": (last_mon + timedelta(days=6)).isoformat()}
+    # undo test paid marks so their rows leave the admin's real Google Sheet, then remove the worker
+    for _ in range(15):
+        if requests.get(f"{API}/payroll/sheet", headers=admin, timeout=20).json().get("pending", 0) == 0:
+            break
+        time.sleep(1)
+    for p in db.payouts.find({"worker_id": wid}, {"_id": 0, "week_start": 1}):
+        requests.delete(f"{API}/payroll/week/{p['week_start']}/paid/{wid}", headers=admin, timeout=20)
+    time.sleep(4)
     requests.delete(f"{API}/workers/{wid}", headers=admin, timeout=20)
 
 
@@ -158,3 +167,23 @@ def test_crew_health_week_and_not_shared(ctx):
     requests.patch(f"{API}/health/sharing", json={"share": False}, headers=w, timeout=20)
     r = _row(requests.get(f"{API}/admin/health/crew", headers=admin, timeout=20).json(), wid)
     assert r == {"worker": r["worker"], "shared": False}
+
+
+def test_payday_alerts_on_paid_and_undo(ctx):
+    admin, worker, wid, week = ctx["admin"], ctx["worker"], ctx["wid"], ctx["last_mon"]
+    requests.delete(f"{API}/payroll/week/{week}/paid/{wid}", headers=admin, timeout=20)
+    requests.post(f"{API}/payroll/week/{week}/paid", json={"worker_ids": [wid]}, headers=admin, timeout=20).raise_for_status()
+    items = requests.get(f"{API}/notifications", headers=worker, timeout=20).json()
+    items = items.get("items", items)
+    paid = next(n for n in items if n["type"] == "payday")
+    assert paid["title"].startswith("You've been paid $") and "Week of" in paid["body"]
+    requests.delete(f"{API}/payroll/week/{week}/paid/{wid}", headers=admin, timeout=20).raise_for_status()
+    items = requests.get(f"{API}/notifications", headers=worker, timeout=20).json()
+    items = items.get("items", items)
+    assert items[0]["type"] == "payday" and items[0]["title"] == "Payment update" and "took back" in items[0]["body"]
+
+
+def test_sheet_status_shape(ctx):
+    s = requests.get(f"{API}/payroll/sheet", headers=ctx["admin"], timeout=20).json()
+    assert set(s) >= {"configured", "url", "synced", "pending", "error"}
+    assert requests.get(f"{API}/payroll/sheet", headers=ctx["worker"], timeout=20).status_code == 403

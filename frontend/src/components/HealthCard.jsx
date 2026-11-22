@@ -80,7 +80,7 @@ export default function HealthCard({ guidePath = "/worker/apple-watch" }) {
       {data?.share_with_admin && user?.id && <ShareNotice userId={user.id} />}
       <label className="mt-4 flex items-center justify-between gap-3 text-sm">
         <span className="text-zinc-300">Share my calories and weight with my admin <span className="block text-xs text-zinc-500">On by default. Turn it off any time.</span></span>
-        <Switch data-testid="health-share-switch" checked={!!data?.share_with_admin} onCheckedChange={toggleShare} />
+        <Switch data-testid="health-share-switch" disabled={!data} checked={!!data?.share_with_admin} onCheckedChange={toggleShare} />
       </label>
     </section>
   );

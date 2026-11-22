@@ -5,7 +5,7 @@ import WeekPicker from "@/components/WeekPicker";
 import { downloadCsv } from "@/lib/csv";
 import { money, weekday } from "@/lib/weeks";
 import { toast } from "sonner";
-import { BadgeDollarSign, Clock, CheckCircle2, Download, CircleDollarSign, Undo2, AlertTriangle, Loader2 } from "lucide-react";
+import { BadgeDollarSign, Clock, CheckCircle2, Download, CircleDollarSign, Undo2, AlertTriangle, Loader2, Sheet, ExternalLink, RefreshCw } from "lucide-react";
 
 function DayStrip({ days }) {
   return (
@@ -40,7 +40,47 @@ function PaidBadge({ r, onUndo, busy }) {
   );
 }
 
-function WeeklyPayroll() {
+function SheetBar({ version }) {
+  const [s, setS] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const load = useCallback(() => api.get("/payroll/sheet").then(({ data }) => setS(data)).catch(() => {}), []);
+  useEffect(() => {
+    load();
+    const t = setTimeout(load, 5000); // the copy to Google Sheets runs in the background
+    return () => clearTimeout(t);
+  }, [load, version]);
+  if (!s?.configured) return null;
+  const sync = async () => {
+    setBusy(true);
+    try { const { data } = await api.post("/payroll/sheet/sync"); toast.success(`Copied ${data.synced} paid week${data.synced === 1 ? "" : "s"} to Google Sheets`); }
+    catch (e) { toast.error(formatApiError(e)); }
+    finally { setBusy(false); load(); }
+  };
+  return (
+    <div data-testid="payroll-sheet-bar" className="flex flex-wrap items-center gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] px-4 py-3 text-sm">
+      <Sheet className="w-4 h-4 text-emerald-300" />
+      <div className="flex-1 min-w-[200px]">
+        <span className="font-medium text-zinc-100">Google Sheet</span>
+        <span data-testid="payroll-sheet-status" className={`ml-2 ${s.error ? "text-red-300" : "text-zinc-400"}`}>
+          {s.error ? `Sync problem: ${s.error}` : !s.url ? "Paid weeks are copied here automatically, starting with the next one you mark paid."
+            : `${s.synced} paid week${s.synced === 1 ? "" : "s"} copied${s.pending ? ` · ${s.pending} waiting` : ""}`}
+        </span>
+      </div>
+      {(s.pending > 0 || s.error) && (
+        <button data-testid="payroll-sheet-sync" disabled={busy} onClick={sync} className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200 transition-colors">
+          <RefreshCw className={`w-3.5 h-3.5 ${busy ? "animate-spin" : ""}`} /> Sync now
+        </button>
+      )}
+      {s.url && (
+        <a data-testid="payroll-sheet-open" href={s.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200 transition-colors">
+          Open sheet <ExternalLink className="w-3.5 h-3.5" />
+        </a>
+      )}
+    </div>
+  );
+}
+
+function WeeklyPayroll({ onChanged }) {
   const [week, setWeek] = useState(null);
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -52,7 +92,7 @@ function WeeklyPayroll() {
 
   const act = async (fn, ok) => {
     setBusy(true);
-    try { await fn(); toast.success(ok); await load(); } catch (e) { toast.error(formatApiError(e)); } finally { setBusy(false); }
+    try { await fn(); toast.success(ok); await load(); onChanged(); } catch (e) { toast.error(formatApiError(e)); } finally { setBusy(false); }
   };
   const markPaid = (ids) => act(() => api.post(`/payroll/week/${data.week_start}/paid`, { worker_ids: ids }), ids ? "Marked paid" : "Week marked paid");
   const undo = (wid) => act(() => api.delete(`/payroll/week/${data.week_start}/paid/${wid}`), "Paid mark removed");
@@ -101,8 +141,9 @@ function WeeklyPayroll() {
               </div>
             </div>
             <DayStrip days={r.days} />
-            <div className="w-24 text-right font-display text-xl font-bold text-yellow-400 tabular-nums" data-testid={`payroll-week-earned-${r.worker.id}`}>{money(r.earned)}</div>
-            <div className="w-52 flex justify-end">
+            <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-4">
+            <div className="sm:w-24 text-right font-display text-xl font-bold text-yellow-400 tabular-nums" data-testid={`payroll-week-earned-${r.worker.id}`}>{money(r.earned)}</div>
+            <div className="sm:w-52 flex justify-end">
               {r.payout ? <PaidBadge r={r} busy={busy} onUndo={() => undo(r.worker.id)} /> : r.earned <= 0 ? (
                 <span className="text-xs text-zinc-600" data-testid={`payroll-nothing-${r.worker.id}`}>Nothing to pay</span>
               ) : (
@@ -112,6 +153,7 @@ function WeeklyPayroll() {
                 </button>
               )}
             </div>
+            </div>
           </div>
         ))}
       </div>
@@ -119,9 +161,9 @@ function WeeklyPayroll() {
   );
 }
 
-function AllTime() {
+function AllTime({ version }) {
   const [rows, setRows] = useState(null);
-  useEffect(() => { api.get("/payroll").then(({ data }) => setRows(data)); }, []);
+  useEffect(() => { api.get("/payroll").then(({ data }) => setRows(data)); }, [version]);
   if (!rows) return null;
   const sum = (k) => rows.reduce((s, r) => s + (r[k] || 0), 0);
   return (
@@ -162,15 +204,17 @@ function AllTime() {
 }
 
 export default function AdminPayroll() {
+  const [version, setVersion] = useState(0);
   return (
     <div className="space-y-10">
       <div>
         <div className="text-xs uppercase tracking-widest text-yellow-400">Payroll</div>
         <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Who earned what, week by week.</h1>
-        <p className="mt-2 text-zinc-400">Pay is per task, at the price it had when it was done. Mark a week paid and that amount is locked in.</p>
+        <p className="mt-2 text-zinc-400">Pay is per task, at the price it had when it was done. Mark a week paid and that amount is locked in, the worker gets an alert, and the week is copied to your Google Sheet.</p>
       </div>
-      <WeeklyPayroll />
-      <AllTime />
+      <SheetBar version={version} />
+      <WeeklyPayroll onChanged={() => setVersion((v) => v + 1)} />
+      <AllTime version={version} />
     </div>
   );
 }

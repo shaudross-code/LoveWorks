@@ -3,7 +3,7 @@ import api from "@/lib/api";
 import { ChevronDown, CheckCircle2, Clock, BadgeDollarSign, Loader2, CircleDollarSign } from "lucide-react";
 import { fmtDay, weekday, weekRange, money } from "@/lib/weeks";
 
-function DayRow({ d }) {
+function DayRow({ d, tz }) {
   const [open, setOpen] = useState(false);
   const empty = d.count === 0 && d.hours === 0;
   return (
@@ -20,7 +20,7 @@ function DayRow({ d }) {
         <ul className="mt-2 ml-24 space-y-1 text-xs text-zinc-400">
           {d.tasks.map((t, i) => (
             <li key={`${t.task_id}-${i}`} className="flex justify-between gap-3">
-              <span className="truncate">{t.title} <span className="text-zinc-600">· {new Date(t.completed_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}</span></span>
+              <span className="truncate">{t.title} <span className="text-zinc-600">· {new Date(t.completed_at).toLocaleTimeString([], { hour: "numeric", minute: "2-digit", timeZone: tz })}</span></span>
               <span className="tabular-nums">{money(t.price)}</span>
             </li>
           ))}
@@ -30,7 +30,7 @@ function DayRow({ d }) {
   );
 }
 
-function WeekCard({ w, defaultOpen }) {
+function WeekCard({ w, defaultOpen, tz }) {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <section data-testid={`history-week-${w.week_start}`} className="bg-[#121214] border border-yellow-400/15 rounded-2xl">
@@ -57,7 +57,7 @@ function WeekCard({ w, defaultOpen }) {
         </div>
         <ChevronDown className={`w-5 h-5 text-zinc-500 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="px-5 pb-4 divide-y divide-white/5 border-t border-yellow-400/10">{w.days.map((d) => <DayRow key={d.date} d={d} />)}</div>}
+      {open && <div className="px-5 pb-4 divide-y divide-white/5 border-t border-yellow-400/10">{w.days.map((d) => <DayRow key={d.date} d={d} tz={tz} />)}</div>}
     </section>
   );
 }
@@ -65,6 +65,7 @@ function WeekCard({ w, defaultOpen }) {
 export default function WeekHistory({ path }) {
   const [weeks, setWeeks] = useState(null);
   const [more, setMore] = useState({ next: null, has: false });
+  const [tz, setTz] = useState(undefined);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async (before) => {
@@ -73,6 +74,7 @@ export default function WeekHistory({ path }) {
       const { data } = await api.get(path, { params: { weeks: 6, ...(before ? { before } : {}) } });
       setWeeks((prev) => (before ? [...(prev || []), ...data.weeks] : data.weeks));
       setMore({ next: data.next_before, has: data.has_more });
+      setTz(data.tz || undefined);
     } finally {
       setLoading(false);
     }
@@ -82,7 +84,7 @@ export default function WeekHistory({ path }) {
   if (!weeks) return <div className="p-10 grid place-items-center text-zinc-500"><Loader2 className="w-5 h-5 animate-spin" /></div>;
   return (
     <div className="space-y-3" data-testid="week-history">
-      {weeks.map((w, i) => <WeekCard key={w.week_start} w={w} defaultOpen={i === 0} />)}
+      {weeks.map((w, i) => <WeekCard key={w.week_start} w={w} defaultOpen={i === 0} tz={tz} />)}
       {more.has && (
         <button data-testid="history-load-older" disabled={loading} onClick={() => load(more.next)}
           className="w-full h-11 rounded-2xl border border-yellow-400/20 text-sm text-yellow-300 hover:bg-yellow-400/5 transition-colors inline-flex items-center justify-center gap-2">

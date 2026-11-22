@@ -30,6 +30,11 @@ struct ProfileView: View {
                         .padding(.horizontal)
 
                         VStack(spacing: 10) {
+                            NavigationLink(destination: WeekHistoryView(path: "/me/history/weeks").navigationTitle("My weeks & pay").inlineNavigationTitle()) {
+                                ProfileRow(icon: "calendar", label: "My weeks & pay", color: Theme.primary) {
+                                    Image(systemName: "chevron.right").foregroundStyle(Theme.textMuted)
+                                }
+                            }
                             NavigationLink(destination: AlarmsView()) {
                                 ProfileRow(icon: "alarm.fill", label: "Alarms", color: Theme.primary) {
                                     Image(systemName: "chevron.right").foregroundStyle(Theme.textMuted)

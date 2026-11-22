@@ -17,6 +17,7 @@ except ImportError:  # Python <3.9 fallback (won't hit on our base image)
     ZoneInfo = None  # type: ignore
 
 import bcrypt
+import payroll_sheet as psheet
 import jwt
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Depends, UploadFile, File, Header, Query
@@ -2579,31 +2580,174 @@ async def mark_week_paid(week: str, req: PayoutRequest, admin: dict = Depends(re
     ids = [i for i in (req.worker_ids if req.worker_ids is not None else scoped) if i in scoped]
     bd = await _week_breakdown(ids, ws)
     now = now_utc().isoformat()
-    marked = 0
+    new_ids = []
     for wid in ids:
         week_data = bd[wid][0]
         if req.worker_ids is None and week_data["earned"] <= 0:
             continue
+        pid = str(uuid.uuid4())
         res = await db.payouts.update_one(
             {"worker_id": wid, "week_start": wk},
             {"$setOnInsert": {
-                "id": str(uuid.uuid4()), "worker_id": wid, "week_start": wk,
+                "id": pid, "worker_id": wid, "week_start": wk,
                 "amount": week_data["earned"], "tasks_completed": week_data["tasks_completed"], "hours": week_data["hours"],
+                "days": [{k: d[k] for k in ("date", "count", "earned", "hours")} | {"titles": [t["title"] for t in d["tasks"]]}
+                         for d in week_data["days"]],
                 "paid_at": now, "paid_by": admin["id"], "paid_by_name": admin.get("name"), "note": req.note,
+                "sandbox": bool(admin.get("sandbox")),
             }},
             upsert=True,
         )
-        marked += 1 if res.upserted_id else 0
-    return {"ok": True, "marked": marked}
+        if res.upserted_id:
+            new_ids.append(pid)
+            await notify(wid, "payday", f"You've been paid ${week_data['earned']:.2f}",
+                         f"Week of {_week_label(ws)} · {week_data['tasks_completed']} task{'s' if week_data['tasks_completed'] != 1 else ''}. Thanks for your work!",
+                         link="/worker/history", meta={"week_start": wk, "amount": week_data["earned"]})
+    if new_ids and not admin.get("sandbox"):
+        _spawn(_sync_payouts_to_sheet(new_ids))
+    return {"ok": True, "marked": len(new_ids)}
 
 
 @api_router.delete("/payroll/week/{week}/paid/{worker_id}")
 async def unmark_week_paid(week: str, worker_id: str, admin: dict = Depends(require_admin)):
     if worker_id not in await _scoped_worker_ids(admin):
         raise HTTPException(status_code=404, detail="Worker not found")
-    wk = _parse_week(week).date().isoformat()
-    res = await db.payouts.delete_one({"worker_id": worker_id, "week_start": wk})
-    return {"ok": True, "removed": res.deleted_count}
+    ws = _parse_week(week)
+    wk = ws.date().isoformat()
+    p = await db.payouts.find_one_and_delete({"worker_id": worker_id, "week_start": wk}, {"_id": 0})
+    if p:
+        await notify(worker_id, "payday", "Payment update",
+                     f"Your admin took back the ${float(p.get('amount') or 0):.2f} paid mark for the week of {_week_label(ws)}. Ask them if this looks wrong.",
+                     link="/worker/history", meta={"week_start": wk, "undone": True})
+        if p.get("sheet_synced_at"):
+            _spawn(_remove_payout_from_sheet(p))
+    return {"ok": True, "removed": 1 if p else 0}
+
+
+def _week_label(ws: datetime) -> str:
+    end = ws + timedelta(days=6)
+    return f"{ws:%b} {ws.day} – {'' if end.month == ws.month else f'{end:%b} '}{end.day}"
+
+
+_bg_tasks: set = set()
+
+
+def _spawn(coro) -> None:
+    t = asyncio.create_task(coro)
+    _bg_tasks.add(t)
+    t.add_done_callback(_bg_tasks.discard)
+
+
+# --- Google Sheet record of paid weeks (admin's Google account via the Emergent connection) ---
+_sheet_lock = asyncio.Lock()
+
+
+async def _payroll_sheet(create: bool = True) -> Optional[dict]:
+    doc = await db.settings.find_one({"key": "payroll_sheet"}, {"_id": 0})
+    if doc and doc.get("spreadsheet_id") and doc.get("connection_id") == psheet.connection_id():
+        if create and not doc.get("formatted"):
+            await psheet.format_sheet(doc["spreadsheet_id"])
+            await db.settings.update_one({"key": "payroll_sheet"}, {"$set": {"formatted": True}})
+        return doc
+    if not create:
+        return None
+    made = await psheet.create_spreadsheet("iLoveWorks Payroll")
+    doc = {"key": "payroll_sheet", "connection_id": psheet.connection_id(), "created_at": now_utc().isoformat(), "formatted": True, **made}
+    await db.settings.update_one({"key": "payroll_sheet"}, {"$set": doc}, upsert=True)
+    logger.info(f"Created payroll sheet {made['url']}")
+    return doc
+
+
+def _sheet_rows(p: dict, w: dict) -> tuple[list, list]:
+    start = date.fromisoformat(p["week_start"])
+    paid_on = (_as_utc(p.get("paid_at")) or now_utc()).astimezone(APP_TZ).strftime("%Y-%m-%d %H:%M")
+    name, email = w.get("name") or "", w.get("email") or ""
+    week = [[p["week_start"], (start + timedelta(days=6)).isoformat(), name, email, p.get("tasks_completed", 0),
+             p.get("hours", 0), p.get("amount", 0), paid_on, p.get("paid_by_name") or "", p.get("note") or "", p["id"]]]
+    days = [[p["week_start"], name, email, d["date"], date.fromisoformat(d["date"]).strftime("%a"), d["count"], d["hours"],
+             d["earned"], ", ".join(d.get("titles") or []), p["id"]] for d in (p.get("days") or [])]
+    return week, days
+
+
+async def _sync_payouts_to_sheet(payout_ids: Optional[list] = None) -> dict:
+    """Appends paid weeks that aren't in the sheet yet. Never raises; failures are kept on the payout."""
+    if not psheet.configured():
+        return {"synced": 0, "error": "Google Sheets isn't connected"}
+    q = {"sheet_synced_at": None, "sandbox": {"$ne": True}}
+    if payout_ids is not None:
+        q["id"] = {"$in": payout_ids}
+    async with _sheet_lock:
+        payouts = await db.payouts.find(q, {"_id": 0}).sort([("week_start", 1), ("paid_at", 1)]).to_list(2000)
+        if not payouts:
+            return {"synced": 0, "error": None}
+        try:
+            sheet = await _payroll_sheet()
+            users = {u["id"]: u for u in await db.users.find({"id": {"$in": list({p["worker_id"] for p in payouts})}},
+                                                            {"_id": 0, "id": 1, "name": 1, "email": 1}).to_list(1000)}
+            weeks, days = [], []
+            for p in payouts:
+                wr, dr = _sheet_rows(p, users.get(p["worker_id"], {}))
+                weeks += wr
+                days += dr
+            await psheet.append(sheet["spreadsheet_id"], psheet.WEEKS_TAB, weeks)
+            await psheet.append(sheet["spreadsheet_id"], psheet.DAYS_TAB, days)
+        except Exception as e:
+            logger.warning(f"payroll sheet sync failed: {e}")
+            await db.payouts.update_many({"id": {"$in": [p["id"] for p in payouts]}}, {"$set": {"sheet_error": str(e)[:300]}})
+            return {"synced": 0, "error": str(e)[:300]}
+        ids = [p["id"] for p in payouts]
+        await db.payouts.update_many({"id": {"$in": ids}},
+                                     {"$set": {"sheet_synced_at": now_utc().isoformat(), "sheet_id": sheet["spreadsheet_id"]},
+                                      "$unset": {"sheet_error": ""}})
+        # a paid mark undone while we were copying: take its rows back out
+        still = {p["id"] for p in await db.payouts.find({"id": {"$in": ids}}, {"_id": 0, "id": 1}).to_list(len(ids))}
+        for pid in set(ids) - still:
+            try:
+                await psheet.delete_payout_rows(sheet["spreadsheet_id"], pid)
+            except Exception as e:
+                logger.warning(f"payroll sheet cleanup failed for {pid}: {e}")
+        return {"synced": len(still), "error": None}
+
+
+async def _remove_payout_from_sheet(p: dict) -> None:
+    async with _sheet_lock:
+        try:
+            sheet = await _payroll_sheet(create=False)
+            if sheet and p.get("sheet_id") == sheet["spreadsheet_id"]:
+                await psheet.delete_payout_rows(sheet["spreadsheet_id"], p["id"])
+        except Exception as e:
+            logger.warning(f"payroll sheet row delete failed for payout {p.get('id')}: {e}")
+            await db.settings.update_one({"key": "payroll_sheet"}, {"$set": {"last_error": str(e)[:300]}})
+
+
+@api_router.get("/payroll/sheet")
+async def payroll_sheet_status(admin: dict = Depends(require_admin)):
+    if admin.get("sandbox"):
+        return {"configured": False, "url": None, "pending": 0, "synced": 0, "error": None}
+    sheet = await _payroll_sheet(create=False)
+    pending = await db.payouts.count_documents({"sheet_synced_at": None, "sandbox": {"$ne": True}})
+    failed = await db.payouts.find_one({"sheet_synced_at": None, "sheet_error": {"$ne": None}, "sandbox": {"$ne": True}},
+                                       {"_id": 0, "sheet_error": 1})
+    return {
+        "configured": psheet.configured(),
+        "url": sheet and sheet.get("url"),
+        "synced": await db.payouts.count_documents({"sheet_synced_at": {"$ne": None}, "sandbox": {"$ne": True}}),
+        "pending": pending,
+        "error": (failed or {}).get("sheet_error") or (sheet or {}).get("last_error"),
+    }
+
+
+@api_router.post("/payroll/sheet/sync")
+async def payroll_sheet_sync(admin: dict = Depends(require_admin)):
+    if admin.get("sandbox"):
+        raise HTTPException(status_code=403, detail="Not available in the demo account")
+    if not psheet.configured():
+        raise HTTPException(status_code=400, detail="Google Sheets isn't connected")
+    await db.settings.update_one({"key": "payroll_sheet"}, {"$unset": {"last_error": ""}})
+    res = await _sync_payouts_to_sheet()
+    if res["error"]:
+        raise HTTPException(status_code=502, detail=res["error"])
+    return {"ok": True, **res, "url": (await _payroll_sheet(create=False) or {}).get("url")}
 
 
 # --- Week-by-week task history (worker: own; admin: any of their workers) ---
@@ -2618,7 +2762,7 @@ async def _history_weeks(worker_id: str, weeks: int, before: Optional[str]) -> d
         wk["week_last_day"] = (date.fromisoformat(wk["week_start"]) + timedelta(days=6)).isoformat()
         wk["payout"] = _payout_out(payouts.get(wk["week_start"]))
     older = await db.task_completions.find_one({"worker_id": worker_id, "completed_at": {"$lt": iso_utc(start)}}, {"_id": 1})
-    return {"weeks": list(reversed(bd)), "next_before": bd[0]["week_start"], "has_more": older is not None}
+    return {"weeks": list(reversed(bd)), "next_before": bd[0]["week_start"], "has_more": older is not None, "tz": APP_TZ_NAME}
 
 
 @api_router.get("/me/history/weeks")
