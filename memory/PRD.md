@@ -123,6 +123,13 @@ Evolved into **LoveWorks**: a pink & gold love-themed household/labor management
   - Setup prompt: web `SetupChecklist` on worker dashboard (alerts on this device, Watch & Apple Health, Bluetooth scale; snooze 7 days; re-shows when SETUP_VERSION bumps) replaced PushPrompt. iPhone `SetupChecklist.swift`: one-time sheet per SETUP version per worker (alerts, Bluetooth, Apple Health, Watch app; each asks permission only on tap; Settings deep link when denied) + dashboard card. `ScaleBluetooth.requestPermission()/authorization`.
   - Worker deletion also deletes their payouts.
 
+- **Payday alerts, Google Sheet payroll record, iPhone admin payroll/crew health/weeks (Nov 22 2026; pytest 11/11 `tests/test_weeks_payroll_history.py`; web E2E passed (testing agent run cut short, report file not written); iPhone NOT built yet)**:
+  - Mark paid → worker alert "You've been paid $X" (type `payday`, link /worker/history); undo → "Payment update … took back". Payout docs now snapshot `days` (+ titles) and `sandbox`.
+  - Google Sheets via Emergent connector (`GOOGLE_SHEETS_CONNECTION_ID` in backend/.env, token from access-token with EMERGENT_LLM_KEY; client `backend/payroll_sheet.py`). First paid week creates "iLoveWorks Payroll" (tabs "Paid weeks" + "Daily detail", bold headers, $ columns; settings key `payroll_sheet`). Sync runs in the background after mark paid (`_spawn`), per-payout `sheet_synced_at`/`sheet_error`; undo deletes that payout's rows (matched by Payout ID column); undo racing a running sync is cleaned up. `GET /api/payroll/sheet`, `POST /api/payroll/sheet/sync` (backfill/retry). Sandbox (reviewer) admins never write to the sheet. PREVIEW sheet: https://docs.google.com/spreadsheets/d/1A7bS9_z0CrJ31gaxhZwm9Y5CNepo4S8qtmGuebCFn78/edit (holds one lovetest test row); production will create its own sheet on its first paid week.
+  - Web Payroll: Google Sheet bar (status, Open sheet, Sync now).
+  - iPhone: `AdminPayrollWeekView.swift` (replaces old AdminPayrollView: week picker, totals, day strip, Mark paid / Mark all / Undo, sheet Open/Sync, all-time earned/owed), `AdminCrewHealthView.swift` (More → Crew Health; sortable, CSV ShareLink, Not shared rows), `WeekViews.swift` (WeekPickerBar, WeekHistoryView) used by Profile → "My weeks & pay" and the Crew-tab worker card "Weeks" button, `WeeksModels.swift` (decoding verified against live API JSON with Swift 6.2 on Linux).
+  - Rule from user: every new feature must also be built into the iPhone app.
+
 **P1**
 - Refactor `server.py` into `/app/backend/routes` + `/app/backend/models` (~2,830 lines)
 - Admin uploads avatar for worker during account creation
