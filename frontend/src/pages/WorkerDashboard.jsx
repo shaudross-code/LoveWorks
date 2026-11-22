@@ -137,7 +137,7 @@ export default function WorkerDashboard() {
     setBusy(true);
     try {
       await api.post("/time/clock-in", { activity: activityKey });
-      toast.success(`Clocked in — ${activityOf(activityKey).label}`);
+      toast.success(activityKey === "clocked_in" ? "Clocked in" : `Clocked in — ${activityOf(activityKey).label}`);
       setPickerOpen(false);
       load();
     } catch (e) { toast.error(formatApiError(e)); }

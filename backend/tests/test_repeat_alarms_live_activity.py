@@ -97,6 +97,11 @@ def test_repeating_alarm_fires_and_reschedules_itself(worker):
     # Stop keeps the series; cancel ends it
     assert requests.post(f"{API}/alarms/{a['id']}/dismiss", headers=wh, timeout=20).status_code == 200
     assert _db(lambda db: db.alarms.find_one({"id": a["id"]}, {"_id": 0}))["status"] == "scheduled"
+    # Stop while it's ringing (fire_at already passed) jumps straight to the next ring
+    _db(lambda db: db.alarms.update_one({"id": a["id"]}, {"$set": {"fire_at": (datetime.now(timezone.utc) - timedelta(seconds=2)).isoformat()}}))
+    assert requests.post(f"{API}/alarms/{a['id']}/dismiss", headers=wh, timeout=20).status_code == 200
+    after = _db(lambda db: db.alarms.find_one({"id": a["id"]}, {"_id": 0}))
+    assert after["status"] == "scheduled" and datetime.fromisoformat(after["fire_at"]) > datetime.now(timezone.utc)
     requests.delete(f"{API}/alarms/{a['id']}", headers=wh, timeout=20)
     assert _db(lambda db: db.alarms.find_one({"id": a["id"]}, {"_id": 0}))["status"] == "cancelled"
 
@@ -129,8 +134,15 @@ def test_live_activity_tokens_and_server_pushes(worker):
         # Website break: update; website clock-out: end
         requests.post(f"{API}/time/clock-in", headers=wh, json={"activity": "break"}, timeout=20)
         requests.post(f"{API}/time/clock-out", headers=wh, timeout=20)
-        la = _db(lambda db: db.live_activities.find_one({"entry_id": e["id"]}, {"_id": 0}))
+        for _ in range(10):  # timer sync now runs in the background
+            la = _db(lambda db: db.live_activities.find_one({"entry_id": e["id"]}, {"_id": 0}))
+            if la["ended"]:
+                break
+            time.sleep(1)
         assert la["ended"] is True
+        # Someone else's entry id is refused
+        assert requests.post(f"{API}/push/live-activity", headers=wh,
+                             json={"fcm_token": FAKE_FCM, "activity_token": "cc33", "entry_id": "not-mine"}, timeout=20).status_code == 404
         time.sleep(1)
         with open(log) as f:
             f.seek(mark)

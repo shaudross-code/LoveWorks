@@ -47,11 +47,13 @@ function RingDialog({ alarm, onSnooze, onStop }) {
 export default function AlarmWatcher() {
   const [ringing, setRinging] = useState(null);
   const timers = useRef([]);
+  const rung = useRef(new Set()); // `${id}@${fire_at}` already rung this session
   const stopSound = useRef(() => {});
   const nav = useNavigate();
   const { search, pathname } = useLocation();
 
   const ring = useCallback((a, sound = true) => {
+    rung.current.add(`${a.id}@${a.fire_at}`);
     stopSound.current();
     stopSound.current = sound ? startBeeping() : () => {};
     setRinging(a);
@@ -62,7 +64,7 @@ export default function AlarmWatcher() {
     timers.current = [];
     const alarms = await listAlarms().catch(() => []);
     const now = Date.now();
-    alarms.filter((a) => a.status === "scheduled").forEach((a) => {
+    alarms.filter((a) => a.status === "scheduled" && !rung.current.has(`${a.id}@${a.fire_at}`)).forEach((a) => {
       const delta = new Date(a.fire_at).getTime() - now;
       if (delta > -60000 && delta < DAY_MS) timers.current.push(setTimeout(() => ring(a), Math.max(0, delta)));
     });

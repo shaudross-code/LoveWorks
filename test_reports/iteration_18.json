@@ -1,0 +1,41 @@
+{
+  "summary": "Iteration 18 tested repeating alarms (weekday picker), the 'Clocked In' activity, the Live Activity (lock-screen timer) server push path, delete-task keeping completion history, the concurrent-tick guard, hiding PushPrompt on iPhone Safari, and the sw.js renotify fix. Backend: all 32 tests pass. That is 11 in the main agent's test_repeat_alarms_live_activity.py, 10 in the new test_repeat_alarms_iter18.py and 11 in the iter17 regression. Frontend: dialog, Weekdays/Weekend picker, repeat row text, cancel, Clocked In clock-in/out and iPhone UA PushPrompt hiding all pass. One real bug found and reproduced in the browser: a repeating alarm rings a second time right after the user taps Stop.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/alarms/{id}/dismiss (repeating)", "issue": "Dismiss does nothing for repeating alarms, so the row stays status=scheduled with fire_at in the past until alarm_loop advances it, which can take up to 15 s. The web client re-reads the list right after Stop and rings again (see frontend bug). Fix: in dismiss, when repeat_days is set and fire_at <= now, advance fire_at with a conditional update to _next_repeat(...) (match on the old fire_at), and call _fire_alarm only if alarm_loop hasn't already done so. Or handle it on the client."},
+      {"endpoint": "POST /api/time/clock-in, /api/time/clock-out", "issue": "_sync_live_activity runs inline in the request and isn't wrapped in try/except. Send errors are caught, but a DB or message-build error after the entry is written would return a 500 even though the clock-in/out was saved. It also adds FCM round-trip latency for every timer. Wrap it in try/except or run it with asyncio.create_task."},
+      {"endpoint": "firebase_admin Message", "issue": "DeprecationWarning: 'Message.token is deprecated. Use Message.fid instead' (server.py ~3169). It works for now."},
+      {"endpoint": "POST /api/push/live-activity", "issue": "entry_id is not checked against the caller's own time_entries, so a user can register a timer row for any entry id. The risk is low because rows are keyed to the caller's fcm_token and user_id. Still worth checking."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {"component": "AlarmWatcher (repeating alarms)", "issue": "Reproduced: a repeating alarm (today, next minute, tz UTC) rang at 01:57:00. Tapping Stop brought the ring dialog straight back within 3 s. Cause: close() calls dismissAlarm, which is a no-op for repeating alarms, then announceAlarmsChanged causes schedule() to refetch. The alarm is still 'scheduled' with fire_at 1-15 s in the past, delta > -60000, so it gets setTimeout(0) and rings again. Snooze is not affected. Fix it on the server in dismiss (see backend) and/or keep a client-side set of rung `${id}@${fire_at}` keys and skip those in schedule().", "selector": "[data-testid='alarm-ring-dialog'] [data-testid='alarm-stop-btn']", "priority": "HIGH"}
+    ],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "Worker dashboard clock-in toast", "issues": ["Choosing 'Clocked In' shows the redundant toast 'Clocked in — Clocked In'. Consider just 'Clocked in' for this activity."]}
+    ]
+  },
+  "test_report_links": ["/app/backend/tests/test_repeat_alarms_iter18.py", "/app/backend/tests/test_repeat_alarms_live_activity.py", "/app/backend/tests/test_completions_alarms_iter17.py", "/app/test_reports/pytest/pytest_iter18.xml"],
+  "action_items": [
+    "HIGH: fix the double ring after Stop on repeating alarms. Make POST /alarms/{id}/dismiss advance fire_at to the next occurrence when it is due/past (conditional on the old fire_at), and/or have AlarmWatcher remember rung id+fire_at pairs and skip them.",
+    "Wrap _sync_live_activity calls in clock_in/clock_out in try/except (or fire-and-forget) so a push problem can never 500 a saved clock action.",
+    "test_repeat_alarms_live_activity.py leaves TEST_ alarms (status cancelled), the alarm notification and closed time entries for lovetest. Add id-based cleanup.",
+    "Optional: switch the redundant 'Clocked in — Clocked In' toast to plain 'Clocked in'."
+  ],
+  "critical_code_review_comments": [
+    "_next_repeat: a nonexistent local time during the spring-forward DST gap resolves through zoneinfo fold rules. That's acceptable, but it isn't tested.",
+    "Web AlarmDialog builds time_of_day from when.slice(11,16). Clearing the time input gives '' and the server returns 400 'time_of_day must be HH:MM'. The error is handled, but client-side validation would read better.",
+    "iOS schedules repeating alarms with weekday triggers in the device's TimeZone.current. If an alarm was created on the web in a different tz, the iPhone rings at device-local HH:MM, not the alarm's tz. Edge case.",
+    "server.py is now ~3730 lines. Split it into routers (alarms, time/live-activity, tasks, payroll)."
+  ],
+  "updated_files": ["/app/backend/tests/test_repeat_alarms_iter18.py"],
+  "success_rate": {"backend": "100% (32/32)", "frontend": "~90% (1 HIGH bug: repeating alarm re-rings after Stop)"},
+  "seed_data_creation": "Created TEST_ alarms and tasks only. All were deleted by id: the pytest fixture cleans up alarms, notifications, tasks and completions, and I deleted the 3 UI-created alarms plus 1 notification by id. lovetest is clocked out (0 active clocks).",
+  "retest_needed": true,
+  "should_main_agent_self_test": true,
+  "context_for_next_testing_agent": "Export REACT_APP_BACKEND_URL from frontend/.env and run pytest with -p no:xdist. The headless browser tz is UTC. To reproduce the re-ring, create a repeating alarm via API with tz=UTC, repeat_days=[today UTC weekday], time_of_day=next minute (at least 25 s away), reload /worker, wait for alarm-ring-dialog, click alarm-stop-btn, then check that the dialog stays closed after 3 s. Live Activity can only be checked server-side; fake FCM tokens are rejected by Google, which shows the send path ran. A real lock-screen timer needs the user's Xcode build.",
+  "rca of the issue": "Repeating alarm double ring: dismiss_alarm skips any write when repeat_days is set, and alarm_loop only advances fire_at every 15 s. AlarmWatcher.close() then calls announceAlarmsChanged, so schedule() refetches. The alarm is still scheduled with fire_at slightly in the past, inside the -60 s grace window, so it gets setTimeout(0) and rings again. Steps: create repeating alarm, let it ring, tap Stop within ~15 s, and it rings again. Mitigation: dismiss should advance fire_at for repeating alarms that are due, or the client should de-dupe by id+fire_at."
+}

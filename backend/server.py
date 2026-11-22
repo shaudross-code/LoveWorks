@@ -2226,7 +2226,7 @@ async def clock_in(req: ClockInRequest = ClockInRequest(), user: dict = Depends(
     # Evaluate streak awards
     await evaluate_clockin_streak(user["id"])
     if req.source != "ios":
-        await _sync_live_activity(user)
+        _sync_live_activity_bg(user)
     return entry
 
 
@@ -2278,7 +2278,7 @@ async def clock_out(
         except Exception as e:
             logger.warning(f"clock-out admin notify failed: {e}")
     if source != "ios":
-        await _sync_live_activity(user)
+        _sync_live_activity_bg(user)
     # Return single entry shape if exactly one was closed (backward compatible),
     # else return the list.
     if len(closed) == 1:
@@ -3142,6 +3142,8 @@ async def push_live_activity_token(req: LiveActivityTokenRequest, user: dict = D
             {"$set": {"la_start_token": req.start_token, "updated_at": now}},
         )
     if req.activity_token and req.entry_id:
+        if not await db.time_entries.find_one({"id": req.entry_id, "user_id": user["id"]}, {"_id": 1}):
+            raise HTTPException(status_code=404, detail="Clock entry not found")
         await db.live_activities.update_one(
             {"entry_id": req.entry_id, "fcm_token": req.fcm_token},
             {"$set": {"user_id": user["id"], "activity_token": req.activity_token, "ended": False, "updated_at": now}},
@@ -3214,6 +3216,16 @@ async def _sync_live_activity(user: dict) -> int:
                 if await _send_live_activity(_live_activity_message(d["token"], d["la_start_token"], "start", state, attrs)):
                     sent += 1
     return sent
+
+
+def _sync_live_activity_bg(user: dict) -> None:
+    """Fire-and-forget so a push hiccup never slows or fails a clock-in/out."""
+    async def run():
+        try:
+            await _sync_live_activity(user)
+        except Exception as e:
+            logger.warning(f"live activity sync failed for {user.get('id')}: {e}")
+    asyncio.create_task(run())
 
 
 @api_router.post("/push/test")
@@ -3479,8 +3491,12 @@ async def snooze_alarm(alarm_id: str, req: AlarmSnooze, user: dict = Depends(get
 @api_router.post("/alarms/{alarm_id}/dismiss")
 async def dismiss_alarm(alarm_id: str, user: dict = Depends(get_current_user)):
     a = await _own_alarm(alarm_id, user)
-    if not a.get("repeat_days"):  # stopping a repeating alarm keeps the series
+    if not a.get("repeat_days"):
         await db.alarms.update_one({"id": alarm_id}, {"$set": {"status": "done"}})
+    elif a["fire_at"] <= iso_utc(now_utc()):
+        # Stopped while ringing: move straight to the next ring so nothing re-rings it (series is kept)
+        nxt = _next_repeat(a["repeat_days"], a["time_of_day"], a["tz"], now_utc())
+        await db.alarms.update_one({"id": alarm_id, "fire_at": a["fire_at"]}, {"$set": {"fire_at": iso_utc(nxt)}})
     return {"ok": True}
 
 
