@@ -98,12 +98,17 @@ class AdminViewModel: ObservableObject {
         await refreshDashboard()
     }
 
-    func createTask(_ req: TaskCreateRequest) async throws {
+    func createTask(_ req: TaskSaveRequest) async throws {
         let _: TaskItem = try await APIClient.shared.send("/tasks", json: req)
         await refreshDashboard()
     }
 
-    struct TaskCreateRequest: Encodable {
+    func updateTask(id: String, _ req: TaskSaveRequest) async throws {
+        let _: TaskItem = try await APIClient.shared.send("/tasks/\(id)", method: "PATCH", json: req)
+        await refreshDashboard()
+    }
+
+    struct TaskSaveRequest: Encodable {
         let title: String
         let description: String
         let price: Double
@@ -111,8 +116,11 @@ class AdminViewModel: ObservableObject {
         let frequency: String
         let dueDayOfWeek: Int?
         let dueTime: String?
+        let dueAt: String?
+        let alarm: TaskAlarmConfig?
+        /// Edits clear fields with -1 / "" (the server treats null as "leave as is").
+        let forUpdate: Bool
 
-        // Send explicit nulls so "no specific day" clears the weekday
         func encode(to encoder: Encoder) throws {
             var c = encoder.container(keyedBy: CodingKeys.self)
             try c.encode(title, forKey: .title)
@@ -120,12 +128,20 @@ class AdminViewModel: ObservableObject {
             try c.encode(price, forKey: .price)
             try c.encode(assigneeId, forKey: .assigneeId)
             try c.encode(frequency, forKey: .frequency)
-            try c.encode(dueDayOfWeek, forKey: .dueDayOfWeek)
-            try c.encode(dueTime, forKey: .dueTime)
+            if forUpdate {
+                try c.encode(dueDayOfWeek ?? -1, forKey: .dueDayOfWeek)
+                try c.encode(dueTime ?? "", forKey: .dueTime)
+                try c.encode(dueAt ?? "", forKey: .dueAt)
+            } else {
+                try c.encode(dueDayOfWeek, forKey: .dueDayOfWeek)
+                try c.encode(dueTime, forKey: .dueTime)
+                try c.encode(dueAt, forKey: .dueAt)
+            }
+            try c.encode(alarm, forKey: .alarm)
         }
 
         enum CodingKeys: String, CodingKey {
-            case title, description, price, assigneeId, frequency, dueDayOfWeek, dueTime
+            case title, description, price, assigneeId, frequency, dueDayOfWeek, dueTime, dueAt, alarm
         }
     }
 }

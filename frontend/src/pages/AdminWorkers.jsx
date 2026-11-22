@@ -4,10 +4,12 @@ import Avatar from "@/components/Avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil, Ruler } from "lucide-react";
+import { Plus, Trash2, UserPlus, Mail, BadgeCheck, Loader2, Wifi, WifiOff, Clock, ClipboardList, Pencil, Ruler, Watch } from "lucide-react";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { activityOf } from "@/lib/activities";
 import WeeklyStrip from "@/components/WeeklyStrip";
+import WorkerHealthChip from "@/components/WorkerHealthChip";
 import WorkerSizesDialog from "@/components/sizes/WorkerSizesDialog";
 
 function timeAgo(iso) {
@@ -111,6 +113,9 @@ export default function AdminWorkers() {
         <div>
           <div className="text-xs uppercase tracking-widest text-yellow-400">Crew · Live</div>
           <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-2">Your workers.</h1>
+          <Link to="/admin/apple-watch" data-testid="admin-watch-guide-link" className="mt-1 inline-flex items-center gap-1 text-xs text-pink-300 hover:text-pink-200">
+            <Watch className="w-3.5 h-3.5" /> Apple Watch &amp; scale setup guide
+          </Link>
           <p className="mt-2 text-zinc-400 flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs bg-green-400/15 text-green-400">
               <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" /> {onlineCount} online
@@ -260,6 +265,7 @@ export default function AdminWorkers() {
               <div className="mt-4">
                 <WeeklyStrip days={s.completions_by_day || []} streak={s.streak_days || 0} />
               </div>
+              <WorkerHealthChip health={s.health} workerId={s.worker.id} />
 
               {/* Streak + inconsistency chips */}
               <div className="mt-3 flex flex-wrap gap-2" data-testid={`worker-streak-block-${s.worker.id}`}>

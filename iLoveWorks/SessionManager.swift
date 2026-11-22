@@ -55,11 +55,19 @@ class SessionManager: ObservableObject {
         LiveActivityManager.shared.workerName = currentUser?.name ?? ""
         LiveActivityManager.shared.startObserving()
         #endif
+        #if os(iOS) && canImport(HealthKit) && canImport(WatchConnectivity)
+        WatchLink.shared.activate()
+        HealthSync.shared.start()
+        Task { await HealthSync.shared.refresh(upload: true) }
+        #endif
     }
 
     func logout() {
         currentUser = nil
         AlarmStore.shared.clearLocal()
+        #if os(iOS) && canImport(HealthKit)
+        HealthSync.shared.signedOut()
+        #endif
         #if canImport(ActivityKit) && os(iOS)
         Task { await LiveActivityManager.shared.endAll() }
         #endif
@@ -74,6 +82,9 @@ class SessionManager: ObservableObject {
     func forgetSession() {
         PushManager.shared.forgetToken()
         AlarmStore.shared.clearLocal()
+        #if os(iOS) && canImport(HealthKit)
+        HealthSync.shared.signedOut()
+        #endif
         _ = KeychainService.shared.delete(service: "TUE.iLoveWorks", account: "access_token")
         currentUser = nil
     }

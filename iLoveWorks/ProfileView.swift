@@ -35,6 +35,13 @@ struct ProfileView: View {
                                     Image(systemName: "chevron.right").foregroundStyle(Theme.textMuted)
                                 }
                             }
+                            #if os(iOS) && canImport(HealthKit) && canImport(WatchConnectivity)
+                            NavigationLink(destination: HealthView()) {
+                                ProfileRow(icon: "applewatch", label: "Apple Watch, Scale & Health", color: Theme.lovePink) {
+                                    Image(systemName: "chevron.right").foregroundStyle(Theme.textMuted)
+                                }
+                            }
+                            #endif
                             NavigationLink(destination: WorkerAwardsView(viewModel: workerViewModel)) {
                                 ProfileRow(icon: "trophy.fill", label: "Trophy case", color: Theme.lovePink) {
                                     Image(systemName: "chevron.right").foregroundStyle(Theme.textMuted)

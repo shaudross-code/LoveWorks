@@ -506,6 +506,7 @@ struct AddWorkerView: View {
 struct AdminTasksView: View {
     @ObservedObject var viewModel: AdminViewModel
     @State private var showingAddTask = false
+    @State private var editingTask: TaskItem?
     
     var body: some View {
         NavigationView {
@@ -536,7 +537,17 @@ struct AdminTasksView: View {
                         
                         VStack(spacing: 12) {
                             ForEach(viewModel.tasks) { task in
-                                TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { _ in })
+                                VStack(alignment: .leading, spacing: 6) {
+                                    TaskRow(task: task, onToggle: {}, onStart: {}, onSpeak: { _ in })
+                                    if let alarm = task.alarm {
+                                        Label(TaskFormView.alarmLabel(alarm), systemImage: "alarm.fill")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundStyle(Theme.primary)
+                                            .padding(.leading, 8)
+                                    }
+                                }
+                                .contentShape(Rectangle())
+                                .onTapGesture { editingTask = task }
                             }
                         }
                         .padding(.horizontal)
@@ -549,121 +560,14 @@ struct AdminTasksView: View {
             .navigationBarHidden(true)
 #endif
             .sheet(isPresented: $showingAddTask) {
-                AddTaskView(viewModel: viewModel)
+                TaskFormView(viewModel: viewModel)
+            }
+            .sheet(item: $editingTask) { task in
+                TaskFormView(viewModel: viewModel, existing: task)
             }
         }
         .onAppear {
             viewModel.loadDashboard()
-        }
-    }
-}
-
-struct AddTaskView: View {
-    @ObservedObject var viewModel: AdminViewModel
-    @Environment(\.dismiss) var dismiss
-    @State private var title = ""
-    @State private var description = ""
-    @State private var price = ""
-    @State private var selectedWorkerId = ""
-    @State private var isSubmitting = false
-    
-    var body: some View {
-        NavigationView {
-            ZStack {
-                Theme.background.ignoresSafeArea()
-                
-                VStack(spacing: 24) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("TITLE")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Theme.textMuted)
-                        TextField("Task Name", text: $title)
-                            .padding()
-                            .background(Theme.surface)
-                            .cornerRadius(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("DESCRIPTION")
-                            .font(.system(size: 10, weight: .bold))
-                            .foregroundStyle(Theme.textMuted)
-                        TextField("What needs to be done?", text: $description)
-                            .padding()
-                            .background(Theme.surface)
-                            .cornerRadius(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
-                    }
-                    
-                    HStack(spacing: 16) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("PRICE")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(Theme.textMuted)
-                            TextField("0.00", text: $price)
-                                .padding()
-                                .background(Theme.surface)
-                                .cornerRadius(12)
-                                .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
-                        }
-                        
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("ASSIGNEE")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(Theme.textMuted)
-                            Picker("Worker", selection: $selectedWorkerId) {
-                                Text("Select...").tag("")
-                                ForEach(viewModel.workers) { worker in
-                                    Text(worker.name).tag(worker.id)
-                                }
-                            }
-                            .pickerStyle(.menu)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 10)
-                            .background(Theme.surface)
-                            .cornerRadius(12)
-                            .overlay(RoundedRectangle(cornerRadius: 12).stroke(Theme.border, lineWidth: 1))
-                        }
-                    }
-                    
-                    Button(action: {
-                        isSubmitting = true
-                        Task {
-                            if let p = Double(price) {
-                                try? await viewModel.createTask(title: title, description: description, price: p, assigneeId: selectedWorkerId)
-                                await MainActor.run {
-                                    isSubmitting = false
-                                    dismiss()
-                                }
-                            }
-                        }
-                    }) {
-                        HStack {
-                            if isSubmitting {
-                                ProgressView().tint(.white)
-                            } else {
-                                Text("Assign Task")
-                                    .font(.system(size: 16, weight: .bold))
-                            }
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Theme.loveGradient)
-                        .foregroundStyle(.white)
-                        .cornerRadius(100)
-                    }
-                    .disabled(isSubmitting || title.isEmpty || price.isEmpty || selectedWorkerId.isEmpty)
-                    
-                    Spacer()
-                }
-                .padding(24)
-            }
-            .navigationTitle("New Task")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
         }
     }
 }

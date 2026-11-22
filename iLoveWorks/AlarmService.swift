@@ -21,6 +21,7 @@ struct AlarmItem: Codable, Identifiable, Hashable {
     var repeatDays: [Int]? = nil
     var timeOfDay: String? = nil
     var tz: String? = nil
+    var managed: Bool? = nil  // set by an admin on a task
 
     /// 0 = Monday … 6 = Sunday (same as the server).
     var isRepeating: Bool { !(repeatDays ?? []).isEmpty && timeOfDay != nil }

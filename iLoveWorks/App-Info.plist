@@ -7,6 +7,12 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>iLoveWorks uses Bluetooth to read your weight from your VeSync (Etekcity) smart scale when you tap Weigh in.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>iLoveWorks reads your Apple Watch calories and your smart-scale weight from Apple Health to show them on your dashboard (and to your admin only if you turn sharing on).</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>iLoveWorks saves live workouts you record on your Apple Watch, and weigh-ins from your smart scale, to Apple Health.</string>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
 	<key>UIBackgroundModes</key>

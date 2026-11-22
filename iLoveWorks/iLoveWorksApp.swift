@@ -56,6 +56,9 @@ struct iLoveWorksApp: App {
                     Task {
                         await themeStore.refresh()
                         await AlarmStore.shared.sync()
+                        #if os(iOS) && canImport(HealthKit)
+                        await HealthSync.shared.refresh(upload: true)
+                        #endif
                     }
                 }
             }

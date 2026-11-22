@@ -12,6 +12,7 @@ import SpeakButton from "@/components/SpeakButton";
 import WeeklyStrip from "@/components/WeeklyStrip";
 import PushPrompt from "@/components/PushPrompt";
 import AlarmsPanel from "@/components/AlarmsPanel";
+import HealthCard from "@/components/HealthCard";
 import { openAlarmDialog } from "@/lib/alarms";
 import { ACTIVITIES, activityOf } from "@/lib/activities";
 
@@ -170,6 +171,7 @@ export default function WorkerDashboard() {
     <div className="space-y-10">
       <PushPrompt />
       <AlarmsPanel />
+      <HealthCard />
       {/* Hero — clock in / activity */}
       <div className="relative overflow-hidden bg-[#121214] border border-yellow-400/15 rounded-3xl p-5 sm:p-10">
         <div className="absolute -top-32 -right-32 w-[420px] h-[420px] bg-yellow-400/10 rounded-full blur-3xl pointer-events-none" />

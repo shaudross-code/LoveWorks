@@ -72,7 +72,7 @@ struct AlarmRowView: View {
             Image(systemName: alarm.isRepeating ? "repeat" : "alarm.fill").foregroundStyle(Theme.primary)
             VStack(alignment: .leading, spacing: 3) {
                 Text(alarm.title).font(.system(size: 15, weight: .semibold)).foregroundStyle(Theme.textMain).lineLimit(2)
-                Text(Self.label(alarm)).font(.system(size: 12)).foregroundStyle(Theme.textMuted)
+                Text((alarm.managed == true ? "Set by admin · " : "") + Self.label(alarm)).font(.system(size: 12)).foregroundStyle(Theme.textMuted)
             }
             Spacer()
             Button(action: onCancel) {

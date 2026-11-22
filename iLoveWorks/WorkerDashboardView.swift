@@ -286,6 +286,11 @@ struct WorkerDashboardMainView: View {
                         .padding(.horizontal)
                     }
 
+                    #if os(iOS) && canImport(HealthKit) && canImport(WatchConnectivity)
+                    HealthNumbersCard()
+                        .padding(.horizontal)
+                    #endif
+
                     VStack(alignment: .leading, spacing: 16) {
                         Text("YOUR WEEK")
                             .font(.system(size: 10, weight: .bold))

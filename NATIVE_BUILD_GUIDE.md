@@ -24,6 +24,28 @@ The Capacitor project uses **Swift Package Manager**:
 
 Bundle ID: `com.loveworks.app` · Version 1.0.1 (build 3) · Deployment target iOS 14.
 
+## SwiftUI app (`iLoveWorks.xcodeproj`): Apple Watch, lock-screen timer, Bluetooth scale
+Targets already in the project (no File ▸ New ▸ Target needed):
+| Target | Folder | Bundle ID |
+|---|---|---|
+| iLoveWorks (iPhone) | `iLoveWorks/` + `iLoveWorksShared/` | `TUE.iLoveWorks` |
+| iLoveWorksWidgets (lock-screen timer) | `iLoveWorksWidgets/` + `iLoveWorksShared/` | `TUE.iLoveWorks.Widgets` |
+| iLoveWorksWatch (watchOS 10+) | `iLoveWorksWatch/` | `TUE.iLoveWorks.watchkitapp` |
+
+1. Save to GitHub → `git pull` on the Mac → open `iLoveWorks.xcodeproj`.
+2. For **each** of the three targets: *Signing & Capabilities* → pick your Team. Xcode registers the IDs.
+   iLoveWorks and iLoveWorksWatch must show the **HealthKit** capability (it comes from the `.entitlements` files; if Xcode
+   asks, click "Enable").
+3. Run the **iLoveWorks** scheme on your iPhone. The Watch app is built and embedded automatically, then installs on the
+   paired Watch (or iPhone Watch app → Available Apps → Install). Use the **iLoveWorksWatch** scheme to run/debug on the Watch directly.
+4. Bluetooth scale: Profile → Apple Watch, Scale & Health → *Weigh in with Bluetooth*. iOS shows the Bluetooth prompt
+   (`NSBluetoothAlwaysUsageDescription` in `App-Info.plist`). Needs a real iPhone; the simulator has no Bluetooth.
+   Supported: Etekcity ESF-551, ESF-24/17/18, FIT-8S (decoding in `ScaleProtocol.swift`). EFS-A591S / EFS-C651 use encrypted
+   frames → the app tells the worker to use the VeSync → Apple Health route.
+5. Watch ↔ iPhone uses WatchConnectivity, which picks Bluetooth when close and Wi-Fi otherwise — no extra setup.
+
+`scripts/add_watch_target.py` is what added the Watch target (idempotent; re-running does nothing).
+
 ## Build the Android app
 Open `frontend/android` in Android Studio → **Build ▸ Clean Project** → Run / Generate Signed Bundle.
 The bundle in `frontend/android/app/src/main/assets/public` is committed too.

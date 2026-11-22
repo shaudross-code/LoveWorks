@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		CE9F9B82300B846700BB12BB /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = CE9F9B81300B846700BB12BB /* FirebaseMessaging */; };
 		CE9F9B9E300B846700BB12BB /* iLoveWorksWidgets.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CE9F9BAD300B846700BB12BB /* iLoveWorksWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = CE9F9BA0300B846700BB12BB /* iLoveWorksWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -33,6 +34,13 @@
 			remoteGlobalIDString = CE9F9B91300B846700BB12BB;
 			remoteInfo = iLoveWorksWidgets;
 		};
+		CE9F9BAA300B846700BB12BB /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CE9F9B41300B846400BB12BB /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CE9F9BA1300B846700BB12BB;
+			remoteInfo = iLoveWorksWatch;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +55,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE9F9BAC300B846700BB12BB /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolderSpec = 16;
+			files = (
+				CE9F9BAD300B846700BB12BB /* iLoveWorksWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -54,6 +73,7 @@
 		CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = iLoveWorksUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = iLoveWorksWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CE9F9BA0300B846700BB12BB /* iLoveWorksWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = iLoveWorksWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -70,6 +90,13 @@
 				Info.plist,
 			);
 			target = CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */;
+		};
+		CE9F9BA6300B846700BB12BB /* Exceptions for "iLoveWorksWatch" folder in "iLoveWorksWatch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CE9F9BA1300B846700BB12BB /* iLoveWorksWatch */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -105,6 +132,14 @@
 			path = iLoveWorksShared;
 			sourceTree = "<group>";
 		};
+		CE9F9BA5300B846700BB12BB /* iLoveWorksWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CE9F9BA6300B846700BB12BB /* Exceptions for "iLoveWorksWatch" folder in "iLoveWorksWatch" target */,
+			);
+			path = iLoveWorksWatch;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -137,6 +172,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE9F9BA3300B846700BB12BB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -148,6 +190,7 @@
 				CE9F9B65300B846700BB12BB /* iLoveWorksUITests */,
 				CE9F9B95300B846700BB12BB /* iLoveWorksWidgets */,
 				CE9F9B96300B846700BB12BB /* iLoveWorksShared */,
+				CE9F9BA5300B846700BB12BB /* iLoveWorksWatch */,
 				CE9F9B4A300B846500BB12BB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -159,6 +202,7 @@
 				CE9F9B58300B846700BB12BB /* iLoveWorksTests.xctest */,
 				CE9F9B62300B846700BB12BB /* iLoveWorksUITests.xctest */,
 				CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */,
+				CE9F9BA0300B846700BB12BB /* iLoveWorksWatch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -174,11 +218,13 @@
 				CE9F9B46300B846500BB12BB /* Frameworks */,
 				CE9F9B47300B846500BB12BB /* Resources */,
 				CE9F9B9D300B846700BB12BB /* Embed Foundation Extensions */,
+				CE9F9BAC300B846700BB12BB /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				CE9F9B9C300B846700BB12BB /* PBXTargetDependency */,
+				CE9F9BAB300B846700BB12BB /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CE9F9B4B300B846500BB12BB /* iLoveWorks */,
@@ -261,6 +307,28 @@
 			productReference = CE9F9B90300B846700BB12BB /* iLoveWorksWidgets.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		CE9F9BA1300B846700BB12BB /* iLoveWorksWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CE9F9BA7300B846700BB12BB /* Build configuration list for PBXNativeTarget "iLoveWorksWatch" */;
+			buildPhases = (
+				CE9F9BA2300B846700BB12BB /* Sources */,
+				CE9F9BA3300B846700BB12BB /* Frameworks */,
+				CE9F9BA4300B846700BB12BB /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CE9F9BA5300B846700BB12BB /* iLoveWorksWatch */,
+			);
+			name = iLoveWorksWatch;
+			packageProductDependencies = (
+			);
+			productName = iLoveWorksWatch;
+			productReference = CE9F9BA0300B846700BB12BB /* iLoveWorksWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -283,6 +351,9 @@
 						TestTargetID = CE9F9B48300B846500BB12BB;
 					};
 					CE9F9B91300B846700BB12BB = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					CE9F9BA1300B846700BB12BB = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -308,6 +379,7 @@
 				CE9F9B57300B846700BB12BB /* iLoveWorksTests */,
 				CE9F9B61300B846700BB12BB /* iLoveWorksUITests */,
 				CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */,
+				CE9F9BA1300B846700BB12BB /* iLoveWorksWatch */,
 			);
 		};
 /* End PBXProject section */
@@ -335,6 +407,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		CE9F9B94300B846700BB12BB /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CE9F9BA4300B846700BB12BB /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -372,6 +451,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CE9F9BA2300B846700BB12BB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -390,6 +476,12 @@
 			platformFilter = ios;
 			target = CE9F9B91300B846700BB12BB /* iLoveWorksWidgets */;
 			targetProxy = CE9F9B9B300B846700BB12BB /* PBXContainerItemProxy */;
+		};
+		CE9F9BAB300B846700BB12BB /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = CE9F9BA1300B846700BB12BB /* iLoveWorksWatch */;
+			targetProxy = CE9F9BAA300B846700BB12BB /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -776,6 +868,75 @@
 			};
 			name = Release;
 		};
+		CE9F9BA8300B846700BB12BB /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iLoveWorksWatch/iLoveWorksWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3TKQ757JMH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iLoveWorksWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iLoveWorks;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "iLoveWorks reads your Active and Resting calories to show today's totals on your Watch and iPhone.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "iLoveWorks saves the live workouts you record on your Watch to Apple Health.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = TUE.iLoveWorks;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TUE.iLoveWorks.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		CE9F9BA9300B846700BB12BB /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = iLoveWorksWatch/iLoveWorksWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 3TKQ757JMH;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = iLoveWorksWatch/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = iLoveWorks;
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "iLoveWorks reads your Active and Resting calories to show today's totals on your Watch and iPhone.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "iLoveWorks saves the live workouts you record on your Watch to Apple Health.";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = TUE.iLoveWorks;
+				INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp = NO;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = TUE.iLoveWorks.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -820,6 +981,15 @@
 			buildConfigurations = (
 				CE9F9B99300B846700BB12BB /* Debug */,
 				CE9F9B9A300B846700BB12BB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CE9F9BA7300B846700BB12BB /* Build configuration list for PBXNativeTarget "iLoveWorksWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CE9F9BA8300B846700BB12BB /* Debug */,
+				CE9F9BA9300B846700BB12BB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

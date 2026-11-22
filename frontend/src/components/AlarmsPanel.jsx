@@ -11,7 +11,7 @@ import {
   ALARMS_CHANGED, OPEN_ALARM_DIALOG, DAY_LABELS, WEEKDAYS, deviceTz, repeatSummary, fmtTimeOfDay,
 } from "@/lib/alarms";
 
-function DayPicker({ days, onChange }) {
+export function DayPicker({ days, onChange }) {
   const toggle = (d) => onChange(days.includes(d) ? days.filter((x) => x !== d) : [...days, d].sort());
   const isWeekdays = days.length === 5 && WEEKDAYS.every((d) => days.includes(d));
   return (
@@ -96,6 +96,7 @@ function AlarmItem({ a, onCancel }) {
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium truncate">{a.title}</div>
         <div className="text-xs text-zinc-500">
+          {a.managed && <span data-testid={`alarm-managed-${a.id}`} className="text-yellow-400/80">Set by admin · </span>}
           {a.repeat_days?.length
             ? <span data-testid={`alarm-repeat-${a.id}`}>{repeatSummary(a.repeat_days)} · {fmtTimeOfDay(a.time_of_day)} · next {fmtAlarmTime(a.fire_at)}</span>
             : <>{fmtAlarmTime(a.fire_at)}{a.status === "fired" ? " · rang" : ""}</>}

@@ -24,6 +24,7 @@ import WorkerDashboard from "@/pages/WorkerDashboard";
 import WorkerHistory from "@/pages/WorkerHistory";
 import Privacy from "@/pages/Privacy";
 import MySizes from "@/pages/MySizes";
+import AppleWatchGuide from "@/pages/AppleWatchGuide";
 
 function RootRedirect() {
   const { user } = useAuth();
@@ -105,6 +106,12 @@ function App() {
             } />
             <Route path="/admin/profile" element={
               <ProtectedRoute role="admin"><AdminLayout><Profile /></AdminLayout></ProtectedRoute>
+            } />
+            <Route path="/worker/apple-watch" element={
+              <ProtectedRoute role="worker"><WorkerLayout><AppleWatchGuide /></WorkerLayout></ProtectedRoute>
+            } />
+            <Route path="/admin/apple-watch" element={
+              <ProtectedRoute role="admin"><AdminLayout><AppleWatchGuide /></AdminLayout></ProtectedRoute>
             } />
 
             <Route path="*" element={<Navigate to="/" replace />} />

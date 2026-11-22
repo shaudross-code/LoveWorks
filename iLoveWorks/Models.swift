@@ -56,8 +56,19 @@ struct TaskItem: Codable, Identifiable {
     let estimatedHours: Double?
     let dailyHours: Double?
     let completedAt: String?
+    let alarm: TaskAlarmConfig?
 
     var isCompleted: Bool { status == "completed" }
+}
+
+/// Alarm an admin sets on a task; it rings for the assigned worker.
+struct TaskAlarmConfig: Codable, Hashable {
+    var mode: String  // "before" | "exact"
+    var minutes: Int? = nil
+    var fireAt: String? = nil
+    var repeatDays: [Int]? = nil
+    var timeOfDay: String? = nil
+    var tz: String? = nil
 }
 
 struct Announcement: Codable, Identifiable {

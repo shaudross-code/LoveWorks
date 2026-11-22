@@ -301,6 +301,15 @@ class CreateWorkerRequest(BaseModel):
     name: str
 
 
+class TaskAlarm(BaseModel):
+    mode: str  # "before" = N minutes before the task is due | "exact" = a set time or repeat days
+    minutes: Optional[int] = Field(default=None, ge=1, le=1440)
+    fire_at: Optional[str] = None
+    repeat_days: Optional[List[int]] = None
+    time_of_day: Optional[str] = None
+    tz: Optional[str] = None
+
+
 class TaskCreate(BaseModel):
     title: str = Field(min_length=1, max_length=200)
     description: Optional[str] = ""
@@ -313,6 +322,7 @@ class TaskCreate(BaseModel):
     daily_hours: Optional[float] = None
     frequency: Optional[str] = "once"
     payout_schedule: Optional[str] = "per_task"
+    alarm: Optional[TaskAlarm] = None  # rings for the assigned worker
 
 
 class TaskUpdate(BaseModel):
@@ -328,6 +338,7 @@ class TaskUpdate(BaseModel):
     daily_hours: Optional[float] = None
     frequency: Optional[str] = None
     payout_schedule: Optional[str] = None
+    alarm: Optional[TaskAlarm] = None  # send null to remove the task's alarm
 
 
 class ClockInRequest(BaseModel):
@@ -693,6 +704,7 @@ async def delete_my_account(req: DeleteAccountRequest, response: Response, user:
     await db.tasks.delete_many({"assignee_id": uid})
     await db.task_completions.delete_many({"worker_id": uid})
     await db.alarms.delete_many({"user_id": uid})
+    await db.health_daily.delete_many({"user_id": uid})
     await db.time_entries.delete_many({"user_id": uid})
     await db.goals.delete_many({"owner_id": uid})
     await db.goals.update_many({"collaborator_ids": uid}, {"$pull": {"collaborator_ids": uid}})
@@ -1583,6 +1595,7 @@ async def delete_worker(worker_id: str, admin: dict = Depends(require_admin)):
     await db.tasks.delete_many({"assignee_id": worker_id})
     await db.task_completions.delete_many({"worker_id": worker_id})
     await db.alarms.delete_many({"user_id": worker_id})
+    await db.health_daily.delete_many({"user_id": worker_id})
     await db.time_entries.delete_many({"user_id": worker_id})
     await db.sizes.delete_many({"user_id": worker_id})
     await db.files.update_many({"user_id": worker_id}, {"$set": {"is_deleted": True}})
@@ -2000,8 +2013,10 @@ async def create_task(req: TaskCreate, admin: dict = Depends(require_admin)):
         "frequency": _validate_frequency(req.frequency) or "once",
         "payout_schedule": _validate_payout(req.payout_schedule) or "per_task",
     }
+    task["alarm"] = _normalize_task_alarm(task, req.alarm) if req.alarm else None
     await db.tasks.insert_one(task)
     task.pop("_id", None)
+    await _sync_task_alarm(task)
     # Notify the assignee about the new task
     when_parts = []
     if task.get("due_at"):
@@ -2090,6 +2105,8 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
             update["frequency"] = _validate_frequency(req.frequency)
         if req.payout_schedule is not None:
             update["payout_schedule"] = _validate_payout(req.payout_schedule)
+        if "alarm" in req.model_fields_set:
+            update["alarm"] = _normalize_task_alarm({**task, **update}, req.alarm) if req.alarm else None
     if not update:
         raise HTTPException(status_code=400, detail="No fields to update")
     was_done = task.get("status") == "completed"
@@ -2108,6 +2125,7 @@ async def update_task(task_id: str, req: TaskUpdate, user: dict = Depends(get_cu
     updated = await db.tasks.find_one({"id": task_id}, {"_id": 0})
     if new_status and new_status != "completed" and was_done and task.get("completed_at"):
         await db.task_completions.delete_one({"task_id": task_id, "completed_at": task["completed_at"]})
+    await _sync_task_alarm(updated)
     # --- Admin-edit notifications to worker(s) ---
     if user["role"] == "admin":
         # Build a single composite message rather than spamming many notifications
@@ -2631,6 +2649,9 @@ async def admin_worker_status(admin: dict = Depends(require_admin)):
             ],
         })
     # sort: online first, then currently_clocked_in, then by name
+    health = await _shared_health_map([r["worker"]["id"] for r in results])
+    for r in results:
+        r["health"] = health.get(r["worker"]["id"])
     results.sort(key=lambda r: (not r["online"], not r["currently_clocked_in"], (r["worker"]["name"] or "").lower()))
     return results
 
@@ -3361,6 +3382,102 @@ async def reminder_loop():
 _reminder_task_ref = {"task": None}
 
 
+# --- Health: Apple Watch calories + smart-scale weight, read from Apple Health on the worker's iPhone ---
+class HealthDayUpload(BaseModel):
+    date: str  # worker's local day, YYYY-MM-DD
+    active_kcal: float = Field(ge=0, le=20000)
+    total_kcal: float = Field(ge=0, le=30000)
+    weight_kg: Optional[float] = Field(default=None, ge=20, le=400)
+    body_fat_pct: Optional[float] = Field(default=None, ge=1, le=80)
+    bmi: Optional[float] = Field(default=None, ge=8, le=90)
+    weight_measured_at: Optional[str] = None
+    weight_source: Optional[str] = None  # apple_health | scale_bluetooth
+    source: Optional[str] = "apple_health"  # apple_health | watch_live
+
+
+class HealthSharing(BaseModel):
+    share: bool
+
+
+@api_router.post("/health/daily")
+async def upload_health_day(req: HealthDayUpload, user: dict = Depends(get_current_user)):
+    try:
+        day = datetime.strptime(req.date, "%Y-%m-%d").date()
+    except ValueError:
+        raise HTTPException(status_code=400, detail="date must be YYYY-MM-DD")
+    if abs((day - now_utc().date()).days) > 2:
+        raise HTTPException(status_code=400, detail="Only today's or yesterday's numbers can be sent.")
+    now = now_utc().isoformat()
+    fields: dict = {"source": req.source if req.source in ("apple_health", "watch_live") else "apple_health", "updated_at": now}
+    if req.weight_kg is not None:
+        fields.update({
+            "weight_kg": round(req.weight_kg, 1),
+            "body_fat_pct": round(req.body_fat_pct, 1) if req.body_fat_pct is not None else None,
+            "bmi": round(req.bmi, 1) if req.bmi is not None else None,
+            "weight_measured_at": req.weight_measured_at or now,
+            "weight_source": req.weight_source if req.weight_source in ("apple_health", "scale_bluetooth") else "apple_health",
+        })
+    await db.health_daily.update_one(
+        {"user_id": user["id"], "date": req.date},
+        {
+            # calories only climb during a day; keep the highest reading from any source
+            "$max": {"active_kcal": round(req.active_kcal, 1), "total_kcal": round(max(req.total_kcal, req.active_kcal), 1)},
+            "$set": fields,
+            "$setOnInsert": {"id": str(uuid.uuid4()), "created_at": now},
+        },
+        upsert=True,
+    )
+    return {"ok": True}
+
+
+def _health_out(d: dict) -> dict:
+    return {k: d.get(k) for k in ("date", "active_kcal", "total_kcal", "weight_kg", "body_fat_pct", "bmi",
+                                  "weight_measured_at", "weight_source", "source", "updated_at")}
+
+
+@api_router.get("/health/me")
+async def my_health(days: int = Query(default=7, ge=1, le=60), user: dict = Depends(get_current_user)):
+    since = (now_utc() - timedelta(days=days + 1)).date().isoformat()
+    docs = await db.health_daily.find({"user_id": user["id"], "date": {"$gte": since}}, {"_id": 0}).sort("date", -1).to_list(days + 2)
+    u = await db.users.find_one({"id": user["id"]}, {"_id": 0, "share_health_with_admin": 1})
+    return {"share_with_admin": bool((u or {}).get("share_health_with_admin")), "days": [_health_out(d) for d in docs]}
+
+
+@api_router.patch("/health/sharing")
+async def set_health_sharing(req: HealthSharing, user: dict = Depends(get_current_user)):
+    await db.users.update_one({"id": user["id"]}, {"$set": {"share_health_with_admin": req.share}})
+    return {"ok": True, "share_with_admin": req.share}
+
+
+async def _shared_health_map(worker_ids: list) -> dict:
+    """{worker_id: {shared, latest day's calories, latest weight}} — numbers only for workers who opted in."""
+    users = await db.users.find({"id": {"$in": worker_ids}}, {"_id": 0, "id": 1, "share_health_with_admin": 1}).to_list(1000)
+    shared = [u["id"] for u in users if u.get("share_health_with_admin")]
+    out = {wid: {"shared": False} for wid in worker_ids}
+    if not shared:
+        return out
+    since = (now_utc() - timedelta(days=30)).date().isoformat()
+    docs = await db.health_daily.find({"user_id": {"$in": shared}, "date": {"$gte": since}}, {"_id": 0}).sort("date", -1).to_list(5000)
+    for wid in shared:
+        mine = [d for d in docs if d["user_id"] == wid]
+        latest = mine[0] if mine else None
+        weight = next((d for d in mine if d.get("weight_kg") is not None), None)
+        out[wid] = {
+            "shared": True,
+            "date": latest and latest["date"],
+            "active_kcal": latest and latest.get("active_kcal"),
+            "total_kcal": latest and latest.get("total_kcal"),
+            "source": latest and latest.get("source"),
+            "updated_at": latest and latest.get("updated_at"),
+            "weight_kg": weight and weight["weight_kg"],
+            "body_fat_pct": weight and weight.get("body_fat_pct"),
+            "bmi": weight and weight.get("bmi"),
+            "weight_measured_at": weight and weight.get("weight_measured_at"),
+            "weight_source": weight and weight.get("weight_source"),
+        }
+    return out
+
+
 # --- Alarms: user-set reminders. Web gets a server push at fire time; the iOS app rings locally ---
 ALARM_LOOP_SECONDS = 15
 _alarm_task_ref = {"task": None}
@@ -3420,7 +3537,123 @@ def _parse_fire_at(raw: str) -> datetime:
 
 def _alarm_out(a: dict) -> dict:
     return {k: a.get(k) for k in ("id", "title", "note", "task_id", "fire_at", "status", "source", "created_at", "fired_at",
-                                  "repeat_days", "time_of_day", "tz")}
+                                  "repeat_days", "time_of_day", "tz", "managed")}
+
+
+# --- Task alarms: admin sets them on a task; they ring for the assigned worker ---
+APP_TZ_KEY = getattr(APP_TZ, "key", "UTC")
+
+
+def _hhmm_minus(hhmm: str, minutes: int) -> tuple:
+    h, m = (int(x) for x in hhmm.split(":")[:2])
+    total = h * 60 + m - minutes
+    return f"{(total % 1440) // 60:02d}:{total % 60:02d}", total // 1440  # (time, day shift: 0 or -1)
+
+
+def _next_task_due(task: dict, lead_minutes: int) -> Optional[datetime]:
+    """Next due moment (APP_TZ) whose alarm (due - lead) is still ahead, for once/monthly tasks."""
+    h, m = (int(x) for x in task["due_time"].split(":")[:2])
+    now_l = now_utc().astimezone(APP_TZ)
+    lead = timedelta(minutes=lead_minutes)
+
+    def at(d):
+        return datetime(d.year, d.month, d.day, h, m, tzinfo=APP_TZ)
+    if (task.get("frequency") or "once") == "monthly":  # monthly tasks are due on the 1st
+        first = now_l.date().replace(day=1)
+        for _ in range(3):
+            if at(first) - lead > now_l:
+                return at(first)
+            first = (first.replace(day=28) + timedelta(days=4)).replace(day=1)
+        return None
+    if task.get("due_at"):
+        return at(datetime.fromisoformat(task["due_at"][:10]).date())
+    if task.get("due_day_of_week") is not None:
+        for add in range(15):
+            d = now_l.date() + timedelta(days=add)
+            if d.weekday() == task["due_day_of_week"] and at(d) - lead > now_l:
+                return at(d)
+    return None
+
+
+def _task_alarm_schedule(task: dict, cfg: dict) -> tuple:
+    """(schedule, problem). schedule = alarm fields to store; problem = why it can't ring."""
+    if cfg["mode"] == "exact":
+        if cfg.get("repeat_days"):
+            days = cfg["repeat_days"]
+            nxt = _next_repeat(days, cfg["time_of_day"], cfg["tz"], now_utc())
+            return {"fire_at": iso_utc(nxt), "repeat_days": days, "time_of_day": cfg["time_of_day"], "tz": cfg["tz"]}, None
+        return {"fire_at": cfg["fire_at"], "repeat_days": None, "time_of_day": None, "tz": None}, None
+    if not task.get("due_time"):
+        return None, "Add a due time so the alarm knows when to ring."
+    minutes = int(cfg["minutes"])
+    freq = task.get("frequency") or "once"
+    if freq in ("daily", "weekly"):
+        hhmm, shift = _hhmm_minus(task["due_time"], minutes)
+        dow = task.get("due_day_of_week")
+        days = [(dow + shift) % 7] if freq == "weekly" and dow is not None else list(range(7))
+        nxt = _next_repeat(days, hhmm, APP_TZ_KEY, now_utc())
+        return {"fire_at": iso_utc(nxt), "repeat_days": days, "time_of_day": hhmm, "tz": APP_TZ_KEY}, None
+    due = _next_task_due(task, minutes)
+    if not due:
+        return None, "Add a deadline date or day so the alarm knows which day to ring."
+    return {"fire_at": iso_utc(due - timedelta(minutes=minutes)), "repeat_days": None, "time_of_day": None, "tz": None}, None
+
+
+def _normalize_task_alarm(task: dict, alarm: "TaskAlarm") -> dict:
+    """Validate the admin's alarm choice against the task's schedule (400 on problems)."""
+    if alarm.mode == "before":
+        if not alarm.minutes:
+            raise HTTPException(status_code=400, detail="Pick how many minutes before the due time.")
+        cfg = {"mode": "before", "minutes": alarm.minutes}
+    elif alarm.mode == "exact":
+        if alarm.repeat_days:
+            _validate_repeat(alarm)
+            cfg = {"mode": "exact", "repeat_days": sorted(set(alarm.repeat_days)), "time_of_day": alarm.time_of_day, "tz": alarm.tz}
+        else:
+            if not alarm.fire_at:
+                raise HTTPException(status_code=400, detail="Pick the alarm's date and time.")
+            cfg = {"mode": "exact", "fire_at": iso_utc(_parse_fire_at(alarm.fire_at))}
+    else:
+        raise HTTPException(status_code=400, detail="Alarm mode must be before or exact.")
+    sched, problem = _task_alarm_schedule(task, cfg)
+    if problem:
+        raise HTTPException(status_code=400, detail=problem)
+    if not sched["repeat_days"]:
+        fire = datetime.fromisoformat(sched["fire_at"])
+        if fire <= now_utc():
+            raise HTTPException(status_code=400, detail="That alarm time has already passed.")
+        if fire > now_utc() + timedelta(days=366):
+            raise HTTPException(status_code=400, detail="Alarms can be set up to a year ahead.")
+    return cfg
+
+
+async def _sync_task_alarm(task: dict) -> None:
+    """Keep the worker's alarm for this task in step with the task (assignee, schedule, done)."""
+    existing = await db.alarms.find_one(
+        {"task_id": task["id"], "managed": True, "status": {"$in": ["scheduled", "fired"]}}, {"_id": 0}
+    )
+    cfg = task.get("alarm")
+    done_once = task.get("status") == "completed" and (task.get("frequency") or "once") == "once"
+    sched = _task_alarm_schedule(task, cfg)[0] if cfg and not done_once else None
+    if not sched:
+        if existing:
+            await db.alarms.update_one({"id": existing["id"]}, {"$set": {"status": "cancelled"}})
+        return
+    if not sched["repeat_days"] and sched["fire_at"] <= iso_utc(now_utc()):
+        if existing and existing["status"] == "scheduled" and existing["fire_at"] != sched["fire_at"]:
+            await db.alarms.update_one({"id": existing["id"]}, {"$set": {"status": "cancelled"}})
+        return  # this one-off already rang or its time has passed
+    note = f"Due in {cfg['minutes']} min" if cfg["mode"] == "before" else "Task alarm from your admin"
+    fields = {"user_id": task["assignee_id"], "title": task["title"], "note": note, **sched}
+    if existing:
+        if existing["status"] == "scheduled" and all(existing.get(k) == v for k, v in fields.items()):
+            return
+        await db.alarms.update_one({"id": existing["id"]}, {"$set": {**fields, "status": "scheduled", "fired_at": None}})
+    else:
+        await db.alarms.insert_one({
+            "id": str(uuid.uuid4()), "task_id": task["id"], "managed": True, "source": "web",
+            "status": "scheduled", "created_at": now_utc().isoformat(), "fired_at": None, **fields,
+        })
 
 
 async def _own_alarm(alarm_id: str, user: dict) -> dict:
@@ -3501,6 +3734,10 @@ async def dismiss_alarm(alarm_id: str, user: dict = Depends(get_current_user)):
 
 
 async def _fire_alarm(a: dict) -> None:
+    if a.get("task_id"):
+        t = await db.tasks.find_one({"id": a["task_id"]}, {"_id": 0, "status": 1})
+        if t and t.get("status") == "completed":
+            return  # task already done — no need to ring
     u = await db.users.find_one({"id": a["user_id"]}, {"_id": 0, "role": 1})
     base = "/admin" if (u or {}).get("role") == "admin" else "/worker"
     # native=False: the iOS app already rings from its own local schedule, so no duplicate FCM ping
@@ -3528,6 +3765,10 @@ async def alarm_loop():
                     res = await db.alarms.update_one({"id": a["id"], "status": "scheduled"}, {"$set": {"status": "fired", "fired_at": now_q}})
                 if res.modified_count:
                     await _fire_alarm(a)
+                    if a.get("managed") and not a.get("repeat_days"):
+                        task = await db.tasks.find_one({"id": a["task_id"]}, {"_id": 0})
+                        if task:
+                            await _sync_task_alarm(task)  # monthly tasks: line up next month's ring
         except Exception as e:
             logger.error(f"alarm_loop tick error: {e}")
         await asyncio.sleep(ALARM_LOOP_SECONDS)
@@ -3593,6 +3834,7 @@ async def startup():
     await db.alarms.create_index([("user_id", 1), ("fire_at", 1)])
     await db.live_activities.create_index([("entry_id", 1), ("fcm_token", 1)], unique=True)
     await db.live_activities.create_index([("user_id", 1), ("ended", 1)])
+    await db.health_daily.create_index([("user_id", 1), ("date", 1)], unique=True)
     # Backfill completion events from tasks that are completed today (idempotent)
     async for t in db.tasks.find({"status": "completed", "completed_at": {"$ne": None}}, {"_id": 0}):
         if t.get("assignee_id"):

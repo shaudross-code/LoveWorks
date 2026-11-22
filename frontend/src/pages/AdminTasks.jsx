@@ -8,10 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Trash2, ClipboardList, Loader2, BadgeDollarSign, Calendar, Hourglass,
-  Pencil, Repeat, Wallet, Clock,
+  Pencil, Repeat, Wallet, Clock, AlarmClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import SpeakButton from "@/components/SpeakButton";
+import TaskAlarmFields, { ALARM_FORM_DEFAULTS, alarmToForm, formToAlarm, alarmLabel } from "@/components/TaskAlarmFields";
 
 const STATUS = ["all", "assigned", "in_progress", "completed"];
 const STATUS_STYLE = {
@@ -51,6 +52,7 @@ const EMPTY = {
   estimated_hours: "", daily_hours: "",
   daily_hours_unit: "hours",
   frequency: "once", payout_schedule: "per_task",
+  ...ALARM_FORM_DEFAULTS,
 };
 
 function toDateInput(iso) {
@@ -113,6 +115,7 @@ export default function AdminTasks() {
       due_day_of_week: t.due_day_of_week != null ? String(t.due_day_of_week) : "",
       frequency: t.frequency || "once",
       payout_schedule: t.payout_schedule || "per_task",
+      ...alarmToForm(t.alarm),
     });
     setDialog({ mode: "edit", task: t });
   };
@@ -143,6 +146,7 @@ export default function AdminTasks() {
       daily_hours: dailyHours,
       frequency: form.frequency,
       payout_schedule: form.payout_schedule,
+      alarm: formToAlarm(form),
     };
     try {
       if (dialog?.mode === "edit") {
@@ -235,6 +239,7 @@ export default function AdminTasks() {
                 {t.due_at && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {new Date(t.due_at).toLocaleDateString(undefined,{month:"short",day:"numeric"})}</span>}
                 {t.due_day_of_week != null && <span className="text-zinc-400"><Calendar className="inline w-3 h-3 -mt-0.5" /> {DOW_LABEL[String(t.due_day_of_week)]}</span>}
                 {t.due_time && <span className="text-yellow-300"><Clock className="inline w-3 h-3 -mt-0.5" /> by {fmtTime12(t.due_time)}</span>}
+                {t.alarm && <span data-testid={`task-alarm-badge-${t.id}`} className="text-yellow-400"><AlarmClock className="inline w-3 h-3 -mt-0.5" /> {alarmLabel(t.alarm)}</span>}
                 {t.estimated_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {t.estimated_hours}h total</span>}
                 {t.daily_hours != null && <span className="text-zinc-400"><Hourglass className="inline w-3 h-3 -mt-0.5" /> {fmtDaily(t.daily_hours)}</span>}
               </div>
@@ -411,6 +416,7 @@ export default function AdminTasks() {
                 <span className="text-zinc-400">On completion</span> = pay when worker marks done · <span className="text-zinc-400">Daily/Weekly/Monthly</span> = recurring payout.
               </div>
             </div>
+            <TaskAlarmFields form={form} setForm={setForm} workerName={workers.find((w) => w.id === form.assignee_id)?.name} />
             <DialogFooter>
               <Button data-testid="submit-task" type="submit" disabled={busy}
                 className="bg-yellow-400 hover:bg-yellow-300 text-black font-semibold rounded-xl h-11 w-full">
