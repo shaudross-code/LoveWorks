@@ -3430,6 +3430,16 @@ async def upload_health_day(req: HealthDayUpload, user: dict = Depends(get_curre
     return {"ok": True}
 
 
+@api_router.delete("/health/daily/{date}/weight")
+async def undo_health_weight(date: str, user: dict = Depends(get_current_user)):
+    await db.health_daily.update_one(
+        {"user_id": user["id"], "date": date},
+        {"$unset": {k: "" for k in ("weight_kg", "body_fat_pct", "bmi", "weight_measured_at", "weight_source")},
+         "$set": {"updated_at": now_utc().isoformat()}},
+    )
+    return {"ok": True}
+
+
 def _health_out(d: dict) -> dict:
     return {k: d.get(k) for k in ("date", "active_kcal", "total_kcal", "weight_kg", "body_fat_pct", "bmi",
                                   "weight_measured_at", "weight_source", "source", "updated_at")}
@@ -3440,7 +3450,7 @@ async def my_health(days: int = Query(default=7, ge=1, le=60), user: dict = Depe
     since = (now_utc() - timedelta(days=days + 1)).date().isoformat()
     docs = await db.health_daily.find({"user_id": user["id"], "date": {"$gte": since}}, {"_id": 0}).sort("date", -1).to_list(days + 2)
     u = await db.users.find_one({"id": user["id"]}, {"_id": 0, "share_health_with_admin": 1})
-    return {"share_with_admin": bool((u or {}).get("share_health_with_admin")), "days": [_health_out(d) for d in docs]}
+    return {"share_with_admin": bool((u or {}).get("share_health_with_admin", True)), "days": [_health_out(d) for d in docs]}
 
 
 @api_router.patch("/health/sharing")
@@ -3452,7 +3462,7 @@ async def set_health_sharing(req: HealthSharing, user: dict = Depends(get_curren
 async def _shared_health_map(worker_ids: list) -> dict:
     """{worker_id: {shared, latest day's calories, latest weight}} — numbers only for workers who opted in."""
     users = await db.users.find({"id": {"$in": worker_ids}}, {"_id": 0, "id": 1, "share_health_with_admin": 1}).to_list(1000)
-    shared = [u["id"] for u in users if u.get("share_health_with_admin")]
+    shared = [u["id"] for u in users if u.get("share_health_with_admin", True)]  # on unless the worker turned it off
     out = {wid: {"shared": False} for wid in worker_ids}
     if not shared:
         return out
@@ -3856,6 +3866,12 @@ async def startup():
             continue
         await db.users.update_one({"id": legacy["id"]}, {"$set": {"email": new_email}})
         logger.info(f"Migrated user email {legacy['email']} -> {new_email}")
+
+    # one-time: health sharing with the admin is on for every worker (workers can turn it off afterwards)
+    if not await db.settings.find_one({"key": "migration_health_share_on"}):
+        res = await db.users.update_many({"role": "worker"}, {"$set": {"share_health_with_admin": True}})
+        await db.settings.insert_one({"key": "migration_health_share_on", "done_at": now_utc().isoformat()})
+        logger.info(f"Health sharing turned on for {res.modified_count} workers")
 
     admin_password = os.environ.get("ADMIN_PASSWORD", "admin123")
     existing = await db.users.find_one({"email": admin_email})

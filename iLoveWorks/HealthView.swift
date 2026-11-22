@@ -47,10 +47,16 @@ struct HealthView: View {
                         .padding(.horizontal)
 
                     Toggle(isOn: Binding(get: { health.shareWithAdmin }, set: { on in Task { await health.setSharing(on) } })) {
-                        Text("Share my calories and weight with my admin")
-                            .font(.system(size: 14))
-                            .foregroundStyle(Theme.textMain)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Share my calories and weight with my admin")
+                                .font(.system(size: 14))
+                                .foregroundStyle(Theme.textMain)
+                            Text("On by default. Weigh-ins and Watch calories are shared as they come in.")
+                                .font(.system(size: 11))
+                                .foregroundStyle(Theme.textMuted)
+                        }
                     }
+                    .accessibilityIdentifier("health-share-toggle")
                     .tint(Theme.primary)
                     .padding(.horizontal)
 
@@ -82,6 +88,7 @@ struct HealthNumbersCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
+            ShareNotice()
             HStack(spacing: 12) {
                 Number(label: "ACTIVE", value: health.activeKcal, unit: "kcal", color: Theme.lovePink)
                 Number(label: "TOTAL", value: health.totalKcal, unit: "kcal", color: Theme.textMain)
@@ -124,6 +131,41 @@ struct HealthNumbersCard: View {
                 Text(unit).font(.system(size: 11)).foregroundStyle(Theme.textMuted)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+}
+
+/// One-time heads-up (per worker, per phone) that sharing with the admin is on.
+private struct ShareNotice: View {
+    @ObservedObject private var health = HealthSync.shared
+    @State private var dismissed = false
+    private var key: String { "ilw.health.shareNotice.\(SessionManager.shared.currentUser?.id ?? "")" }
+
+    var body: some View {
+        if health.shareWithAdmin && !dismissed && !UserDefaults.standard.bool(forKey: key) {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "person.2.fill").foregroundStyle(Theme.primary)
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("Your admin can see your calories and weight")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.textMain)
+                    Text("Sharing is on by default. Turn it off any time in Profile → Apple Watch, Scale & Health.")
+                        .font(.system(size: 12))
+                        .foregroundStyle(Theme.textMuted)
+                    Button("Got it") {
+                        UserDefaults.standard.set(true, forKey: key)
+                        dismissed = true
+                    }
+                    .font(.system(size: 12, weight: .bold))
+                    .foregroundStyle(Theme.primary)
+                    .accessibilityIdentifier("health-share-notice-ok")
+                }
+            }
+            .padding(12)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Theme.primary.opacity(0.08))
+            .cornerRadius(12)
+            .accessibilityIdentifier("health-share-notice")
         }
     }
 }
@@ -196,7 +238,7 @@ private struct GuideSteps: View {
         "iPhone Watch app → My Watch → Available Apps → Install iLoveWorks.",
         "Here, tap Connect Apple Health and allow Active Energy, Resting Energy, Weight, Body Fat and BMI.",
         "Open iLoveWorks on the Watch, allow Health, then tap Start live to record second by second.",
-        "Bluetooth scale: tap Weigh in with Bluetooth, allow Bluetooth, close the VeSync app, then step on the scale.",
+        "Bluetooth scale: tap Weigh in with Bluetooth, allow Bluetooth, close the VeSync app, then step on the scale. It saves by itself; tap Undo if it's wrong.",
         "Other VeSync scales: VeSync app → Me → Third-party services → Apple Health → Connect. Weigh-ins then show here.",
     ]
 

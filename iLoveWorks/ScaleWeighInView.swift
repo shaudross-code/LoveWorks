@@ -2,7 +2,8 @@
 //  ScaleWeighInView.swift
 //  iLoveWorks
 //
-//  Sheet that walks the worker through a Bluetooth weigh-in and asks before saving.
+//  Sheet that walks the worker through a Bluetooth weigh-in. The reading saves (and is shared
+//  with the admin when sharing is on) as soon as the scale settles; Undo takes it back.
 //
 
 #if os(iOS) && canImport(CoreBluetooth) && canImport(HealthKit)
@@ -14,8 +15,9 @@ struct ScaleWeighInView: View {
     @ObservedObject private var health = HealthSync.shared
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openURL) private var openURL
-    @State private var alsoHealth = true
-    @State private var saving = false
+    @AppStorage("ilw.scale.saveToHealth") private var alsoHealth = true
+    @State private var saved = false
+    @State private var undoing = false
 
     var body: some View {
         NavigationStack {
@@ -28,6 +30,12 @@ struct ScaleWeighInView: View {
                         .symbolEffect(.pulse, isActive: busy)
                         .padding(.top, 30)
                     content
+                    if health.connected && busy {
+                        Toggle("Also save to Apple Health", isOn: $alsoHealth)
+                            .tint(Theme.primary)
+                            .foregroundStyle(Theme.textMain)
+                            .accessibilityIdentifier("scale-save-health")
+                    }
                     Spacer()
                 }
                 .padding(.horizontal, 24)
@@ -42,6 +50,14 @@ struct ScaleWeighInView: View {
         }
         .onAppear { scale.start() }
         .onDisappear { scale.cancel() }
+        .onChange(of: scale.reading) { _, reading in
+            guard let reading else { return }
+            saved = false
+            Task {
+                await health.applyScale(kg: reading.kg, at: reading.at, saveToHealth: health.connected && alsoHealth)
+                saved = true
+            }
+        }
     }
 
     private var busy: Bool { [.searching, .connecting, .weighing].contains(scale.phase) }
@@ -101,27 +117,22 @@ struct ScaleWeighInView: View {
                 .accessibilityIdentifier("scale-reading")
             Text("lb · \(String(format: "%.1f", r.kg)) kg").font(.system(size: 14)).foregroundStyle(Theme.textMuted)
         }
-        if health.connected {
-            Toggle("Also save to Apple Health", isOn: $alsoHealth)
-                .tint(Theme.primary)
-                .foregroundStyle(Theme.textMain)
-                .accessibilityIdentifier("scale-save-health")
-        }
-        Text(health.shareWithAdmin ? "Your admin can see your weight (sharing is on)." : "Only you can see it. Sharing with your admin is off.")
-            .font(.system(size: 12))
-            .foregroundStyle(Theme.textMuted)
-        PrimaryButton(title: saving ? "Saving…" : "Save weigh-in", id: "scale-save") {
-            saving = true
+        Text(!saved ? "Saving…" : health.shareWithAdmin ? "Saved and shared with your admin." : "Saved. Sharing with your admin is off.")
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(saved ? Theme.success : Theme.textMuted)
+            .accessibilityIdentifier("scale-saved-status")
+        PrimaryButton(title: "Done", id: "scale-done") { dismiss() }
+        Button(undoing ? "Undoing…" : "Undo") {
+            undoing = true
             Task {
-                await health.applyScale(kg: r.kg, at: r.at, saveToHealth: health.connected && alsoHealth)
-                saving = false
+                await health.undoScale()
+                undoing = false
                 dismiss()
             }
         }
-        .disabled(saving)
-        Button("Discard") { dismiss() }
-            .foregroundStyle(Theme.textMuted)
-            .accessibilityIdentifier("scale-discard")
+        .disabled(!saved || undoing || !health.canUndoScale)
+        .foregroundStyle(Theme.textMuted)
+        .accessibilityIdentifier("scale-undo")
     }
 
     private struct Status: View {

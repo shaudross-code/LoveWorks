@@ -45,8 +45,8 @@ const STEPS = [
       "Works with these Etekcity (VeSync) scales: ESF-551, ESF-24, ESF-17, ESF-18 and FIT-8S. The model is printed on the back of the scale.",
       "Close the VeSync app first. A scale only talks to one app at a time.",
       "In the iPhone app go to Profile → Apple Watch, Scale & Health → Weigh in with Bluetooth. The first time, iPhone asks to allow Bluetooth. Tap Allow.",
-      "Step on the scale and hold still. iLoveWorks finds it, reads your weight and shows it to you.",
-      "Tap Save weigh-in to keep it, or Discard if it's wrong. Nothing is saved until you tap Save. You can also save it to Apple Health with the switch on that screen.",
+      "Step on the scale and hold still. iLoveWorks finds it and reads your weight.",
+      "The weigh-in saves by itself as soon as the scale settles, and is shared with your admin if sharing is on. Wrong reading? Tap Undo. Turn on \u201cAlso save to Apple Health\u201d on that screen to keep it in Apple Health too.",
       "iLoveWorks remembers your scale so it won't pick up anyone else's. Tap Forget on the scale card to pair a different one.",
     ],
   },
@@ -59,10 +59,10 @@ const STEPS = [
     ],
   },
   {
-    icon: Share2, title: "8. Share with your admin (optional)",
+    icon: Share2, title: "8. Sharing with your admin",
     items: [
-      "On your dashboard (web or iPhone) turn on \u201cShare my calories and weight with my admin\u201d.",
-      "Your admin then sees your latest active and total calories and weight on their Workers tab. Turn it off any time.",
+      "Sharing is on by default: your admin sees your latest active and total calories and weight on their Workers tab, updated automatically as your Watch and scale send them.",
+      "Don't want to share? Turn off \u201cShare my calories and weight with my admin\u201d on your dashboard (web or iPhone), or in Profile → Apple Watch, Scale & Health. Turn it back on any time.",
     ],
   },
   {
@@ -70,7 +70,7 @@ const STEPS = [
     items: [
       "Bluetooth: only used when you tap Weigh in. Turn it off any time in iPhone Settings → iLoveWorks → Bluetooth.",
       "Apple Health: you choose each type of data. iPhone Settings → Health → Data Access & Devices → iLoveWorks.",
-      "Admin sharing is off until you turn it on.",
+      "Admin sharing is on by default. You can turn it off any time.",
     ],
   },
   {

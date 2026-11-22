@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Flame, Scale, Watch, ChevronRight } from "lucide-react";
+import { Flame, Scale, Watch, ChevronRight, Users } from "lucide-react";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
 import { formatApiError } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
 import { getMyHealth, setHealthSharing, kgToLb, fmtKcal, timeAgo, sourceLabel, weightSourceLabel } from "@/lib/health";
 
 function Stat({ label, value, unit, tone, testid }) {
@@ -17,7 +18,25 @@ function Stat({ label, value, unit, tone, testid }) {
   );
 }
 
+function ShareNotice({ userId }) {
+  const key = `healthShareNotice:${userId}`;
+  const [seen, setSeen] = useState(() => localStorage.getItem(key) === "1");
+  if (seen) return null;
+  return (
+    <div data-testid="health-share-notice" className="mt-4 flex items-start gap-3 rounded-xl border border-yellow-400/20 bg-yellow-400/[0.06] px-4 py-3 text-sm">
+      <Users className="w-4 h-4 mt-0.5 text-yellow-300 shrink-0" />
+      <div className="flex-1">
+        <div className="font-semibold text-zinc-100">Your admin can see your calories and weight</div>
+        <div className="text-xs text-zinc-400 mt-0.5">Sharing is on by default. Turn it off any time with the switch below.</div>
+      </div>
+      <button data-testid="health-share-notice-ok" onClick={() => { localStorage.setItem(key, "1"); setSeen(true); }}
+        className="text-xs font-semibold text-yellow-300 hover:text-yellow-200 transition-colors">Got it</button>
+    </div>
+  );
+}
+
 export default function HealthCard({ guidePath = "/worker/apple-watch" }) {
+  const { user } = useAuth();
   const [data, setData] = useState(null);
   const load = useCallback(() => getMyHealth().then(setData).catch(() => {}), []);
   useEffect(() => {
@@ -58,8 +77,9 @@ export default function HealthCard({ guidePath = "/worker/apple-watch" }) {
           No numbers yet. Open the iLoveWorks iPhone app and tap <b>Profile → Apple Watch, Scale &amp; Health</b>. Calories and weight can only be read on the iPhone.
         </div>
       )}
+      {data?.share_with_admin && user?.id && <ShareNotice userId={user.id} />}
       <label className="mt-4 flex items-center justify-between gap-3 text-sm">
-        <span className="text-zinc-300">Share my calories and weight with my admin</span>
+        <span className="text-zinc-300">Share my calories and weight with my admin <span className="block text-xs text-zinc-500">On by default. Turn it off any time.</span></span>
         <Switch data-testid="health-share-switch" checked={!!data?.share_with_admin} onCheckedChange={toggleShare} />
       </label>
     </section>

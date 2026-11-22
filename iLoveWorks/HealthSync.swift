@@ -49,11 +49,16 @@ nonisolated struct HealthReader {
         }
     }
 
-    func saveWeight(kg: Double, at date: Date) async throws {
-        guard let type = HKQuantityType.quantityType(forIdentifier: .bodyMass) else { return }
+    func saveWeight(kg: Double, at date: Date) async throws -> HKQuantitySample? {
+        guard let type = HKQuantityType.quantityType(forIdentifier: .bodyMass) else { return nil }
         try await store.requestAuthorization(toShare: [type], read: readTypes)
         let sample = HKQuantitySample(type: type, quantity: HKQuantity(unit: .gramUnit(with: .kilo), doubleValue: kg), start: date, end: date)
         try await store.save(sample)
+        return sample
+    }
+
+    func delete(_ sample: HKQuantitySample) async throws {
+        try await store.delete(sample)
     }
 
     /// Wake the app (about hourly) when new calories or a weigh-in land in Apple Health.
@@ -97,7 +102,7 @@ final class HealthSync: ObservableObject {
     @Published private(set) var lastUpdated: Date?
     @Published private(set) var liveFromWatch = false
     @Published private(set) var connected = UserDefaults.standard.bool(forKey: "ilw.health.connected")
-    @Published var shareWithAdmin = false
+    @Published var shareWithAdmin = true  // on by default; the worker can turn it off
     @Published var lastError: String?
 
     private let store = HKHealthStore()
@@ -107,6 +112,16 @@ final class HealthSync: ObservableObject {
     private var liveDay = ""
     private var liveActive: Double = 0
     private var liveTotal: Double = 0
+    private var undo: ScaleUndo?
+
+    private struct ScaleUndo {
+        let kg: Double?
+        let date: Date?
+        let source: String?
+        let fat: Double?
+        let bmi: Double?
+        var sample: HKQuantitySample?
+    }
 
     private init() {
         let d = UserDefaults.standard
@@ -139,10 +154,10 @@ final class HealthSync: ObservableObject {
 
     /// Called on sign-in and app launch.
     func start() {
+        Task { await loadSharing() }
         guard connected, isAvailable, !observing else { return }
         observing = true
         reader.observe { await HealthSync.shared.refresh(upload: true) }
-        Task { await loadSharing() }
     }
 
     func refresh(upload: Bool) async {
@@ -179,8 +194,9 @@ final class HealthSync: ObservableObject {
         Task { await send(force: false) }
     }
 
-    /// A weigh-in read straight from the scale over Bluetooth, saved after the worker taps Save.
+    /// A weigh-in read straight from the scale over Bluetooth; saved and shared as soon as it settles.
     func applyScale(kg: Double, at date: Date, saveToHealth: Bool) async {
+        undo = ScaleUndo(kg: weightKg, date: weightDate, source: weightSource, fat: bodyFatPct, bmi: bmi)
         weightKg = kg
         weightDate = date
         weightSource = "scale_bluetooth"
@@ -190,8 +206,31 @@ final class HealthSync: ObservableObject {
         UserDefaults.standard.set(date, forKey: "ilw.scale.lastAt")
         lastUpdated = Date()
         if saveToHealth {
-            do { try await reader.saveWeight(kg: kg, at: date) } catch { lastError = error.localizedDescription }
+            do { undo?.sample = try await reader.saveWeight(kg: kg, at: date) } catch { lastError = error.localizedDescription }
         }
+        await send(force: true)
+    }
+
+    var canUndoScale: Bool { undo != nil }
+
+    /// Puts back the weight from before the last Bluetooth weigh-in, on the phone, in Apple Health and on the server.
+    func undoScale() async {
+        guard let u = undo else { return }
+        undo = nil
+        weightKg = u.kg
+        weightDate = u.date
+        weightSource = u.source
+        bodyFatPct = u.fat
+        bmi = u.bmi
+        if u.source == "scale_bluetooth", let kg = u.kg, let at = u.date {
+            UserDefaults.standard.set(kg, forKey: "ilw.scale.lastKg")
+            UserDefaults.standard.set(at, forKey: "ilw.scale.lastAt")
+        } else {
+            UserDefaults.standard.removeObject(forKey: "ilw.scale.lastKg")
+            UserDefaults.standard.removeObject(forKey: "ilw.scale.lastAt")
+        }
+        if let sample = u.sample { try? await reader.delete(sample) }
+        let _: EmptyResponse? = try? await APIClient.shared.request("/health/daily/\(Self.day(Date()))/weight", method: "DELETE")
         await send(force: true)
     }
 
@@ -204,7 +243,8 @@ final class HealthSync: ObservableObject {
         weightSource = nil
         bodyFatPct = nil
         bmi = nil
-        shareWithAdmin = false
+        undo = nil
+        shareWithAdmin = true
     }
 
     private func send(force: Bool) async {
